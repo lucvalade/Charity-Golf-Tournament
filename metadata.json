@@ -1,0 +1,6 @@
+{
+  "name": "Saied October Charity Golf Tournament",
+  "description": "Annual memorial charity golf classic honoring the founder's late wife, featuring player registration, corporate sponsorships, donations, and live Squabbit leaderboard scoring.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
