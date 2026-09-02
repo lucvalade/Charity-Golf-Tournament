@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { TOURNAMENT_SCHEDULE, EVENT_DETAILS } from '../data/initialData';
-import { Calendar, Clock, MapPin, Coffee, Heart, Flag, Trophy, Compass, CloudSun, ShieldCheck, ChevronRight, CheckCircle2 } from 'lucide-react';
+import { useTournament } from '../context/TournamentContext';
+import { Calendar, Clock, MapPin, Coffee, Heart, Flag, Trophy, Compass, CloudSun, ShieldCheck, ChevronRight, CheckCircle2, CalendarDays } from 'lucide-react';
 
 export const EventDetails: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'schedule' | 'course' | 'rules'>('schedule');
+  const { openAgendaModal } = useTournament();
 
   const getIcon = (iconName: string) => {
     switch (iconName) {
@@ -17,8 +19,8 @@ export const EventDetails: React.FC = () => {
 
   const scrambleRules = [
     {
-      title: 'Four-Person Scramble Format',
-      desc: 'All players tee off on each hole. The team selects the best drive, and all golfers play their next shot from within one club length of that spot (no closer to the hole).'
+      title: '6-6-6 Format (Swapping Partners Version)',
+      desc: '18-hole competition split into three 6-hole rotations where players swap partners within their group. Details and official scorecards will follow during the 11:00 AM cart dispatch.'
     },
     {
       title: 'Gross & Net Flights',
@@ -114,11 +116,49 @@ export const EventDetails: React.FC = () => {
                     {item.title}
                   </h3>
                   <p className="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed">
-                    {item.description}
+                    {item.time.includes('11:00') ? (
+                      <>
+                        Simultaneous shotgun launch across 18 holes. Played in the dynamic 6-6-6 format (Swapping Partners version, details to follow) with live{' '}
+                        <a
+                          href="https://squabbitgolf.com"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-emerald-700 underline hover:text-emerald-900 font-semibold"
+                        >
+                          Squabbit scoring app
+                        </a>
+                        .
+                      </>
+                    ) : item.time.includes('4:00') ? (
+                      <>
+                        Post-round celebration featuring a fabulous turkey banquet feast,{' '}
+                        <a
+                          href="https://app.squabbitgolf.com/#z9"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-emerald-700 underline hover:text-emerald-900 font-semibold"
+                        >
+                          Squabbit live leaderboard
+                        </a>{' '}
+                        reveal, trophy presentations, raffle draws, and memorial fundraising recap. ($50-$60 Dinner to be finalized).
+                      </>
+                    ) : (
+                      item.description
+                    )}
                   </p>
                 </div>
               </div>
             ))}
+
+            <div className="text-center pt-4">
+              <button
+                onClick={openAgendaModal}
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#1E4D2B] hover:bg-emerald-800 text-amber-200 hover:text-white font-bold text-sm shadow-md transition transform hover:-translate-y-0.5 cursor-pointer border border-[#D4AF37]/50"
+              >
+                <CalendarDays className="w-4 h-4 text-[#D4AF37]" />
+                <span>Open Game Day Agenda Overview</span>
+              </button>
+            </div>
           </div>
         )}
 

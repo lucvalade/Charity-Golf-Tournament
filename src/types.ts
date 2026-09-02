@@ -6,7 +6,7 @@ export interface PlayerInfo {
   email: string;
   phone: string;
   handicap?: string;
-  shirtSize?: 'S' | 'M' | 'L' | 'XL' | '2XL' | '3XL';
+  shirtSize?: 'S' | 'M' | 'L' | 'XL' | '2XL' | '3XL' | 'None';
   dietaryRestrictions?: string;
 }
 

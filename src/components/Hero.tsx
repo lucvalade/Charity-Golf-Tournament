@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useTournament } from '../context/TournamentContext';
 import { EVENT_DETAILS } from '../data/initialData';
-import { Calendar, MapPin, Trophy, Users, Heart, ArrowRight, QrCode, Sparkles, CheckCircle } from 'lucide-react';
+import { Calendar, MapPin, Trophy, Users, Heart, ArrowRight, QrCode, Sparkles, CheckCircle, CalendarDays } from 'lucide-react';
 import { motion } from 'motion/react';
 
 export const Hero: React.FC = () => {
-  const { totalRaised, totalGolfers, goalAmount, goalPercentage, openRegistrationModal, openDonationModal } = useTournament();
+  const { totalRaised, totalGolfers, goalAmount, goalPercentage, openRegistrationModal, openDonationModal, openAgendaModal } = useTournament();
 
   // Countdown timer calculation
   const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number; minutes: number; seconds: number }>({
@@ -108,10 +108,10 @@ export const Hero: React.FC = () => {
           </div>
 
           <a
-            href="https://www.google.com/maps/place/Pine+Crest+Golf+Club+Ltd/@43.7740468,-79.7298757,9z/data=!4m6!3m5!1s0x89d5ed80918cae6b:0x103cf4f1f7516f36!8m2!3d44.2455024!4d-78.2410812!16s%2Fg%2F1tfk9_s5?entry=ttu&g_ep=EgoyMDI2MDgyNi4wIKXMDSoASAFQAw%3D%3D"
+            href={EVENT_DETAILS.venue.mapsUrl}
             target="_blank"
             rel="noopener noreferrer"
-            title="Open Pinecrest Valley Championship Golf Club in Google Maps"
+            title={`Open ${EVENT_DETAILS.venue.name} in Google Maps`}
             className="bg-emerald-950/60 border border-emerald-700/60 hover:border-sky-400/80 hover:bg-emerald-900/80 rounded-xl p-3.5 text-center shadow-md backdrop-blur-sm transition group cursor-pointer"
           >
             <MapPin className="w-5 h-5 text-sky-400 mx-auto mb-1.5 group-hover:scale-110 transition transform" />
@@ -119,18 +119,18 @@ export const Hero: React.FC = () => {
               <span>Championship Venue</span>
             </div>
             <div className="text-sm font-bold text-white mt-0.5 group-hover:text-sky-200 transition underline-offset-2 hover:underline">
-              Pinecrest Valley Championship Golf Club
+              {EVENT_DETAILS.venue.name}
             </div>
           </a>
 
           <div className="bg-emerald-950/60 border border-emerald-700/60 rounded-xl p-3.5 text-center shadow-md backdrop-blur-sm">
             <Trophy className="w-5 h-5 text-[#D4AF37] mx-auto mb-1.5" />
             <div className="text-xs text-amber-200/80 uppercase font-semibold tracking-wider">Format & Start</div>
-            <div className="text-sm font-bold text-white mt-0.5">9:30 am Chipping and Putting Competition</div>
+            <div className="text-sm font-bold text-white mt-0.5">9:30 am Registration, Chipping and Putting Competition</div>
           </div>
 
           <a
-            href="https://squabbitgolf.com"
+            href="https://squabbitgolf.com/"
             target="_blank"
             rel="noopener noreferrer"
             title="Visit Squabbit Golf Official Website"
@@ -139,7 +139,7 @@ export const Hero: React.FC = () => {
             <QrCode className="w-5 h-5 text-emerald-400 mx-auto mb-1.5 group-hover:scale-110 transition transform" />
             <div className="text-xs text-emerald-200/80 uppercase font-semibold tracking-wider">Live On-Course Scoring</div>
             <div className="text-sm font-bold text-emerald-300 mt-0.5 group-hover:text-emerald-200 transition underline-offset-2 hover:underline">
-              Squabbit App Powered
+              Powered by Squabbit App
             </div>
           </a>
         </motion.div>
@@ -173,6 +173,14 @@ export const Hero: React.FC = () => {
           >
             <QrCode className="w-4 h-4 text-sky-400" />
             <span>Squabbit Leaderboard</span>
+          </button>
+
+          <button
+            onClick={openAgendaModal}
+            className="w-full sm:w-auto px-6 py-4 bg-emerald-900/90 hover:bg-emerald-800 text-amber-300 hover:text-white border border-[#D4AF37]/60 text-sm font-semibold rounded-xl shadow-md hover:shadow-emerald-950/50 transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <CalendarDays className="w-4 h-4 text-[#D4AF37]" />
+            <span>Game Day Agenda</span>
           </button>
         </motion.div>
 

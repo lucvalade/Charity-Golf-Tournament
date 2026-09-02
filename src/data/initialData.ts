@@ -6,16 +6,16 @@ export const EVENT_DETAILS = {
   dateString: "Monday, October 5, 2026",
   isoDate: "2026-10-05T09:30:00",
   venue: {
-    name: "Pinecrest Valley Championship Golf Club",
-    address: "14500 Fairway Pines Blvd, Oakridge Hills, CA",
-    courseRating: "72.4 / Slope 138 • 18-Hole Championship Layout",
-    mapQuery: "Pinecrest+Valley+Golf+Club",
-    mapsUrl: "https://www.google.com/maps/place/Pine+Crest+Golf+Club+Ltd/@43.7740468,-79.7298757,9z/data=!4m6!3m5!1s0x89d5ed80918cae6b:0x103cf4f1f7516f36!8m2!3d44.2455024!4d-78.2410812!16s%2Fg%2F1tfk9_s5?entry=ttu&g_ep=EgoyMDI2MDgyNi4wIKXMDSoASAFQAw%3D%3D",
+    name: "Burford Golf Links Course",
+    address: "120 Golf Links Rd, Burford, ON N0E 1A0",
+    courseRating: "71.8 / Slope 126 • 18-Hole Championship Layout",
+    mapQuery: "Burford+Golf+Links",
+    mapsUrl: "https://www.google.com/maps/place/Burford+Golf+Links/@43.1372601,-80.4660569,17z/data=!3m1!4b1!4m6!3m5!1s0x882c14c8d1531a5f:0x69ddaaae88c6605d!8m2!3d43.1372562!4d-80.4634766!16s%2Fg%2F1tfv15qz?entry=ttu&g_ep=EgoyMDI2MDgzMC4wIKXMDSoASAFQAw%3D%3D",
   },
   goalAmount: 75000,
   founder: "Saied Mohammed",
   memorialHonoree: "Amina Mohammed",
-  beneficiaryOrg: "Amina Hope Oncology Care & Patient Relief Foundation",
+  beneficiaryOrg: "Amina Hope for Juravinski Breast Cancer Research & Canadian Red Cross – Fire & Flood",
   taxId: "84-9182740",
   squabbitCode: "SAIED-OCT-2026",
   squabbitUrl: "https://squabbitgolf.com",
@@ -444,60 +444,39 @@ export const INITIAL_LEADERBOARD: LeaderboardTeam[] = [
 
 export const TOURNAMENT_SCHEDULE: EventScheduleItem[] = [
   {
-    time: '10:30 AM',
-    title: 'Registration & Practice',
-    location: 'Clubhouse Check-In & Practice Range',
-    description: 'Check-in, gift bag pickup, unlimited driving range & putting green access.',
+    time: '9:30 AM',
+    title: 'Registration, Chipping and Putting Competition',
+    location: 'Championship Practice Green & Chipping Area',
+    description: 'Check-in, gift bag pickup, unlimited driving range access, and official registration, chipping and putting competition warm-up shootout.',
     iconName: 'Coffee'
   },
   {
-    time: '11:30 AM',
-    title: 'Welcome Lunch',
-    location: 'Grand Ballroom & Patio',
-    description: 'Buffet lunch, opening remarks, and memorial dedication to Amina Mohammed.',
-    iconName: 'Heart'
-  },
-  {
-    time: '12:15 PM',
-    title: 'Call to Carts',
-    location: 'Staging Area & Cart Fleet',
-    description: 'Rules briefing, hole assignment dispatch, and Squabbit scoring setup walkthrough.',
-    iconName: 'Flag'
-  },
-  {
-    time: '12:30 PM',
-    title: 'Shotgun Start',
+    time: '11:00 AM',
+    title: 'Tee off (Shotgun Start)',
     location: 'All 18 Championship Holes',
-    description: 'Simultaneous tee-off across 18 holes. 4-person scramble with live Squabbit leaderboard updates.',
+    description: 'Simultaneous shotgun launch across 18 holes. Played in the dynamic 6-6-6 format (Swapping Partners version, details to follow) with live Squabbit scoring app.',
     iconName: 'Flag'
   },
   {
-    time: '5:00 PM',
-    title: 'Cocktail Hour',
-    location: 'Clubhouse Terrace & Lounge',
-    description: 'Post-round drinks, hors d\'oeuvres, silent auction, and official score verification.',
-    iconName: 'Coffee'
-  },
-  {
-    time: '6:00 PM',
-    title: 'Awards Dinner',
-    location: 'Grand Ballroom',
-    description: 'Banquet dinner, Squabbit leaderboard reveals, trophy presentations, raffle drawing, and fundraising total announcement.',
+    time: '4:00 PM',
+    title: 'FABULOUS Turkey Dinner',
+    location: 'Grand Ballroom & Clubhouse Terrace',
+    description: 'Post-round celebration featuring a fabulous turkey banquet feast, Squabbit live leaderboard reveal, trophy presentations, raffle draws, and memorial fundraising recap. ($50-$60 Dinner to be finalized).',
     iconName: 'Trophy'
   },
   {
-    time: '7:30 PM',
-    title: 'Adjournment',
+    time: '6:00 PM',
+    title: 'Adjournment & Celebration',
     location: 'Main Clubhouse',
-    description: 'Official conclusion and heartfelt thank you to all donors, golfers, and sponsors.',
+    description: 'Official conclusion, final tribute dedication to Amina Mohammed, and heartfelt thank you to all donors and sponsors.',
     iconName: 'Heart'
   }
 ];
 
 export const PRICING_RULES = {
-  individualGolfer: 225,
-  foursomeTeam: 850, // saves $50
-  dinnerOnly: 100, // dinner & awards banquet only
+  individualGolfer: 125, // Green Fee & Cart $120-$130
+  foursomeTeam: 500, // 4 Players with Green Fee & Cart
+  dinnerOnly: 55, // $50-$60 Dinner to be finalized
   mulliganSingle: 20,
   mulliganPack3: 50, // saves $10
   rafflePack10: 25,
@@ -518,7 +497,7 @@ export const FAQ_DATA: FaqItem[] = [
     id: 'faq-weather',
     category: 'weather',
     question: 'What is the tournament weather policy in case of rain?',
-    answer: 'The tournament is scheduled as a rain-or-shine charity event. Pinecrest Valley features advanced drainage and weather-covered golf carts with protective enclosures. In the rare event of severe lightning or course unplayability, play will be paused, and if suspended, the Welcome Luncheon, Silent Auction, and Awards Banquet will proceed as scheduled indoors with prizes awarded via Squabbit scorecard handicap projections.'
+    answer: 'The tournament is scheduled as a rain-or-shine charity event. Burford Golf Links features excellent drainage and weather-covered golf carts with protective enclosures. In the rare event of severe lightning or course unplayability, play will be paused, and if suspended, the Welcome Luncheon, Silent Auction, and Awards Banquet will proceed as scheduled indoors with prizes awarded via Squabbit scorecard handicap projections.'
   },
   {
     id: 'faq-dress',
@@ -530,7 +509,7 @@ export const FAQ_DATA: FaqItem[] = [
     id: 'faq-rentals',
     category: 'rentals',
     question: 'Are golf club rentals and equipment available on-site?',
-    answer: 'Yes! Pinecrest Valley offers top-tier 2026 Callaway Paradym and TaylorMade Qi10 men\'s and women\'s rental club sets (in both right-handed and left-handed options). Please reserve your rental set during online registration or email us at least 72 hours prior to tee-off so the pro shop can stage your clubs directly on your assigned cart.'
+    answer: 'Yes! Burford Golf Links offers quality men\'s and women\'s rental club sets (in both right-handed and left-handed options). Please reserve your rental set during online registration or email us at least 72 hours prior to tee-off so the pro shop can stage your clubs directly on your assigned cart.'
   },
   {
     id: 'faq-format',

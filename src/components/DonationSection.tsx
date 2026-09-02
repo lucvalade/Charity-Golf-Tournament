@@ -8,8 +8,8 @@ export const DonationSection: React.FC = () => {
   const [customAmount, setCustomAmount] = useState<string>('100');
 
   const presetTiers = [
-    { amount: 50, label: 'Patron of Hope', impact: 'Provides warm nutrition and travel aid for an outpatient oncology family.' },
     { amount: 100, label: 'Memorial Supporter', impact: 'Covers essential patient comfort packs and prescription co-pay assistance.' },
+    { amount: 150, label: 'Patron of Hope', impact: 'Provides warm nutrition and travel aid for an outpatient oncology family.' },
     { amount: 250, label: 'Care Champion', impact: 'Funds clinical oncology nurse consultations and family grief counseling sessions.' },
     { amount: 500, label: 'Legacy Benefactor', impact: 'Directly underwrites advanced genetic biomarker testing for one oncology patient.' },
     { amount: 1000, label: 'Philanthropic Leader', impact: 'Full grant supporting breakthrough clinical trial patient enrollment.' }
@@ -84,7 +84,7 @@ export const DonationSection: React.FC = () => {
                 <span className="absolute left-3 top-2.5 text-slate-400 font-mono font-bold">$</span>
                 <input
                   type="number"
-                  min="5"
+                  min="100"
                   step="5"
                   value={customAmount}
                   onChange={(e) => setCustomAmount(e.target.value)}

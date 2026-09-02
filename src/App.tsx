@@ -26,6 +26,7 @@ import { RegistrationModal } from './components/RegistrationModal';
 import { SponsorModal } from './components/SponsorModal';
 import { DonationModal } from './components/DonationModal';
 import { AdminDashboardModal } from './components/AdminDashboardModal';
+import { GameDayAgendaModal } from './components/GameDayAgendaModal';
 
 export default function App() {
   return (
@@ -81,6 +82,7 @@ export default function App() {
         <SponsorModal />
         <DonationModal />
         <AdminDashboardModal />
+        <GameDayAgendaModal />
 
         {/* Global Notification Toast Container */}
         <ToastContainer />

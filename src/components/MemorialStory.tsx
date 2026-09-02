@@ -94,8 +94,7 @@ export const MemorialStory: React.FC = () => {
                 {EVENT_DETAILS.beneficiaryOrg}
               </h4>
               <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
-                Operating with 0% administrative overhead deduction from tournament proceeds. 
-                Every tournament registration fee, mulligan purchase, corporate sponsorship, and direct donation flows directly to patient aid and medical research.
+                Amina Hope for Juravinski Breast Cancer Research represents the oncology research, and the Canadian Red Cross – Fire &amp; Flood represents specialized clinical care programs, domestic disaster relief, and emergency response funds.
               </p>
             </div>
 

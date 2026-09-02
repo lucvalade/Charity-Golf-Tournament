@@ -76,12 +76,15 @@ interface TournamentContextType {
   openRegistrationModal: (preselectedType?: RegistrationType) => void;
   openDonationModal: (preselectedAmount?: number) => void;
   openSponsorModal: (preselectedTier?: SponsorTier) => void;
+  openAgendaModal: () => void;
   isRegModalOpen: boolean;
   setIsRegModalOpen: (open: boolean) => void;
   isDonationModalOpen: boolean;
   setIsDonationModalOpen: (open: boolean) => void;
   isSponsorModalOpen: boolean;
   setIsSponsorModalOpen: (open: boolean) => void;
+  isAgendaOpen: boolean;
+  setIsAgendaOpen: (open: boolean) => void;
   selectedRegType: RegistrationType;
   selectedSponsorTier: SponsorTier;
   selectedDonationAmount: number;
@@ -142,6 +145,7 @@ export const TournamentProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [isRegModalOpen, setIsRegModalOpen] = useState(false);
   const [isDonationModalOpen, setIsDonationModalOpen] = useState(false);
   const [isSponsorModalOpen, setIsSponsorModalOpen] = useState(false);
+  const [isAgendaOpen, setIsAgendaOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [selectedRegType, setSelectedRegType] = useState<RegistrationType>('foursome');
   const [selectedSponsorTier, setSelectedSponsorTier] = useState<SponsorTier>('eagle');
@@ -400,6 +404,10 @@ export const TournamentProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     setIsSponsorModalOpen(true);
   };
 
+  const openAgendaModal = () => {
+    setIsAgendaOpen(true);
+  };
+
   return (
     <TournamentContext.Provider
       value={{
@@ -427,12 +435,15 @@ export const TournamentProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         openRegistrationModal,
         openDonationModal,
         openSponsorModal,
+        openAgendaModal,
         isRegModalOpen,
         setIsRegModalOpen,
         isDonationModalOpen,
         setIsDonationModalOpen,
         isSponsorModalOpen,
         setIsSponsorModalOpen,
+        isAgendaOpen,
+        setIsAgendaOpen,
         selectedRegType,
         selectedSponsorTier,
         selectedDonationAmount,
