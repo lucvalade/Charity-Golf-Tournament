@@ -4,15 +4,14 @@ import { Heart, ShieldCheck, TrendingUp, HandHeart, Building, Activity, Sparkles
 import { useTournament } from '../context/TournamentContext';
 
 export const ImpactSection: React.FC = () => {
-  const { totalRaised = 0, goalAmount = 50000, goalPercentage = 0, openDonationModal } = useTournament();
-  const percentage = goalPercentage || Math.min(100, Math.round(((totalRaised || 0) / (goalAmount || 50000)) * 100));
+  const { totalRaised = 0, goalAmount = 20000, goalPercentage = 0, openDonationModal } = useTournament();
+  const targetGoal = goalAmount || 20000;
+  const percentage = goalPercentage || Math.min(100, Math.round(((totalRaised || 0) / targetGoal) * 100));
 
   const getInitiativeIcon = (index: number) => {
     switch (index) {
-      case 0: return <HandHeart className="w-5 h-5 text-rose-500" />;
-      case 1: return <Activity className="w-5 h-5 text-emerald-600" />;
-      case 2: return <Sparkles className="w-5 h-5 text-[#D4AF37]" />;
-      case 3: return <Building className="w-5 h-5 text-sky-600" />;
+      case 0: return <Activity className="w-5 h-5 text-emerald-600" />;
+      case 1: return <ShieldCheck className="w-5 h-5 text-rose-600" />;
       default: return <Heart className="w-5 h-5 text-emerald-600" />;
     }
   };
@@ -30,7 +29,7 @@ export const ImpactSection: React.FC = () => {
             How Every Dollar Changes Lives
           </h2>
           <p className="mt-3 text-base text-slate-600">
-            100% of net tournament proceeds directly fund oncology patient relief, essential medication support, and comfort grants through {EVENT_DETAILS.beneficiaryOrg}.
+            100% of net tournament proceeds directly support Juravinski Breast Cancer Research (75%) and the Canadian Red Cross - Fire &amp; Flood (25%).
           </p>
         </div>
 
@@ -42,10 +41,10 @@ export const ImpactSection: React.FC = () => {
                 2026 Memorial Campaign Progress
               </span>
               <h3 className="text-2xl sm:text-3xl font-bold font-serif-heading">
-                ${(totalRaised || 0).toLocaleString()} Raised Toward Our ${(goalAmount || 50000).toLocaleString()} Goal
+                ${(totalRaised || 0).toLocaleString()} Raised Toward Our ${targetGoal.toLocaleString()} Goal
               </h3>
               <p className="text-xs sm:text-sm text-emerald-100/90 leading-relaxed">
-                Together, our community has already achieved {percentage}% of our funding milestone for cancer patient emergency relief grants.
+                Together, our community has achieved {percentage}% of our $20,000 goal, split between Juravinski Breast Cancer Research (75%) and Canadian Red Cross - Fire &amp; Flood (25%).
               </p>
 
               {/* Progress track */}
@@ -59,7 +58,7 @@ export const ImpactSection: React.FC = () => {
                 <div className="flex justify-between items-center text-xs font-semibold text-emerald-200 mt-2">
                   <span>$0 Baseline</span>
                   <span className="font-bold text-[#D4AF37] text-sm">{percentage}% Funded</span>
-                  <span>Goal: ${(goalAmount || 50000).toLocaleString()}</span>
+                  <span>Goal: ${targetGoal.toLocaleString()}</span>
                 </div>
               </div>
             </div>
@@ -114,50 +113,79 @@ export const ImpactSection: React.FC = () => {
                 Transparent Stewardship
               </span>
               <h3 className="text-xl sm:text-2xl font-bold text-slate-900 font-serif-heading">
-                How Your Support is Allocated
+                How Your Support is Allocated &amp; 2026 Memorial Fundraising Goal
               </h3>
+              <p className="text-xs text-slate-500 mt-1">
+                As money is raised, 100% of net proceeds are automatically allocated between our two vital charitable partners:
+              </p>
             </div>
             <div className="flex items-center gap-2 text-xs font-bold text-emerald-800 bg-emerald-50 px-3.5 py-1.5 rounded-full border border-emerald-200">
               <ShieldCheck className="w-4 h-4 text-[#1E4D2B]" />
-              <span>100% Tax-Deductible 501(c)(3)</span>
+              <span>Official 501(c)(3) &amp; Canadian Charity Allocation</span>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-            {IMPACT_DATA.allocation.map((init, idx) => (
-              <div
-                key={idx}
-                className="p-5 rounded-2xl bg-slate-50 border border-slate-200 hover:border-emerald-200 transition space-y-3"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center shrink-0">
-                      {getInitiativeIcon(idx)}
+            {IMPACT_DATA.allocation.map((init, idx) => {
+              const allocatedAmount = (totalRaised * init.percent) / 100;
+              const targetAmount = (targetGoal * init.percent) / 100;
+              const allocPct = Math.min(100, Math.round((allocatedAmount / targetAmount) * 100));
+
+              return (
+                <div
+                  key={idx}
+                  className={`p-6 rounded-2xl bg-slate-50 border transition space-y-4 ${
+                    init.percent === 75
+                      ? 'border-emerald-200 hover:border-emerald-300'
+                      : 'border-rose-200 hover:border-rose-300'
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-11 h-11 rounded-xl bg-white border border-slate-200 flex items-center justify-center shrink-0 shadow-xs">
+                        {getInitiativeIcon(idx)}
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-slate-900 text-lg">
+                          {init.title} ({init.percent}%)
+                        </h4>
+                        <span className={`text-xs font-bold ${init.percent === 75 ? 'text-emerald-700' : 'text-rose-700'}`}>
+                          {init.percent}% of Tournament Net Funds
+                        </span>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="font-bold text-slate-900 text-base">
-                        {init.title}
-                      </h4>
-                      <span className="text-xs font-semibold text-emerald-700">
-                        {init.percent}% of Tournament Net Funds
+                  </div>
+
+                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                    {init.description}
+                  </p>
+
+                  {/* Dynamic split financial breakdown */}
+                  <div className="pt-2 border-t border-slate-200/80 space-y-2">
+                    <div className="flex justify-between items-baseline text-xs">
+                      <span className="font-semibold text-slate-600">Dynamic Live Allocation:</span>
+                      <span className="font-mono font-bold text-slate-900 text-sm">
+                        ${Math.round(allocatedAmount).toLocaleString()}
+                        <span className="text-xs text-slate-500 font-normal"> / ${Math.round(targetAmount).toLocaleString()} target</span>
                       </span>
+                    </div>
+
+                    <div className="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all duration-700 ${
+                          init.percent === 75 ? 'bg-emerald-600' : 'bg-rose-600'
+                        }`}
+                        style={{ width: `${allocPct}%` }}
+                      />
+                    </div>
+                    <div className="flex justify-between text-[11px] text-slate-500">
+                      <span>{allocPct}% of partner allocation target funded</span>
+                      <span className="font-semibold text-slate-700">{init.percent}% of Total Raised</span>
                     </div>
                   </div>
                 </div>
-
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                  {init.description}
-                </p>
-
-                {/* Micro Percentage Bar */}
-                <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-[#1E4D2B]"
-                    style={{ width: `${init.percent}%` }}
-                  />
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>

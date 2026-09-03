@@ -7,11 +7,12 @@ export const RegistrationSection: React.FC = () => {
   const { openRegistrationModal, registrations } = useTournament();
 
   return (
-    <section id="register" className="py-20 bg-[#FBFBFA] relative">
+    <section id="register" className="py-20 bg-[#FBFBFA] relative scroll-mt-20">
+      <div id="golfer-registration-inventory" className="scroll-mt-24" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-900 text-xs font-bold uppercase tracking-widest mb-3">
+          <div id="golfer-registration" className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-900 text-xs font-bold uppercase tracking-widest mb-3 scroll-mt-24">
             <Users className="w-3.5 h-3.5 text-[#1E4D2B]" />
             <span>Golfer Registration & Add-On Inventory</span>
           </div>
@@ -119,7 +120,7 @@ export const RegistrationSection: React.FC = () => {
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>FABULOUS Turkey Dinner Feast</span>
+                  <span>FABULOUS Turkey Dinner</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
@@ -127,7 +128,7 @@ export const RegistrationSection: React.FC = () => {
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Amina Mohammed Memorial Tribute Ceremony</span>
+                  <span>Naseem Mohammed Memorial Tribute Ceremony</span>
                 </div>
               </div>
             </div>

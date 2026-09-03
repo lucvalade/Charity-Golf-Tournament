@@ -257,7 +257,7 @@ export const SponsorModal: React.FC = () => {
               </label>
               <textarea
                 rows={2}
-                placeholder="e.g. In loving memory of Amina Mohammed from the Apex Biotech team."
+                placeholder="e.g. In loving memory of Naseem Mohammed from the Apex Biotech team."
                 value={customNote}
                 onChange={(e) => setCustomNote(e.target.value)}
                 className="w-full p-3 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E4D2B]"

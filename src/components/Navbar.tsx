@@ -1,9 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { useTournament } from '../context/TournamentContext';
-import { Trophy, Heart, Calendar, Award, QrCode, Shield, Menu, X, Sparkles, Users } from 'lucide-react';
+import {
+  Trophy,
+  Heart,
+  Calendar,
+  Award,
+  QrCode,
+  Shield,
+  Menu,
+  X,
+  Users,
+  HelpCircle,
+  ArrowRight,
+} from 'lucide-react';
 
 export const Navbar: React.FC = () => {
-  const { openRegistrationModal, openDonationModal, setIsAdminOpen } = useTournament();
+  const { openDonationModal, setIsAdminOpen } = useTournament();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -29,199 +41,222 @@ export const Navbar: React.FC = () => {
     <header
       className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
         scrolled
-          ? 'bg-[#1E4D2B]/95 backdrop-blur-md shadow-lg border-b border-[#D4AF37]/30 py-3'
-          : 'bg-[#1E4D2B] border-b border-[#D4AF37]/20 py-4'
+          ? 'bg-[#1E4D2B]/95 backdrop-blur-md shadow-lg border-b border-[#D4AF37]/30 py-2.5 sm:py-3'
+          : 'bg-[#1E4D2B] border-b border-[#D4AF37]/20 py-3 sm:py-4'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-2">
         {/* Brand / Logo */}
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="flex items-center gap-3 text-left group cursor-pointer focus:outline-none"
+          className="flex items-center gap-2.5 sm:gap-3 text-left group cursor-pointer focus:outline-none shrink-0"
         >
-          <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#D4AF37] via-[#AA771C] to-[#8C5D12] p-[2px] shadow-md transition transform group-hover:scale-105">
+          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-gradient-to-br from-[#D4AF37] via-[#AA771C] to-[#8C5D12] p-[2px] shadow-md transition transform group-hover:scale-105 shrink-0">
             <div className="w-full h-full rounded-full bg-[#1E4D2B] flex items-center justify-center">
               <Trophy className="w-5 h-5 text-[#D4AF37]" />
             </div>
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <span className="font-crest text-base md:text-lg font-bold text-white tracking-wider">
-                SAIED OCTOBER
-              </span>
-              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#D4AF37] text-[#1E4D2B] uppercase tracking-wider">
-                2026
-              </span>
+            <div className="font-crest text-sm sm:text-base md:text-lg font-bold text-white tracking-wide leading-tight">
+              Charity Golf Classic
             </div>
-            <p className="text-xs text-amber-200/90 font-medium tracking-wide flex items-center gap-1">
-              <Heart className="w-3 h-3 text-rose-300 fill-rose-300 inline" />
-              Charity Golf Classic &bull; In Memory of Amina
+            <p className="text-[11px] sm:text-xs text-amber-200/95 font-medium tracking-wide flex items-center gap-1 leading-tight mt-0.5">
+              <Heart className="w-3 h-3 text-rose-400 fill-rose-400 shrink-0 inline" />
+              <span>In Memory of Naseem</span>
             </p>
           </div>
         </button>
 
-        {/* Desktop Nav Links */}
-        <nav className="hidden lg:flex items-center gap-5 xl:gap-6 text-xs xl:text-sm font-medium text-slate-100">
+        {/* Desktop Nav Links - 6 Streamlined Links (No clumsy More dropdown) */}
+        <nav className="hidden lg:flex items-center gap-3.5 xl:gap-5 text-xs xl:text-sm font-semibold text-slate-100">
           <button
             onClick={() => scrollToSection('memorial')}
-            className="hover:text-[#D4AF37] transition flex items-center gap-1 cursor-pointer"
+            className="hover:text-[#D4AF37] transition flex items-center gap-1 cursor-pointer whitespace-nowrap py-1"
           >
             <Heart className="w-3.5 h-3.5 text-rose-300" />
-            About Us
+            <span>The Cause</span>
           </button>
           <button
             onClick={() => scrollToSection('schedule')}
-            className="hover:text-[#D4AF37] transition flex items-center gap-1 cursor-pointer"
+            className="hover:text-[#D4AF37] transition flex items-center gap-1 cursor-pointer whitespace-nowrap py-1"
           >
             <Calendar className="w-3.5 h-3.5 text-amber-300" />
-            Tournament Details
+            <span>Tournament Info</span>
           </button>
           <button
             onClick={() => scrollToSection('sponsorships')}
-            className="hover:text-[#D4AF37] transition flex items-center gap-1 cursor-pointer"
+            className="hover:text-[#D4AF37] transition flex items-center gap-1 cursor-pointer whitespace-nowrap py-1"
           >
             <Award className="w-3.5 h-3.5 text-[#D4AF37]" />
-            Sponsorships
+            <span>Sponsors</span>
           </button>
           <button
             onClick={() => scrollToSection('squabbit')}
-            className="hover:text-[#D4AF37] transition flex items-center gap-1 cursor-pointer text-amber-300 font-semibold"
+            className="hover:text-[#D4AF37] transition flex items-center gap-1 cursor-pointer whitespace-nowrap py-1"
           >
-            <QrCode className="w-3.5 h-3.5" />
-            Live Scoring (Squabbit)
-          </button>
-          <button
-            onClick={() => scrollToSection('impact')}
-            className="hover:text-[#D4AF37] transition flex items-center gap-1 cursor-pointer"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-sky-300" />
-            Our Cause / Impact
-          </button>
-          <button
-            onClick={() => scrollToSection('faq')}
-            className="hover:text-[#D4AF37] transition flex items-center gap-1 cursor-pointer"
-          >
-            FAQ
+            <QrCode className="w-3.5 h-3.5 text-sky-300" />
+            <span>Live Scoring</span>
           </button>
           <button
             onClick={() => scrollToSection('contact')}
-            className="hover:text-[#D4AF37] transition flex items-center gap-1 cursor-pointer"
+            className="hover:text-[#D4AF37] transition flex items-center gap-1 cursor-pointer whitespace-nowrap py-1"
           >
-            Contact
+            <Users className="w-3.5 h-3.5 text-emerald-300" />
+            <span>Volunteer &amp; Contact</span>
+          </button>
+          <button
+            onClick={() => scrollToSection('faq')}
+            className="hover:text-[#D4AF37] transition flex items-center gap-1 cursor-pointer whitespace-nowrap py-1"
+          >
+            <HelpCircle className="w-3.5 h-3.5 text-amber-200" />
+            <span>FAQ</span>
           </button>
         </nav>
 
-        {/* Desktop Actions */}
-        <div className="hidden sm:flex items-center gap-3">
+        {/* Desktop CTAs: Register to Play (Gold/White) + Donate (High-Vis Accent) */}
+        <div className="hidden lg:flex items-center gap-2.5 xl:gap-3 shrink-0">
+          {/* CTA 1: Register to Play */}
+          <button
+            onClick={() => scrollToSection('register')}
+            className="px-3.5 xl:px-4 py-2 text-xs xl:text-sm font-bold text-[#0F2D17] bg-gradient-to-r from-[#D4AF37] via-[#F6E8B6] to-[#D4AF37] hover:brightness-105 border border-[#D4AF37] rounded-lg shadow-sm transition transform hover:-translate-y-0.5 cursor-pointer whitespace-nowrap flex items-center gap-1.5"
+          >
+            <span>Register to Play</span>
+            <ArrowRight className="w-3.5 h-3.5 text-[#0F2D17]" />
+          </button>
+
+          {/* CTA 2: Donate ($100 Memorial Checkout Modal) */}
+          <button
+            onClick={() => openDonationModal(100)}
+            className="px-3.5 xl:px-4 py-2 text-xs xl:text-sm font-bold text-white bg-[#EA580C] hover:bg-[#C2410C] rounded-lg shadow-md transition transform hover:-translate-y-0.5 cursor-pointer whitespace-nowrap flex items-center gap-1.5"
+          >
+            <Heart className="w-3.5 h-3.5 text-white fill-white" />
+            <span>Donate</span>
+          </button>
+
+          {/* Tournament Director Portal Button */}
           <button
             onClick={() => setIsAdminOpen(true)}
-            title="Tournament Director Portal"
+            title="Tournament Director Portal (Luc Valade)"
             className="p-2 rounded-lg text-amber-200/80 hover:text-white hover:bg-emerald-900/60 border border-emerald-700/50 transition cursor-pointer"
             aria-label="Admin Portal"
           >
             <Shield className="w-4 h-4" />
           </button>
-
-          <button
-            onClick={() => openDonationModal(100)}
-            className="px-4 py-2 text-sm font-semibold text-white bg-emerald-800/80 hover:bg-emerald-700 border border-[#D4AF37]/50 rounded-lg shadow-sm transition transform hover:-translate-y-0.5 cursor-pointer flex items-center gap-1.5"
-          >
-            <Heart className="w-3.5 h-3.5 text-rose-300 fill-rose-300" />
-            <span>Make a Donation</span>
-          </button>
         </div>
 
-        {/* Mobile menu button */}
+        {/* Mobile Header Buttons (Brand on left, prominent Register CTA + Hamburger on right) */}
         <div className="flex lg:hidden items-center gap-2">
           <button
+            onClick={() => scrollToSection('register')}
+            className="px-3 py-1.5 text-xs font-bold text-[#0F2D17] bg-gradient-to-r from-[#D4AF37] to-[#F6E8B6] border border-[#D4AF37] rounded-lg shadow-xs active:scale-95"
+          >
+            Register
+          </button>
+          <button
             onClick={() => openDonationModal(100)}
-            className="px-3 py-1.5 text-xs font-bold text-white bg-emerald-800 border border-[#D4AF37]/50 rounded-lg shadow-sm"
+            className="px-2.5 py-1.5 text-xs font-bold text-white bg-[#EA580C] hover:bg-[#C2410C] rounded-lg shadow-xs"
           >
             Donate
           </button>
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 text-white hover:text-[#D4AF37] focus:outline-none"
-            aria-label="Toggle menu"
+            className="p-1.5 text-white hover:text-[#D4AF37] focus:outline-none cursor-pointer"
+            aria-label="Toggle navigation menu"
           >
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Drawer */}
+      {/* Mobile Slide-out Drawer: 6 Streamlined links + Donate & Register CTAs */}
       {mobileMenuOpen && (
-        <div className="lg:hidden bg-[#15381E] border-b border-[#D4AF37]/30 px-4 pt-3 pb-6 space-y-3 mt-3 shadow-xl">
-          <div className="grid grid-cols-1 gap-2 text-sm font-medium text-slate-100">
+        <div className="lg:hidden bg-[#15381E] border-b border-[#D4AF37]/30 px-4 pt-3 pb-6 space-y-3 mt-3 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-150">
+          <div className="grid grid-cols-1 gap-1.5 text-sm font-medium text-slate-100">
+            {/* 1. The Cause */}
             <button
               onClick={() => scrollToSection('memorial')}
-              className="flex items-center gap-2 p-2 rounded hover:bg-emerald-900/60 text-left"
+              className="flex items-center gap-2.5 p-2.5 rounded-lg hover:bg-emerald-900/60 text-left transition"
             >
               <Heart className="w-4 h-4 text-rose-300" />
-              About Us (Memorial Mission)
+              <span>The Cause</span>
             </button>
+
+            {/* 2. Tournament Info */}
             <button
               onClick={() => scrollToSection('schedule')}
-              className="flex items-center gap-2 p-2 rounded hover:bg-emerald-900/60 text-left"
+              className="flex items-center gap-2.5 p-2.5 rounded-lg hover:bg-emerald-900/60 text-left transition"
             >
               <Calendar className="w-4 h-4 text-amber-300" />
-              Tournament Details & Schedule
+              <span>Tournament Info</span>
             </button>
+
+            {/* 3. Sponsors */}
             <button
               onClick={() => scrollToSection('sponsorships')}
-              className="flex items-center gap-2 p-2 rounded hover:bg-emerald-900/60 text-left"
+              className="flex items-center gap-2.5 p-2.5 rounded-lg hover:bg-emerald-900/60 text-left transition"
             >
               <Award className="w-4 h-4 text-[#D4AF37]" />
-              Sponsorships
+              <span>Sponsors</span>
             </button>
+
+            {/* 4. Live Scoring */}
             <button
               onClick={() => scrollToSection('squabbit')}
-              className="flex items-center gap-2 p-2 rounded hover:bg-emerald-900/60 text-amber-300 font-semibold text-left"
+              className="flex items-center gap-2.5 p-2.5 rounded-lg hover:bg-emerald-900/60 text-left transition text-amber-200"
             >
-              <QrCode className="w-4 h-4" />
-              Live Scoring (Squabbit Hub)
+              <QrCode className="w-4 h-4 text-sky-400" />
+              <span>Live Scoring</span>
             </button>
-            <button
-              onClick={() => scrollToSection('impact')}
-              className="flex items-center gap-2 p-2 rounded hover:bg-emerald-900/60 text-left"
-            >
-              <Sparkles className="w-4 h-4 text-sky-300" />
-              Our Cause & Impact
-            </button>
-            <button
-              onClick={() => scrollToSection('faq')}
-              className="flex items-center gap-2 p-2 rounded hover:bg-emerald-900/60 text-left"
-            >
-              FAQ (Weather & Rules)
-            </button>
+
+            {/* 5. Volunteer & Contact */}
             <button
               onClick={() => scrollToSection('contact')}
-              className="flex items-center gap-2 p-2 rounded hover:bg-emerald-900/60 text-left"
+              className="flex items-center gap-2.5 p-2.5 rounded-lg hover:bg-emerald-900/60 text-left transition"
             >
-              Contact & Volunteer
+              <Users className="w-4 h-4 text-emerald-300" />
+              <span>Volunteer &amp; Contact</span>
+            </button>
+
+            {/* 6. FAQ */}
+            <button
+              onClick={() => scrollToSection('faq')}
+              className="flex items-center gap-2.5 p-2.5 rounded-lg hover:bg-emerald-900/60 text-left transition"
+            >
+              <HelpCircle className="w-4 h-4 text-amber-200" />
+              <span>FAQ</span>
             </button>
           </div>
 
+          {/* Mobile Actions: Register to Play + Donate + Admin Portal */}
           <div className="pt-3 border-t border-emerald-800/80 flex flex-col gap-2">
+            <button
+              onClick={() => scrollToSection('register')}
+              className="w-full py-2.5 text-sm font-bold text-center text-[#0F2D17] bg-gradient-to-r from-[#D4AF37] via-[#F6E8B6] to-[#D4AF37] border border-[#D4AF37] rounded-lg shadow-sm flex items-center justify-center gap-2"
+            >
+              <span>Register to Play</span>
+              <ArrowRight className="w-4 h-4 text-[#0F2D17]" />
+            </button>
+
             <button
               onClick={() => {
                 setMobileMenuOpen(false);
                 openDonationModal(100);
               }}
-              className="w-full py-2.5 text-sm font-semibold text-center text-white bg-emerald-800/90 hover:bg-emerald-700 border border-[#D4AF37]/50 rounded-lg flex items-center justify-center gap-1.5"
+              className="w-full py-2.5 text-sm font-bold text-center text-white bg-[#EA580C] hover:bg-[#C2410C] rounded-lg shadow-sm flex items-center justify-center gap-2"
             >
-              <Heart className="w-4 h-4 text-rose-300 fill-rose-300" />
-              <span>Memorial Gift / Donation</span>
+              <Heart className="w-4 h-4 text-white fill-white" />
+              <span>Donate ($100 Memorial Gift)</span>
             </button>
+
             <button
               onClick={() => {
                 setMobileMenuOpen(false);
                 setIsAdminOpen(true);
               }}
-              className="w-full py-2 text-xs font-medium text-center text-amber-200 hover:text-white flex items-center justify-center gap-1.5"
+              className="w-full py-2 text-xs font-medium text-center text-amber-200 hover:text-white flex items-center justify-center gap-1.5 mt-1"
             >
               <Shield className="w-3.5 h-3.5" />
-              Tournament Director Portal
+              <span>Tournament Director Portal (Luc Valade)</span>
             </button>
           </div>
         </div>

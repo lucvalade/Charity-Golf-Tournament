@@ -29,106 +29,106 @@ export const GameDayAgendaModal: React.FC = () => {
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md overflow-y-auto animate-fadeIn"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md overflow-y-auto animate-fadeIn"
       onClick={() => setIsAgendaOpen(false)}
       role="dialog"
       aria-modal="true"
       aria-labelledby="agenda-modal-title"
     >
       <div 
-        className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden border border-[#D4AF37]/40 my-8 transition transform animate-scaleUp"
+        className="relative w-full max-w-[500px] bg-white rounded-xl shadow-2xl overflow-hidden border border-[#D4AF37]/40 my-4 transition transform animate-scaleUp"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header Banner */}
-        <div className="bg-gradient-to-r from-[#0F2D17] via-[#1E4D2B] to-[#15381E] text-white p-6 relative border-b border-[#D4AF37]/30">
+        {/* Header Banner - 25% more compact */}
+        <div className="bg-gradient-to-r from-[#0F2D17] via-[#1E4D2B] to-[#15381E] text-white p-4 sm:p-5 relative border-b border-[#D4AF37]/30">
           <button
             onClick={() => setIsAgendaOpen(false)}
-            className="absolute top-4 right-4 p-2 text-white/80 hover:text-white bg-black/20 hover:bg-black/40 rounded-full transition cursor-pointer"
+            className="absolute top-3 right-3 p-1.5 text-white/80 hover:text-white bg-black/20 hover:bg-black/40 rounded-full transition cursor-pointer"
             aria-label="Close modal"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
 
-          <div className="flex items-center gap-2 mb-2">
-            <span className="px-2.5 py-0.5 rounded-full bg-[#D4AF37] text-[#0F2D17] font-bold text-xs uppercase tracking-wider flex items-center gap-1 shadow-sm">
-              <Sparkles className="w-3.5 h-3.5" />
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <span className="px-2 py-0.5 rounded-full bg-[#D4AF37] text-[#0F2D17] font-bold text-[10px] uppercase tracking-wider flex items-center gap-1 shadow-xs">
+              <Sparkles className="w-3 h-3" />
               Official Schedule
             </span>
-            <span className="text-emerald-200 text-xs font-semibold">
-              Saied October Charity Golf Tournament
+            <span className="text-emerald-200 text-[11px] font-semibold">
+              Saied October Charity Golf
             </span>
           </div>
 
-          <h2 id="agenda-modal-title" className="text-2xl sm:text-3xl font-extrabold font-serif-heading text-white tracking-tight">
+          <h2 id="agenda-modal-title" className="text-lg sm:text-xl font-bold font-serif-heading text-white tracking-tight">
             Game Day Agenda
           </h2>
 
-          <div className="flex flex-wrap items-center gap-4 mt-3 text-xs sm:text-sm text-slate-200">
-            <div className="flex items-center gap-1.5 font-bold text-amber-200">
-              <Calendar className="w-4 h-4 text-[#D4AF37]" />
+          <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-slate-200">
+            <div className="flex items-center gap-1 font-bold text-amber-200">
+              <Calendar className="w-3.5 h-3.5 text-[#D4AF37]" />
               <span>Monday Oct 5, 2026</span>
             </div>
             <a
               href={EVENT_DETAILS.venue.mapsUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 text-emerald-200 hover:text-white underline-offset-2 hover:underline transition"
+              className="flex items-center gap-1 text-emerald-200 hover:text-white underline-offset-2 hover:underline transition text-xs"
               title={`Open ${EVENT_DETAILS.venue.name} in Google Maps`}
             >
-              <MapPin className="w-4 h-4 text-sky-400" />
+              <MapPin className="w-3.5 h-3.5 text-sky-400" />
               <span>{EVENT_DETAILS.venue.name}</span>
             </a>
           </div>
         </div>
 
-        {/* Modal Body / Timeline */}
-        <div className="p-6 sm:p-8 space-y-6 max-h-[72vh] overflow-y-auto">
+        {/* Modal Body / Timeline - 25% tighter layout */}
+        <div className="p-4 sm:p-5 space-y-3.5 max-h-[62vh] overflow-y-auto">
           {/* Timeline Items */}
-          <div className="space-y-4">
+          <div className="space-y-2.5">
             {/* Event 1: 9:30 AM */}
-            <div className="flex items-start gap-4 p-4 rounded-xl bg-emerald-50/70 border border-emerald-200/80 transition hover:shadow-sm">
-              <div className="p-3 bg-[#1E4D2B] text-amber-300 rounded-xl shrink-0 shadow-sm">
-                <Trophy className="w-6 h-6" />
+            <div className="flex items-start gap-3 p-3 rounded-lg bg-emerald-50/70 border border-emerald-200/80 transition hover:shadow-xs">
+              <div className="p-2 bg-[#1E4D2B] text-amber-300 rounded-lg shrink-0 shadow-xs">
+                <Trophy className="w-4 h-4" />
               </div>
-              <div className="flex-1">
-                <div className="flex flex-wrap items-baseline gap-2">
-                  <span className="text-sm sm:text-base font-extrabold text-[#1E4D2B] flex items-center gap-1">
-                    <Clock className="w-4 h-4 text-emerald-700" />
+              <div className="flex-1 min-w-0">
+                <div className="flex flex-wrap items-baseline gap-1.5">
+                  <span className="text-xs sm:text-sm font-extrabold text-[#1E4D2B] flex items-center gap-1">
+                    <Clock className="w-3 h-3 text-emerald-700" />
                     9:30 am
                   </span>
-                  <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">
                     Warm-Up & Contest
                   </span>
                 </div>
-                <h3 className="text-base sm:text-lg font-bold text-slate-900 mt-1">
-                  Registration, Chipping and Putting Competition
+                <h3 className="text-xs sm:text-sm font-bold text-slate-900 mt-0.5">
+                  Registration, Chipping &amp; Putting Competition
                 </h3>
-                <p className="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed">
-                  Kick off the morning with check-in, gift bag pickup, and warm-up on the championship putting greens and chipping grounds. Warm up your short game and compete for early contest trophies.
+                <p className="text-[11px] text-slate-600 mt-0.5 leading-relaxed">
+                  Kick off the morning with check-in, gift bag pickup, and warm-up on the putting greens and chipping grounds.
                 </p>
               </div>
             </div>
 
             {/* Event 2: 11:00 AM */}
-            <div className="flex items-start gap-4 p-4 rounded-xl bg-amber-50/70 border border-amber-200/80 transition hover:shadow-sm">
-              <div className="p-3 bg-amber-600 text-white rounded-xl shrink-0 shadow-sm">
-                <Flag className="w-6 h-6" />
+            <div className="flex items-start gap-3 p-3 rounded-lg bg-amber-50/70 border border-amber-200/80 transition hover:shadow-xs">
+              <div className="p-2 bg-amber-600 text-white rounded-lg shrink-0 shadow-xs">
+                <Flag className="w-4 h-4" />
               </div>
-              <div className="flex-1">
-                <div className="flex flex-wrap items-baseline gap-2">
-                  <span className="text-sm sm:text-base font-extrabold text-amber-900 flex items-center gap-1">
-                    <Clock className="w-4 h-4 text-amber-700" />
+              <div className="flex-1 min-w-0">
+                <div className="flex flex-wrap items-baseline gap-1.5">
+                  <span className="text-xs sm:text-sm font-extrabold text-amber-900 flex items-center gap-1">
+                    <Clock className="w-3 h-3 text-amber-700" />
                     11:00 am
                   </span>
-                  <span className="text-xs font-bold uppercase tracking-wider text-amber-800 bg-amber-100 px-2 py-0.5 rounded">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded">
                     Shotgun Start
                   </span>
                 </div>
-                <h3 className="text-base sm:text-lg font-bold text-slate-900 mt-1">
-                  Tee off (shotgun)
+                <h3 className="text-xs sm:text-sm font-bold text-slate-900 mt-0.5">
+                  Tee off (Shotgun)
                 </h3>
-                <p className="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed">
-                  All foursomes head to their assigned starting holes for a simultaneous shotgun launch across the 18-hole championship layout with live{' '}
+                <p className="text-[11px] text-slate-600 mt-0.5 leading-relaxed">
+                  Simultaneous shotgun launch across 18 holes with live{' '}
                   <a
                     href="https://squabbitgolf.com"
                     target="_blank"
@@ -143,48 +143,48 @@ export const GameDayAgendaModal: React.FC = () => {
             </div>
 
             {/* Event 3: Tournament Format */}
-            <div className="flex items-start gap-4 p-4 rounded-xl bg-blue-50/70 border border-blue-200/80 transition hover:shadow-sm">
-              <div className="p-3 bg-blue-900 text-blue-200 rounded-xl shrink-0 shadow-sm">
-                <Users className="w-6 h-6" />
+            <div className="flex items-start gap-3 p-3 rounded-lg bg-blue-50/70 border border-blue-200/80 transition hover:shadow-xs">
+              <div className="p-2 bg-blue-900 text-blue-200 rounded-lg shrink-0 shadow-xs">
+                <Users className="w-4 h-4" />
               </div>
-              <div className="flex-1">
-                <div className="flex flex-wrap items-baseline gap-2">
-                  <span className="text-sm sm:text-base font-extrabold text-blue-950 flex items-center gap-1">
+              <div className="flex-1 min-w-0">
+                <div className="flex flex-wrap items-baseline gap-1.5">
+                  <span className="text-xs sm:text-sm font-extrabold text-blue-950 flex items-center gap-1">
                     Game Format
                   </span>
-                  <span className="text-xs font-bold uppercase tracking-wider text-blue-800 bg-blue-100 px-2 py-0.5 rounded">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-blue-800 bg-blue-100 px-1.5 py-0.5 rounded">
                     Team Play
                   </span>
                 </div>
-                <h3 className="text-base sm:text-lg font-bold text-slate-900 mt-1">
-                  6-6-6 format (Swapping Partners version, details to follow)
+                <h3 className="text-xs sm:text-sm font-bold text-slate-900 mt-0.5">
+                  6-6-6 format (Swapping Partners)
                 </h3>
-                <p className="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed">
-                  An exciting 18-hole structured competition where partners rotate every 6 holes to maximize camaraderie, strategic play, and friendly competition. Complete rules walkthrough provided during cart briefing.
+                <p className="text-[11px] text-slate-600 mt-0.5 leading-relaxed">
+                  Partners rotate every 6 holes to maximize camaraderie, strategic play, and friendly competition.
                 </p>
               </div>
             </div>
 
             {/* Event 4: 4:00 PM */}
-            <div className="flex items-start gap-4 p-4 rounded-xl bg-orange-50/70 border border-orange-200/80 transition hover:shadow-sm">
-              <div className="p-3 bg-orange-600 text-white rounded-xl shrink-0 shadow-sm">
-                <Utensils className="w-6 h-6" />
+            <div className="flex items-start gap-3 p-3 rounded-lg bg-orange-50/70 border border-orange-200/80 transition hover:shadow-xs">
+              <div className="p-2 bg-orange-600 text-white rounded-lg shrink-0 shadow-xs">
+                <Utensils className="w-4 h-4" />
               </div>
-              <div className="flex-1">
-                <div className="flex flex-wrap items-baseline gap-2">
-                  <span className="text-sm sm:text-base font-extrabold text-orange-950 flex items-center gap-1">
-                    <Clock className="w-4 h-4 text-orange-700" />
+              <div className="flex-1 min-w-0">
+                <div className="flex flex-wrap items-baseline gap-1.5">
+                  <span className="text-xs sm:text-sm font-extrabold text-orange-950 flex items-center gap-1">
+                    <Clock className="w-3 h-3 text-orange-700" />
                     4:00 pm
                   </span>
-                  <span className="text-xs font-bold uppercase tracking-wider text-orange-800 bg-orange-100 px-2 py-0.5 rounded">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-orange-800 bg-orange-100 px-1.5 py-0.5 rounded">
                     Grand Banquet
                   </span>
                 </div>
-                <h3 className="text-base sm:text-lg font-bold text-slate-900 mt-1">
+                <h3 className="text-xs sm:text-sm font-bold text-slate-900 mt-0.5">
                   FABULOUS Turkey Dinner
                 </h3>
-                <p className="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed">
-                  Gather in the grand ballroom for a festive turkey feast with all the trimmings, tournament award ceremonies, silent auction reveals, and{' '}
+                <p className="text-[11px] text-slate-600 mt-0.5 leading-relaxed">
+                  Dinner &amp; Donation option ($50-$60 to be finalized) [LIMITED #, book early]. Post-round celebration with{' '}
                   <a
                     href="https://app.squabbitgolf.com/#z9"
                     target="_blank"
@@ -192,29 +192,29 @@ export const GameDayAgendaModal: React.FC = () => {
                     className="text-orange-800 underline hover:text-orange-950 font-semibold"
                   >
                     Squabbit live leaderboard
-                  </a>{' '}
-                  championship celebrations ($50-$60 Dinner to be finalized).
+                  </a>
+                  , trophy awards, and charity draws.
                 </p>
               </div>
             </div>
 
             {/* Event 5: Special Dinner & Donation Option */}
-            <div className="p-4 rounded-xl bg-gradient-to-r from-rose-50 to-pink-50 border border-rose-200/90 shadow-sm">
-              <div className="flex items-start gap-3">
-                <div className="p-2.5 bg-rose-600 text-white rounded-lg shrink-0 mt-0.5">
-                  <Gift className="w-5 h-5" />
+            <div className="p-3 rounded-lg bg-gradient-to-r from-rose-50 to-pink-50 border border-rose-200/90 shadow-xs">
+              <div className="flex items-start gap-2.5">
+                <div className="p-2 bg-rose-600 text-white rounded-md shrink-0 mt-0.5">
+                  <Gift className="w-3.5 h-3.5" />
                 </div>
-                <div className="flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h4 className="text-sm sm:text-base font-bold text-rose-950">
-                      $50-$60 Dinner to be finalized
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <h4 className="text-xs sm:text-sm font-bold text-rose-950">
+                      Dinner &amp; Donation option ($50-$60)
                     </h4>
-                    <span className="text-[10px] font-extrabold uppercase tracking-wider bg-rose-600 text-white px-2 py-0.5 rounded-full">
-                      LIMITED
+                    <span className="text-[9px] font-extrabold uppercase tracking-wider bg-rose-600 text-white px-1.5 py-0.5 rounded-full">
+                      LIMITED #
                     </span>
                   </div>
-                  <p className="text-xs sm:text-sm text-rose-900/80 mt-1 leading-relaxed">
-                    Not playing in the tournament? Join us exclusively for the fabulous 4:00 PM Turkey Dinner, awards ceremony, and charity fundraiser to support the memorial mission in honor of Amina Mohammed.
+                  <p className="text-[11px] text-rose-900/80 mt-0.5 leading-relaxed">
+                    Not playing? Join us exclusively for the fabulous 4:00 PM Turkey Dinner &amp; awards banquet.
                   </p>
                 </div>
               </div>
@@ -222,51 +222,51 @@ export const GameDayAgendaModal: React.FC = () => {
           </div>
 
           {/* Quick Summary Highlights */}
-          <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+          <div className="bg-slate-50 border border-slate-200 rounded-lg p-3">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5 flex items-center gap-1">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
               Tournament Quick Facts
             </div>
-            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-700">
-              <li className="flex items-center gap-2">
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[11px] text-slate-700">
+              <li className="flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]"></span>
-                Live Scoring powered by Squabbit Golf
+                Live Scoring by Squabbit Golf
               </li>
-              <li className="flex items-center gap-2">
+              <li className="flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]"></span>
-                Driving range &amp; practice access included
+                Practice &amp; range included
               </li>
-              <li className="flex items-center gap-2">
+              <li className="flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]"></span>
-                Trophies for 1st, 2nd, Closest-to-Pin &amp; Longest Drive
+                1st, 2nd, KP &amp; Long Drive trophies
               </li>
-              <li className="flex items-center gap-2">
+              <li className="flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]"></span>
-                100% of auction proceeds benefit oncology care
+                Proceeds support oncology care
               </li>
             </ul>
           </div>
         </div>
 
-        {/* Footer Actions */}
-        <div className="p-5 bg-slate-100 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
+        {/* Footer Actions - Compact */}
+        <div className="p-3 sm:p-4 bg-slate-100 border-t border-slate-200 flex flex-wrap items-center justify-between gap-2">
           <button
             onClick={() => setIsAgendaOpen(false)}
-            className="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-slate-900 transition cursor-pointer"
+            className="px-3 py-1.5 text-xs font-semibold text-slate-700 hover:text-slate-900 transition cursor-pointer"
           >
             Close
           </button>
 
-          <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => {
                 setIsAgendaOpen(false);
                 openDonationModal(100);
               }}
-              className="px-4 py-2.5 bg-emerald-800 hover:bg-emerald-700 text-amber-200 hover:text-white border border-[#D4AF37]/50 text-xs sm:text-sm font-bold rounded-xl shadow-sm transition flex items-center gap-1.5 cursor-pointer"
+              className="px-3 py-2 bg-emerald-800 hover:bg-emerald-700 text-amber-200 hover:text-white border border-[#D4AF37]/50 text-xs font-bold rounded-lg shadow-xs transition flex items-center gap-1 cursor-pointer"
             >
-              <Heart className="w-4 h-4 text-rose-400 fill-rose-400" />
-              <span>Dinner / Memorial Donation</span>
+              <Heart className="w-3.5 h-3.5 text-rose-400 fill-rose-400" />
+              <span>Dinner / Donation</span>
             </button>
 
             <button
@@ -274,10 +274,10 @@ export const GameDayAgendaModal: React.FC = () => {
                 setIsAgendaOpen(false);
                 openRegistrationModal('foursome');
               }}
-              className="px-5 py-2.5 bg-[#EA580C] hover:bg-[#C2410C] text-white text-xs sm:text-sm font-bold rounded-xl shadow-md transition flex items-center gap-1.5 cursor-pointer"
+              className="px-3.5 py-2 bg-[#EA580C] hover:bg-[#C2410C] text-white text-xs font-bold rounded-lg shadow-xs transition flex items-center gap-1 cursor-pointer"
             >
-              <span>Register Golfer or Team</span>
-              <ArrowRight className="w-4 h-4" />
+              <span>Register Golfer</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>

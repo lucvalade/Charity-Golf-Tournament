@@ -17,7 +17,12 @@ import {
   Printer,
   Heart,
   ShieldCheck,
-  AlertCircle
+  AlertCircle,
+  Mail,
+  Banknote,
+  FileText,
+  Copy,
+  ExternalLink
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -189,14 +194,15 @@ export const RegistrationModal: React.FC = () => {
     tigerDriveCount: 2
   });
 
-  // Payment - Credit Card only
-  const paymentMethod = 'credit_card';
+  // Payment Method Selection (Cheque, Cash, Credit Card)
+  const [paymentMethod, setPaymentMethod] = useState<'cheque' | 'cash' | 'credit_card'>('cheque');
   const [cardNumber, setCardNumber] = useState('4532 8912 3456 7890');
   const [cardExp, setCardExp] = useState('12/26');
   const [cardCvc, setCardCvc] = useState('789');
   const [cardName, setCardName] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [confirmedRecord, setConfirmedRecord] = useState<RegistrationRecord | null>(null);
+  const [copiedDetails, setCopiedDetails] = useState(false);
 
   // Inline Validation Errors
   const [rosterErrors, setRosterErrors] = useState<{ [key: string]: string }>({});
@@ -284,44 +290,108 @@ export const RegistrationModal: React.FC = () => {
     }
   };
 
+  const generateSaiedEmailText = (rec: RegistrationRecord, total: number) => {
+    const methodLabel = rec.paymentMethod === 'cheque' ? 'CHEQUE' : rec.paymentMethod === 'cash' ? 'CASH' : 'CREDIT CARD';
+    return `ATTENTION: Saied Mohammed (ms_smnm@outlook.com)
+TOURNAMENT: 2026 Memorial Charity Golf Classic
+ADMINISTRATOR: Luc Valade
+
+NEW GOLFER REGISTRATION RECEIVED (${methodLabel})
+
+=======================================================
+REGISTRATION SUMMARY
+=======================================================
+Confirmation Code: ${rec.confirmationCode}
+Entry Type: ${rec.type === 'foursome' ? 'Tournament Foursome' : rec.type === 'dinner_only' ? 'Dinner & Awards Guest' : 'Individual Golfer'}
+Team Name: ${rec.teamName || 'N/A'}
+Payment Method: ${methodLabel}
+Payment Status: ${rec.paymentMethod === 'credit_card' ? 'PAID' : 'PENDING RECEIPT BY SAIED MOHAMMED'}
+Total Amount Due: $${total.toLocaleString()} CAD
+Registration Date: ${new Date(rec.registeredAt).toLocaleString()}
+Starting Hole: Hole #${rec.assignedStartingHole}A
+Assigned Cart: ${rec.assignedCart}
+
+=======================================================
+PRIMARY GOLFER / CAPTAIN DETAILS
+=======================================================
+Full Name: ${rec.primaryContact.name}
+Email: ${rec.primaryContact.email}
+Phone: ${rec.primaryContact.phone}
+Handicap / GHIN: ${rec.primaryContact.handicap || 'None / Not Provided'}
+Shirt Size: ${rec.primaryContact.shirtSize || 'None'}
+Dietary Restrictions: ${rec.primaryContact.dietaryRestrictions || 'None'}
+
+${rec.type === 'foursome' && rec.additionalPlayers.length > 0 ? `=======================================================
+TEAM ROSTER MEMBERS
+=======================================================
+` + rec.additionalPlayers.map((p, idx) => `Player #${idx + 2}: ${p.name || 'TBD'}
+  Email: ${p.email || 'N/A'} | Phone: ${p.phone || 'N/A'}
+  Handicap / GHIN: ${p.handicap || 'N/A'} | Shirt: ${p.shirtSize || 'N/A'} | Dietary: ${p.dietaryRestrictions || 'None'}`).join('\n\n') : ''}
+
+=======================================================
+CHARITY ADD-ONS & CONTEST INVENTORY
+=======================================================
+- Mulligans: ${rec.addons.mulligansCount}
+- 10-Raffle Ticket Packs: ${rec.addons.rafflePacks10}
+- 25-Raffle Ticket Packs: ${rec.addons.rafflePacks25}
+- Putting Shootout Entries: ${rec.addons.puttingContestCount}
+- Tiger Drive Advantage (#11): ${rec.addons.tigerDriveCount}
+
+=======================================================
+OFFLINE PAYMENT INSTRUCTIONS
+=======================================================
+${rec.paymentMethod === 'cheque' 
+  ? `Make cheque payable to: Saied Mohammed
+Memo: 2026 Memorial Golf Classic - ${rec.confirmationCode} (${rec.primaryContact.name})
+Total Amount: $${total.toLocaleString()} CAD
+Mail to Saied Mohammed or present at 10:30 AM registration desk.` 
+  : rec.paymentMethod === 'cash'
+  ? `Amount: $${total.toLocaleString()} CAD cash payable directly to Saied Mohammed at morning check-in desk.`
+  : `Online credit card payment processed.`}
+
+*All registration records are logged in the tournament database accessible by Tournament Administrator Luc Valade.*`;
+  };
+
   const handleFinalSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const errors: { [key: string]: string } = {};
-    const cleanNum = cardNumber.replace(/\D/g, '');
+    if (paymentMethod === 'credit_card') {
+      const errors: { [key: string]: string } = {};
+      const cleanNum = cardNumber.replace(/\D/g, '');
 
-    if (!cleanNum) {
-      errors.cardNumber = 'Credit card number is required.';
-    } else if (!isValidLuhn(cleanNum)) {
-      errors.cardNumber = 'Invalid credit card number (failed Luhn algorithm check).';
-    } else {
-      // Check brand length specific rules
-      if (detectedBrand === 'amex' && cleanNum.length !== 15) {
-        errors.cardNumber = 'American Express card must have 15 digits.';
-      } else if (detectedBrand === 'visa' && cleanNum.length !== 16 && cleanNum.length !== 19) {
-        errors.cardNumber = 'Visa card must have 16 or 19 digits.';
-      } else if (detectedBrand === 'mastercard' && cleanNum.length !== 16) {
-        errors.cardNumber = 'Mastercard must have 16 digits.';
-      } else if (detectedBrand === 'discover' && cleanNum.length !== 16) {
-        errors.cardNumber = 'Discover card must have 16 digits.';
+      if (!cleanNum) {
+        errors.cardNumber = 'Credit card number is required.';
+      } else if (!isValidLuhn(cleanNum)) {
+        errors.cardNumber = 'Invalid credit card number (failed Luhn algorithm check).';
+      } else {
+        // Check brand length specific rules
+        if (detectedBrand === 'amex' && cleanNum.length !== 15) {
+          errors.cardNumber = 'American Express card must have 15 digits.';
+        } else if (detectedBrand === 'visa' && cleanNum.length !== 16 && cleanNum.length !== 19) {
+          errors.cardNumber = 'Visa card must have 16 or 19 digits.';
+        } else if (detectedBrand === 'mastercard' && cleanNum.length !== 16) {
+          errors.cardNumber = 'Mastercard must have 16 digits.';
+        } else if (detectedBrand === 'discover' && cleanNum.length !== 16) {
+          errors.cardNumber = 'Discover card must have 16 digits.';
+        }
       }
-    }
 
-    if (!cardExp.trim()) {
-      errors.cardExp = 'Expiration date is required (MM/YY).';
-    } else if (!isValidExp(cardExp)) {
-      errors.cardExp = 'Expiration must be between 01-12 for month and 26-35 for year (e.g. 10/26).';
-    }
+      if (!cardExp.trim()) {
+        errors.cardExp = 'Expiration date is required (MM/YY).';
+      } else if (!isValidExp(cardExp)) {
+        errors.cardExp = 'Expiration must be between 01-12 for month and 26-35 for year (e.g. 10/26).';
+      }
 
-    if (!cardCvc.trim()) {
-      errors.cardCvc = 'CVC / CVV code is required.';
-    } else if (!isValidCvc(cardCvc, detectedBrand)) {
-      errors.cardCvc = detectedBrand === 'amex' ? 'Amex requires 3 or 4 digits.' : 'CVC must be exactly 3 numeric digits.';
-    }
+      if (!cardCvc.trim()) {
+        errors.cardCvc = 'CVC / CVV code is required.';
+      } else if (!isValidCvc(cardCvc, detectedBrand)) {
+        errors.cardCvc = detectedBrand === 'amex' ? 'Amex requires 3 or 4 digits.' : 'CVC must be exactly 3 numeric digits.';
+      }
 
-    if (Object.keys(errors).length > 0) {
-      setPaymentErrors(errors);
-      return;
+      if (Object.keys(errors).length > 0) {
+        setPaymentErrors(errors);
+        return;
+      }
     }
 
     setPaymentErrors({});
@@ -337,6 +407,25 @@ export const RegistrationModal: React.FC = () => {
         paymentMethod
       });
 
+      // If Cheque or Cash is chosen, prepare mailto link for Saied Mohammed (ms_smnm@outlook.com)
+      if (paymentMethod === 'cheque' || paymentMethod === 'cash') {
+        const mailSubject = `[2026 Memorial Golf Classic] New Registration (${paymentMethod === 'cheque' ? 'Cheque' : 'Cash'}): ${primaryPlayer.name} - ${created.confirmationCode}`;
+        const mailBody = generateSaiedEmailText(created, totalAmount);
+        const mailtoUrl = `mailto:ms_smnm@outlook.com?subject=${encodeURIComponent(mailSubject)}&body=${encodeURIComponent(mailBody)}`;
+        
+        try {
+          const mailLink = document.createElement('a');
+          mailLink.href = mailtoUrl;
+          mailLink.target = '_blank';
+          mailLink.rel = 'noopener noreferrer';
+          document.body.appendChild(mailLink);
+          mailLink.click();
+          document.body.removeChild(mailLink);
+        } catch (err) {
+          console.warn('Mailto link triggered', err);
+        }
+      }
+
       setIsProcessing(false);
       setConfirmedRecord(created);
       setStep(5);
@@ -346,7 +435,7 @@ export const RegistrationModal: React.FC = () => {
         spread: 80,
         origin: { y: 0.5 }
       });
-    }, 700);
+    }, 600);
   };
 
   const handleClose = () => {
@@ -1068,159 +1157,300 @@ export const RegistrationModal: React.FC = () => {
                 </div>
               </div>
 
-              {/* Payment Details Column (Credit Card Only) */}
+              {/* Payment Details Column (Cheque, Cash, or Credit Card) */}
               <div className="md:col-span-7 space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <CreditCard className="w-4 h-4 text-[#1E4D2B]" />
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                      Credit Card Payment
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5 flex items-center justify-between">
+                    <span className="flex items-center gap-1.5">
+                      <CreditCard className="w-4 h-4 text-[#1E4D2B]" />
+                      Payment Method *
                     </span>
-                  </div>
-
-                  {/* Card Brand Badges */}
-                  <div className="flex items-center gap-1.5 text-[10px] font-bold">
-                    <span
-                      className={`px-2 py-0.5 rounded border transition ${
-                        detectedBrand === 'visa'
-                          ? 'bg-blue-600 text-white border-blue-700 shadow-xs'
-                          : 'bg-slate-100 text-slate-600 border-slate-200'
-                      }`}
-                    >
-                      Visa
+                    <span className="text-[10px] text-emerald-800 font-semibold lowercase">
+                      Choose offline or card
                     </span>
-                    <span
-                      className={`px-2 py-0.5 rounded border transition ${
-                        detectedBrand === 'mastercard'
-                          ? 'bg-amber-600 text-white border-amber-700 shadow-xs'
-                          : 'bg-slate-100 text-slate-600 border-slate-200'
-                      }`}
-                    >
-                      Mastercard
-                    </span>
-                    <span
-                      className={`px-2 py-0.5 rounded border transition ${
-                        detectedBrand === 'amex'
-                          ? 'bg-emerald-600 text-white border-emerald-700 shadow-xs'
-                          : 'bg-slate-100 text-slate-600 border-slate-200'
-                      }`}
-                    >
-                      Amex
-                    </span>
-                    <span
-                      className={`px-2 py-0.5 rounded border transition ${
-                        detectedBrand === 'discover'
-                          ? 'bg-orange-600 text-white border-orange-700 shadow-xs'
-                          : 'bg-slate-100 text-slate-600 border-slate-200'
-                      }`}
-                    >
-                      Discover
-                    </span>
-                  </div>
+                  </label>
+                  <select
+                    value={paymentMethod}
+                    onChange={(e) => {
+                      setPaymentMethod(e.target.value as any);
+                      setPaymentErrors({});
+                    }}
+                    className="w-full px-3.5 py-2.5 text-sm font-semibold border-2 border-emerald-800/40 rounded-xl bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#1E4D2B] shadow-xs cursor-pointer"
+                  >
+                    <option value="cheque">Cheque (Payable to Saied Mohammed - ms_smnm@outlook.com)</option>
+                    <option value="cash">Cash (Pay to Saied Mohammed at Check-in - ms_smnm@outlook.com)</option>
+                    <option value="credit_card">Credit Card (Instant Online Card Payment)</option>
+                  </select>
                 </div>
 
-                <div className="space-y-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
-                  {/* Name on card */}
-                  <div>
-                    <label className="block text-[11px] font-semibold text-slate-700 mb-1">Cardholder Name</label>
-                    <input
-                      type="text"
-                      placeholder={primaryPlayer.name || 'Name on Card'}
-                      value={cardName}
-                      onChange={(e) => setCardName(formatTitleCase(e.target.value))}
-                      className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E4D2B]"
-                    />
-                  </div>
-
-                  {/* Card Number */}
-                  <div>
-                    <div className="flex justify-between items-center mb-1">
-                      <label className="block text-[11px] font-semibold text-slate-700">Card Number *</label>
-                      <span className="text-[10px] text-slate-400">Luhn Algorithm check</span>
-                    </div>
-                    <input
-                      type="text"
-                      required
-                      placeholder="#### #### #### ####"
-                      value={cardNumber}
-                      onChange={(e) => {
-                        const formatted = formatCardNumber(e.target.value);
-                        setCardNumber(formatted);
-                        if (paymentErrors.cardNumber) {
-                          setPaymentErrors((prev) => ({ ...prev, cardNumber: '' }));
-                        }
-                      }}
-                      className={`w-full px-3 py-2 text-xs border rounded-lg font-mono focus:outline-none focus:ring-2 focus:ring-[#1E4D2B] ${
-                        paymentErrors.cardNumber ? 'border-rose-400 bg-rose-50/50' : 'border-slate-300'
-                      }`}
-                    />
-                    {paymentErrors.cardNumber && (
-                      <p className="text-[10px] text-rose-600 mt-1 flex items-center gap-1">
-                        <AlertCircle className="w-3 h-3" /> {paymentErrors.cardNumber}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Expiration and CVC */}
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-[11px] font-semibold text-slate-700 mb-1">
-                        Expiration (MM/YY) *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="MM/YY (e.g. 10/26)"
-                        value={cardExp}
-                        onChange={(e) => {
-                          const formatted = formatCardExp(e.target.value);
-                          setCardExp(formatted);
-                          if (paymentErrors.cardExp) {
-                            setPaymentErrors((prev) => ({ ...prev, cardExp: '' }));
-                          }
-                        }}
-                        className={`w-full px-3 py-2 text-xs border rounded-lg font-mono focus:outline-none focus:ring-2 focus:ring-[#1E4D2B] ${
-                          paymentErrors.cardExp ? 'border-rose-400 bg-rose-50/50' : 'border-slate-300'
-                        }`}
-                      />
-                      {paymentErrors.cardExp && (
-                        <p className="text-[10px] text-rose-600 mt-1 flex items-center gap-1">
-                          <AlertCircle className="w-3 h-3" /> {paymentErrors.cardExp}
+                {/* CHEQUE PAYMENT OPTION */}
+                {paymentMethod === 'cheque' && (
+                  <div className="p-5 bg-gradient-to-br from-amber-50/90 to-emerald-50/60 rounded-xl border-2 border-amber-300/80 space-y-4 shadow-sm">
+                    <div className="flex items-start gap-3">
+                      <div className="w-9 h-9 rounded-lg bg-amber-100 border border-amber-300 text-amber-900 flex items-center justify-center shrink-0">
+                        <FileText className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <div className="text-[11px] uppercase tracking-wider font-bold text-amber-900">
+                          Offline Payment Selected
+                        </div>
+                        <h5 className="text-sm font-bold text-slate-900">
+                          Cheque Payment &bull; Direct Routing to Saied Mohammed
+                        </h5>
+                        <p className="text-xs text-slate-600 mt-0.5">
+                          All registration and golfer details will be routed directly to Tournament Founder{' '}
+                          <strong className="text-emerald-950 font-bold">Saied Mohammed</strong> at{' '}
+                          <a
+                            href="mailto:ms_smnm@outlook.com"
+                            className="text-[#1E4D2B] font-bold underline hover:text-emerald-700"
+                          >
+                            ms_smnm@outlook.com
+                          </a>.
                         </p>
-                      )}
+                      </div>
                     </div>
-                    <div>
-                      <label className="block text-[11px] font-semibold text-slate-700 mb-1">
-                        CVC / CVV (3 Digits) *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        placeholder={detectedBrand === 'amex' ? '4 Digits' : '3 Digits'}
-                        value={cardCvc}
-                        onChange={(e) => {
-                          const formatted = formatCardCvc(e.target.value, detectedBrand);
-                          setCardCvc(formatted);
-                          if (paymentErrors.cardCvc) {
-                            setPaymentErrors((prev) => ({ ...prev, cardCvc: '' }));
-                          }
-                        }}
-                        className={`w-full px-3 py-2 text-xs border rounded-lg font-mono focus:outline-none focus:ring-2 focus:ring-[#1E4D2B] ${
-                          paymentErrors.cardCvc ? 'border-rose-400 bg-rose-50/50' : 'border-slate-300'
-                        }`}
-                      />
-                      {paymentErrors.cardCvc && (
-                        <p className="text-[10px] text-rose-600 mt-1 flex items-center gap-1">
-                          <AlertCircle className="w-3 h-3" /> {paymentErrors.cardCvc}
-                        </p>
-                      )}
+
+                    <div className="p-3.5 bg-white rounded-lg border border-amber-200 text-xs space-y-2 text-slate-800">
+                      <div className="flex justify-between items-center pb-2 border-b border-slate-100">
+                        <span className="text-slate-500 font-medium">Make Cheque Payable To:</span>
+                        <span className="font-bold text-slate-900">Saied Mohammed</span>
+                      </div>
+                      <div className="flex justify-between items-center pb-2 border-b border-slate-100">
+                        <span className="text-slate-500 font-medium">Recipient Email:</span>
+                        <span className="font-mono font-bold text-[#1E4D2B]">ms_smnm@outlook.com</span>
+                      </div>
+                      <div className="flex justify-between items-center pb-2 border-b border-slate-100">
+                        <span className="text-slate-500 font-medium">Memo Line:</span>
+                        <span className="font-semibold text-slate-800">
+                          2026 Memorial Golf &bull; {primaryPlayer.name || 'Your Name'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-slate-500 font-medium">Total Cheque Amount:</span>
+                        <span className="text-base font-extrabold font-mono text-[#1E4D2B]">
+                          ${totalAmount.toLocaleString()} CAD
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-2 text-[11px] text-amber-900 bg-amber-100/60 p-2.5 rounded-lg border border-amber-200">
+                      <Mail className="w-4 h-4 shrink-0 text-amber-800 mt-0.5" />
+                      <span>
+                        Upon completing checkout, all golfer roster details, phone numbers, handicaps, and add-on reservations will be automatically forwarded to <strong>Saied Mohammed</strong> and recorded in the database accessible by Tournament Administrator <strong>Luc Valade</strong>.
+                      </span>
                     </div>
                   </div>
-                </div>
+                )}
+
+                {/* CASH PAYMENT OPTION */}
+                {paymentMethod === 'cash' && (
+                  <div className="p-5 bg-gradient-to-br from-emerald-50/90 to-amber-50/50 rounded-xl border-2 border-emerald-300/80 space-y-4 shadow-sm">
+                    <div className="flex items-start gap-3">
+                      <div className="w-9 h-9 rounded-lg bg-emerald-100 border border-emerald-300 text-emerald-900 flex items-center justify-center shrink-0">
+                        <Banknote className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <div className="text-[11px] uppercase tracking-wider font-bold text-emerald-900">
+                          Offline Payment Selected
+                        </div>
+                        <h5 className="text-sm font-bold text-slate-900">
+                          Cash at Check-in Desk &bull; Direct Routing to Saied Mohammed
+                        </h5>
+                        <p className="text-xs text-slate-600 mt-0.5">
+                          All registration and roster information will go directly to Tournament Founder{' '}
+                          <strong className="text-emerald-950 font-bold">Saied Mohammed</strong> at{' '}
+                          <a
+                            href="mailto:ms_smnm@outlook.com"
+                            className="text-[#1E4D2B] font-bold underline hover:text-emerald-700"
+                          >
+                            ms_smnm@outlook.com
+                          </a>.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="p-3.5 bg-white rounded-lg border border-emerald-200 text-xs space-y-2 text-slate-800">
+                      <div className="flex justify-between items-center pb-2 border-b border-slate-100">
+                        <span className="text-slate-500 font-medium">Hand Cash Directly To:</span>
+                        <span className="font-bold text-slate-900">Saied Mohammed</span>
+                      </div>
+                      <div className="flex justify-between items-center pb-2 border-b border-slate-100">
+                        <span className="text-slate-500 font-medium">Organizer Email:</span>
+                        <span className="font-mono font-bold text-[#1E4D2B]">ms_smnm@outlook.com</span>
+                      </div>
+                      <div className="flex justify-between items-center pb-2 border-b border-slate-100">
+                        <span className="text-slate-500 font-medium">When &amp; Where:</span>
+                        <span className="font-semibold text-slate-800">
+                          Check-in Desk (10:30 AM &bull; Oct 5, 2026)
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-slate-500 font-medium">Total Cash Due:</span>
+                        <span className="text-base font-extrabold font-mono text-[#1E4D2B]">
+                          ${totalAmount.toLocaleString()} CAD
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-2 text-[11px] text-emerald-900 bg-emerald-100/60 p-2.5 rounded-lg border border-emerald-200">
+                      <Mail className="w-4 h-4 shrink-0 text-emerald-800 mt-0.5" />
+                      <span>
+                        Your golfer spots and contest inventory are locked in immediately. All information provided goes to <strong>Saied Mohammed</strong> and is stored in the database for Admin <strong>Luc Valade</strong>.
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* CREDIT CARD PAYMENT OPTION */}
+                {paymentMethod === 'credit_card' && (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-slate-700">Enter Card Details</span>
+                      {/* Card Brand Badges */}
+                      <div className="flex items-center gap-1.5 text-[10px] font-bold">
+                        <span
+                          className={`px-2 py-0.5 rounded border transition ${
+                            detectedBrand === 'visa'
+                              ? 'bg-blue-600 text-white border-blue-700 shadow-xs'
+                              : 'bg-slate-100 text-slate-600 border-slate-200'
+                          }`}
+                        >
+                          Visa
+                        </span>
+                        <span
+                          className={`px-2 py-0.5 rounded border transition ${
+                            detectedBrand === 'mastercard'
+                              ? 'bg-amber-600 text-white border-amber-700 shadow-xs'
+                              : 'bg-slate-100 text-slate-600 border-slate-200'
+                          }`}
+                        >
+                          Mastercard
+                        </span>
+                        <span
+                          className={`px-2 py-0.5 rounded border transition ${
+                            detectedBrand === 'amex'
+                              ? 'bg-emerald-600 text-white border-emerald-700 shadow-xs'
+                              : 'bg-slate-100 text-slate-600 border-slate-200'
+                          }`}
+                        >
+                          Amex
+                        </span>
+                        <span
+                          className={`px-2 py-0.5 rounded border transition ${
+                            detectedBrand === 'discover'
+                              ? 'bg-orange-600 text-white border-orange-700 shadow-xs'
+                              : 'bg-slate-100 text-slate-600 border-slate-200'
+                          }`}
+                        >
+                          Discover
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                      {/* Name on card */}
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-700 mb-1">Cardholder Name</label>
+                        <input
+                          type="text"
+                          placeholder={primaryPlayer.name || 'Name on Card'}
+                          value={cardName}
+                          onChange={(e) => setCardName(formatTitleCase(e.target.value))}
+                          className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E4D2B]"
+                        />
+                      </div>
+
+                      {/* Card Number */}
+                      <div>
+                        <div className="flex justify-between items-center mb-1">
+                          <label className="block text-[11px] font-semibold text-slate-700">Card Number *</label>
+                          <span className="text-[10px] text-slate-400">Luhn Algorithm check</span>
+                        </div>
+                        <input
+                          type="text"
+                          required
+                          placeholder="#### #### #### ####"
+                          value={cardNumber}
+                          onChange={(e) => {
+                            const formatted = formatCardNumber(e.target.value);
+                            setCardNumber(formatted);
+                            if (paymentErrors.cardNumber) {
+                              setPaymentErrors((prev) => ({ ...prev, cardNumber: '' }));
+                            }
+                          }}
+                          className={`w-full px-3 py-2 text-xs border rounded-lg font-mono focus:outline-none focus:ring-2 focus:ring-[#1E4D2B] ${
+                            paymentErrors.cardNumber ? 'border-rose-400 bg-rose-50/50' : 'border-slate-300'
+                          }`}
+                        />
+                        {paymentErrors.cardNumber && (
+                          <p className="text-[10px] text-rose-600 mt-1 flex items-center gap-1">
+                            <AlertCircle className="w-3 h-3" /> {paymentErrors.cardNumber}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Expiration and CVC */}
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                            Expiration (MM/YY) *
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            placeholder="MM/YY (e.g. 10/26)"
+                            value={cardExp}
+                            onChange={(e) => {
+                              const formatted = formatCardExp(e.target.value);
+                              setCardExp(formatted);
+                              if (paymentErrors.cardExp) {
+                                setPaymentErrors((prev) => ({ ...prev, cardExp: '' }));
+                              }
+                            }}
+                            className={`w-full px-3 py-2 text-xs border rounded-lg font-mono focus:outline-none focus:ring-2 focus:ring-[#1E4D2B] ${
+                              paymentErrors.cardExp ? 'border-rose-400 bg-rose-50/50' : 'border-slate-300'
+                            }`}
+                          />
+                          {paymentErrors.cardExp && (
+                            <p className="text-[10px] text-rose-600 mt-1 flex items-center gap-1">
+                              <AlertCircle className="w-3 h-3" /> {paymentErrors.cardExp}
+                            </p>
+                          )}
+                        </div>
+                        <div>
+                          <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                            CVC / CVV (3 Digits) *
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            placeholder={detectedBrand === 'amex' ? '4 Digits' : '3 Digits'}
+                            value={cardCvc}
+                            onChange={(e) => {
+                              const formatted = formatCardCvc(e.target.value, detectedBrand);
+                              setCardCvc(formatted);
+                              if (paymentErrors.cardCvc) {
+                                setPaymentErrors((prev) => ({ ...prev, cardCvc: '' }));
+                              }
+                            }}
+                            className={`w-full px-3 py-2 text-xs border rounded-lg font-mono focus:outline-none focus:ring-2 focus:ring-[#1E4D2B] ${
+                              paymentErrors.cardCvc ? 'border-rose-400 bg-rose-50/50' : 'border-slate-300'
+                            }`}
+                          />
+                          {paymentErrors.cardCvc && (
+                            <p className="text-[10px] text-rose-600 mt-1 flex items-center gap-1">
+                              <AlertCircle className="w-3 h-3" /> {paymentErrors.cardCvc}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 <div className="text-[11px] text-slate-500 flex items-center gap-1.5">
                   <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500 shrink-0" />
-                  <span>100% of registration net fees go directly to oncology patient relief &amp; disaster aid.</span>
+                  <span>100% of registration net fees go directly to Juravinski Breast Cancer Research (75%) &amp; Red Cross Fire &amp; Flood (25%).</span>
                 </div>
               </div>
             </div>
@@ -1239,7 +1469,15 @@ export const RegistrationModal: React.FC = () => {
                 className="px-8 py-3.5 bg-[#EA580C] hover:bg-[#C2410C] text-white font-bold text-sm rounded-xl shadow-lg transition disabled:opacity-50 flex items-center gap-2 cursor-pointer"
               >
                 <Sparkles className="w-4 h-4" />
-                <span>{isProcessing ? 'Confirming Registration...' : `Pay $${totalAmount.toLocaleString()} & Confirm`}</span>
+                <span>
+                  {isProcessing
+                    ? 'Confirming Registration...'
+                    : paymentMethod === 'cheque'
+                    ? `Confirm Cheque ($${totalAmount.toLocaleString()}) & Send to Saied`
+                    : paymentMethod === 'cash'
+                    ? `Confirm Cash at Check-in ($${totalAmount.toLocaleString()})`
+                    : `Pay $${totalAmount.toLocaleString()} & Confirm`}
+                </span>
               </button>
             </div>
           </form>
@@ -1263,6 +1501,80 @@ export const RegistrationModal: React.FC = () => {
                 A confirmation has been sent to <strong>{confirmedRecord.primaryContact.email}</strong>. Please present this digital golfer pass at the clubhouse check-in desk.
               </p>
             </div>
+
+            {/* Offline Payment Routing Notice for Saied Mohammed */}
+            {(confirmedRecord.paymentMethod === 'cheque' || confirmedRecord.paymentMethod === 'cash') && (
+              <div className="max-w-md mx-auto p-4 bg-amber-50 rounded-2xl border-2 border-amber-300 text-left space-y-3">
+                <div className="flex items-start gap-2.5">
+                  <Mail className="w-5 h-5 text-amber-800 shrink-0 mt-0.5" />
+                  <div>
+                    <div className="text-xs font-bold uppercase tracking-wider text-amber-900">
+                      Payment Routing to Saied Mohammed
+                    </div>
+                    <p className="text-xs text-slate-700 mt-0.5">
+                      All information provided for this registration has been prepared and routed to Tournament Founder{' '}
+                      <strong>Saied Mohammed</strong> at{' '}
+                      <span className="font-mono font-bold text-[#1E4D2B]">ms_smnm@outlook.com</span>.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-3 bg-white rounded-xl border border-amber-200 text-xs space-y-1.5 text-slate-700">
+                  <div className="flex justify-between">
+                    <span>Payment Method:</span>
+                    <strong className="capitalize text-slate-900">
+                      {confirmedRecord.paymentMethod === 'cheque' ? 'Cheque (Payable to Saied Mohammed)' : 'Cash at Morning Check-in'}
+                    </strong>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Payment Status:</span>
+                    <strong className="text-amber-800 uppercase font-mono">
+                      Pending Receipt by Saied Mohammed
+                    </strong>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Amount Due:</span>
+                    <strong className="text-[#1E4D2B] font-mono text-sm">
+                      ${confirmedRecord.totalAmount.toLocaleString()} CAD
+                    </strong>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Database Status:</span>
+                    <strong className="text-emerald-700">
+                      Logged for Admin Luc Valade
+                    </strong>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2 pt-1">
+                  <a
+                    href={`mailto:ms_smnm@outlook.com?subject=${encodeURIComponent(
+                      `[2026 Memorial Golf] ${confirmedRecord.paymentMethod === 'cheque' ? 'Cheque' : 'Cash'} Registration: ${confirmedRecord.primaryContact.name} - ${confirmedRecord.confirmationCode}`
+                    )}&body=${encodeURIComponent(
+                      generateSaiedEmailText(confirmedRecord, confirmedRecord.totalAmount)
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 py-2 px-3 bg-[#1E4D2B] hover:bg-emerald-900 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm"
+                  >
+                    <Mail className="w-3.5 h-3.5" />
+                    <span>Open Email to Saied (ms_smnm@outlook.com)</span>
+                  </a>
+                  <button
+                    onClick={() => {
+                      const text = generateSaiedEmailText(confirmedRecord, confirmedRecord.totalAmount);
+                      navigator.clipboard.writeText(text);
+                      setCopiedDetails(true);
+                      setTimeout(() => setCopiedDetails(false), 3000);
+                    }}
+                    className="py-2 px-3 bg-white hover:bg-slate-100 text-slate-800 border border-slate-300 rounded-xl text-xs font-semibold transition flex items-center gap-1 cursor-pointer"
+                  >
+                    <Copy className="w-3.5 h-3.5 text-slate-600" />
+                    <span>{copiedDetails ? 'Copied!' : 'Copy Summary'}</span>
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* Printable Digital Player/Guest Pass */}
             <div className="max-w-md mx-auto bg-gradient-to-br from-[#1E4D2B] to-[#13301B] text-white p-6 rounded-2xl shadow-xl border border-[#D4AF37]/50 text-left relative overflow-hidden">
@@ -1317,6 +1629,16 @@ export const RegistrationModal: React.FC = () => {
                 <div className="flex justify-between">
                   <span className="text-slate-300">Confirmation Code:</span>
                   <span className="font-mono font-bold text-[#D4AF37] text-sm">{confirmedRecord.confirmationCode}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-300">Payment Routing:</span>
+                  <span className="font-semibold text-amber-200">
+                    {confirmedRecord.paymentMethod === 'cheque'
+                      ? 'Cheque to Saied Mohammed'
+                      : confirmedRecord.paymentMethod === 'cash'
+                      ? 'Cash to Saied Mohammed'
+                      : 'Credit Card (Paid)'}
+                  </span>
                 </div>
               </div>
 

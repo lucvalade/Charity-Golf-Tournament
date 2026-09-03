@@ -27,6 +27,7 @@ import { SponsorModal } from './components/SponsorModal';
 import { DonationModal } from './components/DonationModal';
 import { AdminDashboardModal } from './components/AdminDashboardModal';
 import { GameDayAgendaModal } from './components/GameDayAgendaModal';
+import { WelcomePopup } from './components/WelcomePopup';
 
 export default function App() {
   return (
@@ -77,7 +78,8 @@ export default function App() {
         {/* Footer */}
         <Footer />
 
-        {/* Interactive Modals */}
+        {/* Interactive Modals & Site Load Announcement */}
+        <WelcomePopup />
         <RegistrationModal />
         <SponsorModal />
         <DonationModal />

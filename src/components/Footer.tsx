@@ -27,7 +27,7 @@ export const Footer: React.FC = () => {
             </div>
 
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-sm">
-              An annual memorial golf tournament honoring the cherished memory of Amina Mohammed. 
+              An annual memorial golf tournament honoring the cherished memory of Naseem Mohammed. 
               Uniting passionate golfers, corporate sponsors, and community friends to bring direct comfort and patient relief to families facing cancer diagnoses.
             </p>
 
@@ -72,19 +72,41 @@ export const Footer: React.FC = () => {
             <div className="space-y-2 text-xs text-slate-300">
               <div className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 text-[#D4AF37] shrink-0 mt-0.5" />
-                <span>
-                  {EVENT_DETAILS.venue.name}<br />
-                  {EVENT_DETAILS.venue.address}
-                </span>
+                <div>
+                  <a
+                    href={EVENT_DETAILS.venue.websiteUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-amber-300 transition hover:underline font-semibold block text-white"
+                  >
+                    {EVENT_DETAILS.venue.name}
+                  </a>
+                  <a
+                    href={EVENT_DETAILS.venue.mapsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-slate-300 hover:text-white transition hover:underline block text-[11px] mt-0.5"
+                  >
+                    {EVENT_DETAILS.venue.address}
+                  </a>
+                </div>
               </div>
               <div className="pt-2">
                 <span className="text-slate-400 block text-[11px]">Date & Format:</span>
-                <span className="font-semibold text-white">Friday, Sept 18, 2026</span>
-                <span className="text-slate-400 block text-[11px]">8:30 AM Shotgun Start (4-Person Scramble)</span>
+                <span className="font-semibold text-white">Monday October 5, 2026</span>
+                <span className="text-slate-300 block text-[11px]">9:30 am Registration, Chipping and Putting Competition</span>
               </div>
               <div className="pt-1">
                 <span className="text-slate-400 block text-[11px]">Live Scoring App:</span>
-                <span className="font-mono text-emerald-400 font-bold">Squabbit Tournament App</span>
+                <a
+                  href="https://squabbitgolf.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-mono text-emerald-400 font-bold hover:text-emerald-300 hover:underline inline-flex items-center gap-1"
+                >
+                  <span>Squabbit Tournament App</span>
+                  <ExternalLink className="w-3 h-3 text-emerald-400" />
+                </a>
               </div>
             </div>
           </div>

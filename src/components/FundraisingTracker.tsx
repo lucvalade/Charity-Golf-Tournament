@@ -7,6 +7,14 @@ import { motion } from 'motion/react';
 export const FundraisingTracker: React.FC = () => {
   const { totalRaised, goalAmount, goalPercentage, totalGolfers, sponsors, donations, registrations, openDonationModal, openRegistrationModal } = useTournament();
 
+  const juravinskiRaised = totalRaised * 0.75;
+  const juravinskiTarget = (goalAmount || 20000) * 0.75;
+  const juravinskiPct = Math.min(100, Math.round((juravinskiRaised / juravinskiTarget) * 100));
+
+  const redCrossRaised = totalRaised * 0.25;
+  const redCrossTarget = (goalAmount || 20000) * 0.25;
+  const redCrossPct = Math.min(100, Math.round((redCrossRaised / redCrossTarget) * 100));
+
   const sponsorTotal = sponsors.reduce((acc, s) => {
     const pkg = SPONSORSHIP_PACKAGES.find(p => p.id === s.tier);
     return acc + (pkg?.amount || 0);
@@ -16,7 +24,7 @@ export const FundraisingTracker: React.FC = () => {
   const donationTotal = donations.reduce((acc, d) => acc + (d.amount || 0), 0);
 
   return (
-    <section className="py-12 bg-[#F3F4F6] border-y border-slate-200">
+    <section id="goal" className="py-12 bg-[#F3F4F6] border-y border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-2xl shadow-xl border border-slate-200/80 p-6 sm:p-8 lg:p-10 overflow-hidden relative">
           {/* Subtle top accent line */}
@@ -34,7 +42,7 @@ export const FundraisingTracker: React.FC = () => {
                     2026 Memorial Fundraising Goal
                   </h3>
                   <p className="text-xs sm:text-sm text-slate-500">
-                    Supporting the {EVENT_DETAILS.beneficiaryOrg}
+                    Supporting Juravinski Breast Cancer Research (75%) &amp; Canadian Red Cross - Fire &amp; Flood (25%)
                   </p>
                 </div>
               </div>
@@ -45,7 +53,7 @@ export const FundraisingTracker: React.FC = () => {
                   ${(totalRaised || 0).toLocaleString()}
                 </span>
                 <span className="text-lg sm:text-xl font-medium text-slate-500">
-                  raised of <strong className="text-slate-800 font-semibold">${(goalAmount || 50000).toLocaleString()}</strong> goal
+                  raised of <strong className="text-slate-800 font-semibold">${(goalAmount || 20000).toLocaleString()}</strong> goal
                 </span>
                 <span className="px-3 py-1 text-xs font-bold rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
                   {goalPercentage || 0}% Funded
@@ -67,7 +75,69 @@ export const FundraisingTracker: React.FC = () => {
                 <div className="flex justify-between text-xs font-semibold text-slate-500">
                   <span>$0 (Kickoff)</span>
                   <span className="text-[#1E4D2B] font-bold">Current: ${(totalRaised || 0).toLocaleString()}</span>
-                  <span>${(goalAmount || 50000).toLocaleString()} (Target Goal)</span>
+                  <span>${(goalAmount || 20000).toLocaleString()} (Target Goal)</span>
+                </div>
+              </div>
+
+              {/* Dynamic Live Fund Allocation Split (As money is raised) */}
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+                <div className="flex items-center justify-between text-xs font-bold text-slate-700">
+                  <span>Live Fund Allocation Breakdown (As Money is Raised):</span>
+                  <span className="text-emerald-700 font-mono">100% Directed to Beneficiaries</span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                  {/* Juravinski 75% Split */}
+                  <div className="p-3 bg-white rounded-lg border border-emerald-200 shadow-xs">
+                    <div className="flex justify-between items-start mb-1.5">
+                      <div>
+                        <div className="text-xs font-bold text-emerald-950 flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-emerald-600"></span>
+                          Juravinski Breast Cancer Research
+                        </div>
+                        <div className="text-[11px] text-slate-500">75% Allocation Share</div>
+                      </div>
+                      <span className="text-xs font-mono font-bold text-emerald-700">
+                        ${Math.round(juravinskiRaised).toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                      <div
+                        className="bg-emerald-600 h-full rounded-full transition-all duration-500"
+                        style={{ width: `${juravinskiPct}%` }}
+                      />
+                    </div>
+                    <div className="flex justify-between text-[10px] text-slate-500 mt-1">
+                      <span>{juravinskiPct}% funded</span>
+                      <span>Target: ${Math.round(juravinskiTarget).toLocaleString()}</span>
+                    </div>
+                  </div>
+
+                  {/* Canadian Red Cross 25% Split */}
+                  <div className="p-3 bg-white rounded-lg border border-rose-200 shadow-xs">
+                    <div className="flex justify-between items-start mb-1.5">
+                      <div>
+                        <div className="text-xs font-bold text-rose-950 flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-rose-600"></span>
+                          Canadian Red Cross - Fire &amp; Flood
+                        </div>
+                        <div className="text-[11px] text-slate-500">25% Allocation Share</div>
+                      </div>
+                      <span className="text-xs font-mono font-bold text-rose-700">
+                        ${Math.round(redCrossRaised).toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                      <div
+                        className="bg-rose-600 h-full rounded-full transition-all duration-500"
+                        style={{ width: `${redCrossPct}%` }}
+                      />
+                    </div>
+                    <div className="flex justify-between text-[10px] text-slate-500 mt-1">
+                      <span>{redCrossPct}% funded</span>
+                      <span>Target: ${Math.round(redCrossTarget).toLocaleString()}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
 

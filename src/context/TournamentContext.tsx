@@ -44,7 +44,7 @@ interface TournamentContextType {
     primaryContact: PlayerInfo;
     additionalPlayers: PlayerInfo[];
     addons: AddonSelection;
-    paymentMethod: 'credit_card' | 'check' | 'invoice';
+    paymentMethod: 'credit_card' | 'cheque' | 'cash' | 'check' | 'invoice';
     notes?: string;
   }) => RegistrationRecord;
   addSponsorship: (data: {
@@ -67,6 +67,7 @@ interface TournamentContextType {
     message?: string;
   }) => DonationRecord;
   checkInPlayer: (regId: string, cart?: string) => void;
+  updatePaymentStatus: (regId: string, status: 'paid' | 'pending') => void;
   updateLeaderboardScore: (squabbitId: string, scoreDelta: number, thruDelta: number) => void;
   resetToDefaults: () => void;
   calculateAddonTotal: (addons: AddonSelection) => number;
@@ -92,15 +93,18 @@ interface TournamentContextType {
   setIsAdminOpen: (open: boolean) => void;
   lastConfirmation: RegistrationRecord | null;
   setLastConfirmation: (rec: RegistrationRecord | null) => void;
+  contactTab: 'inquiry' | 'volunteer';
+  setContactTab: (tab: 'inquiry' | 'volunteer') => void;
+  goToVolunteerSection: () => void;
 }
 
 const TournamentContext = createContext<TournamentContextType | undefined>(undefined);
 
 const STORAGE_KEYS = {
-  REGISTRATIONS: 'saied_golf_registrations_v1',
-  SPONSORS: 'saied_golf_sponsors_v1',
-  DONATIONS: 'saied_golf_donations_v1',
-  LEADERBOARD: 'saied_golf_leaderboard_v1'
+  REGISTRATIONS: 'saied_golf_registrations_v2',
+  SPONSORS: 'saied_golf_sponsors_v2',
+  DONATIONS: 'saied_golf_donations_v2',
+  LEADERBOARD: 'saied_golf_leaderboard_v2'
 };
 
 export const TournamentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -151,6 +155,17 @@ export const TournamentProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [selectedSponsorTier, setSelectedSponsorTier] = useState<SponsorTier>('eagle');
   const [selectedDonationAmount, setSelectedDonationAmount] = useState<number>(100);
   const [lastConfirmation, setLastConfirmation] = useState<RegistrationRecord | null>(null);
+  const [contactTab, setContactTab] = useState<'inquiry' | 'volunteer'>('inquiry');
+
+  const goToVolunteerSection = () => {
+    setContactTab('volunteer');
+    setTimeout(() => {
+      const el = document.getElementById('contact');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 80);
+  };
 
   // Sync to local storage
   useEffect(() => {
@@ -242,12 +257,14 @@ export const TournamentProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     primaryContact: PlayerInfo;
     additionalPlayers: PlayerInfo[];
     addons: AddonSelection;
-    paymentMethod: 'credit_card' | 'check' | 'invoice';
+    paymentMethod: 'credit_card' | 'cheque' | 'cash' | 'check' | 'invoice';
     notes?: string;
   }): RegistrationRecord => {
     const totalAmount = calculateRegistrationTotal(data.type, data.addons);
     const codeNum = Math.floor(1000 + Math.random() * 9000);
     const confirmationCode = `SAIED-${codeNum}`;
+    const isOfflinePayment = data.paymentMethod === 'cheque' || data.paymentMethod === 'cash';
+
     const newReg: RegistrationRecord = {
       id: `reg-${Date.now()}`,
       type: data.type,
@@ -256,14 +273,15 @@ export const TournamentProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       additionalPlayers: data.additionalPlayers,
       addons: data.addons,
       totalAmount,
-      paymentStatus: 'paid',
+      paymentStatus: isOfflinePayment ? 'pending' : 'paid',
       paymentMethod: data.paymentMethod,
       confirmationCode,
       registeredAt: new Date().toISOString(),
       checkedIn: false,
       assignedStartingHole: (registrations.length % 18) + 1,
       assignedCart: `Cart #${registrations.length + 1}${data.type === 'foursome' ? 'A & B' : 'A'}`,
-      notes: data.notes
+      notes: data.notes,
+      routedToEmail: isOfflinePayment ? 'ms_smnm@outlook.com' : undefined
     };
 
     setRegistrations((prev) => [newReg, ...prev]);
@@ -354,6 +372,18 @@ export const TournamentProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     addToast('info', 'Check-in Updated', 'Golfer status updated successfully.');
   };
 
+  const updatePaymentStatus = (regId: string, status: 'paid' | 'pending') => {
+    setRegistrations((prev) =>
+      prev.map((r) => {
+        if (r.id === regId) {
+          return { ...r, paymentStatus: status };
+        }
+        return r;
+      })
+    );
+    addToast('success', 'Payment Status Updated', `Registration payment marked as ${status.toUpperCase()}.`);
+  };
+
   const updateLeaderboardScore = (squabbitId: string, scoreDelta: number, thruDelta: number) => {
     setLeaderboard((prev) =>
       prev
@@ -426,6 +456,7 @@ export const TournamentProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         addSponsorship,
         addDonation,
         checkInPlayer,
+        updatePaymentStatus,
         updateLeaderboardScore,
         resetToDefaults,
         calculateAddonTotal,
@@ -450,7 +481,10 @@ export const TournamentProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         isAdminOpen,
         setIsAdminOpen,
         lastConfirmation,
-        setLastConfirmation
+        setLastConfirmation,
+        contactTab,
+        setContactTab,
+        goToVolunteerSection
       }}
     >
       {children}

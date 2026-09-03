@@ -94,6 +94,68 @@ export const Hero: React.FC = () => {
           </motion.p>
         </div>
 
+        {/* Tournament Countdown Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25 }}
+          className="mt-8 max-w-3xl mx-auto bg-emerald-950/80 border border-[#D4AF37]/40 rounded-2xl p-5 shadow-2xl backdrop-blur-md"
+        >
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="text-center md:text-left">
+              <div className="text-xs uppercase font-bold tracking-widest text-[#D4AF37] flex items-center justify-center md:justify-start gap-1.5">
+                <Sparkles className="w-3.5 h-3.5" />
+                Tournament Countdown
+              </div>
+              <p className="text-xs text-slate-300 mt-0.5">Tee off on Monday, October 5, 2026</p>
+            </div>
+
+            {/* Timer digits */}
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="flex flex-col items-center bg-[#15381E] border border-emerald-700/80 rounded-lg px-3 sm:px-4 py-2 min-w-[64px]">
+                <span className="text-xl sm:text-2xl font-bold font-mono text-white">{timeLeft.days}</span>
+                <span className="text-[10px] text-amber-200/80 uppercase font-semibold">Days</span>
+              </div>
+              <span className="text-[#D4AF37] font-bold text-lg">:</span>
+              <div className="flex flex-col items-center bg-[#15381E] border border-emerald-700/80 rounded-lg px-3 sm:px-4 py-2 min-w-[64px]">
+                <span className="text-xl sm:text-2xl font-bold font-mono text-white">
+                  {String(timeLeft.hours).padStart(2, '0')}
+                </span>
+                <span className="text-[10px] text-amber-200/80 uppercase font-semibold">Hours</span>
+              </div>
+              <span className="text-[#D4AF37] font-bold text-lg">:</span>
+              <div className="flex flex-col items-center bg-[#15381E] border border-emerald-700/80 rounded-lg px-3 sm:px-4 py-2 min-w-[64px]">
+                <span className="text-xl sm:text-2xl font-bold font-mono text-white">
+                  {String(timeLeft.minutes).padStart(2, '0')}
+                </span>
+                <span className="text-[10px] text-amber-200/80 uppercase font-semibold">Mins</span>
+              </div>
+              <span className="text-[#D4AF37] font-bold text-lg">:</span>
+              <div className="flex flex-col items-center bg-[#15381E] border border-emerald-700/80 rounded-lg px-3 sm:px-4 py-2 min-w-[64px]">
+                <span className="text-xl sm:text-2xl font-bold font-mono text-amber-300">
+                  {String(timeLeft.seconds).padStart(2, '0')}
+                </span>
+                <span className="text-[10px] text-amber-200/80 uppercase font-semibold">Secs</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Fundraising Micro-Bar */}
+          <div className="mt-4 pt-4 border-t border-emerald-800/80 flex flex-col sm:flex-row items-center justify-between text-xs gap-2">
+            <div className="flex items-center gap-2 text-slate-200">
+              <CheckCircle className="w-4 h-4 text-emerald-400" />
+              <span>
+                <strong className="text-white">${(totalRaised || 0).toLocaleString()}</strong> raised of ${(goalAmount || 20000).toLocaleString()} goal ({goalPercentage || 0}%)
+              </span>
+            </div>
+            <div className="flex items-center gap-4 text-amber-200/90">
+              <span><strong>{totalGolfers}</strong> Golfers Registered</span>
+              <span>&bull;</span>
+              <span><strong>Juravinski (75%)</strong> &bull; <strong>Red Cross (25%)</strong></span>
+            </div>
+          </div>
+        </motion.div>
+
         {/* Key Event Badges Grid */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -107,21 +169,28 @@ export const Hero: React.FC = () => {
             <div className="text-sm font-bold text-white mt-0.5">Monday, October 5, 2026</div>
           </div>
 
-          <a
-            href={EVENT_DETAILS.venue.mapsUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            title={`Open ${EVENT_DETAILS.venue.name} in Google Maps`}
-            className="bg-emerald-950/60 border border-emerald-700/60 hover:border-sky-400/80 hover:bg-emerald-900/80 rounded-xl p-3.5 text-center shadow-md backdrop-blur-sm transition group cursor-pointer"
-          >
-            <MapPin className="w-5 h-5 text-sky-400 mx-auto mb-1.5 group-hover:scale-110 transition transform" />
-            <div className="text-xs text-sky-200/80 uppercase font-semibold tracking-wider flex items-center justify-center gap-1">
-              <span>Championship Venue</span>
-            </div>
-            <div className="text-sm font-bold text-white mt-0.5 group-hover:text-sky-200 transition underline-offset-2 hover:underline">
+          <div className="bg-emerald-950/60 border border-emerald-700/60 rounded-xl p-3.5 text-center shadow-md backdrop-blur-sm">
+            <MapPin className="w-5 h-5 text-sky-400 mx-auto mb-1.5" />
+            <div className="text-xs text-sky-200/80 uppercase font-semibold tracking-wider">Championship Venue</div>
+            <a
+              href={EVENT_DETAILS.venue.websiteUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Visit Burford Golf Links Official Website"
+              className="text-sm font-bold text-white mt-0.5 block hover:text-amber-200 transition underline-offset-2 hover:underline"
+            >
               {EVENT_DETAILS.venue.name}
-            </div>
-          </a>
+            </a>
+            <a
+              href={EVENT_DETAILS.venue.mapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Open venue location in Google Maps"
+              className="text-[11px] text-slate-300 hover:text-sky-200 transition block mt-0.5 underline-offset-2 hover:underline"
+            >
+              {EVENT_DETAILS.venue.address}
+            </a>
+          </div>
 
           <div className="bg-emerald-950/60 border border-emerald-700/60 rounded-xl p-3.5 text-center shadow-md backdrop-blur-sm">
             <Trophy className="w-5 h-5 text-[#D4AF37] mx-auto mb-1.5" />
@@ -182,68 +251,6 @@ export const Hero: React.FC = () => {
             <CalendarDays className="w-4 h-4 text-[#D4AF37]" />
             <span>Game Day Agenda</span>
           </button>
-        </motion.div>
-
-        {/* Countdown Timer Strip */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="mt-12 max-w-3xl mx-auto bg-emerald-950/80 border border-[#D4AF37]/40 rounded-2xl p-5 shadow-2xl backdrop-blur-md"
-        >
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="text-center md:text-left">
-              <div className="text-xs uppercase font-bold tracking-widest text-[#D4AF37] flex items-center justify-center md:justify-start gap-1.5">
-                <Sparkles className="w-3.5 h-3.5" />
-                Tournament Countdown
-              </div>
-              <p className="text-xs text-slate-300 mt-0.5">Tee off on Monday, October 5, 2026</p>
-            </div>
-
-            {/* Timer digits */}
-            <div className="flex items-center gap-3 sm:gap-4">
-              <div className="flex flex-col items-center bg-[#15381E] border border-emerald-700/80 rounded-lg px-3 sm:px-4 py-2 min-w-[64px]">
-                <span className="text-xl sm:text-2xl font-bold font-mono text-white">{timeLeft.days}</span>
-                <span className="text-[10px] text-amber-200/80 uppercase font-semibold">Days</span>
-              </div>
-              <span className="text-[#D4AF37] font-bold text-lg">:</span>
-              <div className="flex flex-col items-center bg-[#15381E] border border-emerald-700/80 rounded-lg px-3 sm:px-4 py-2 min-w-[64px]">
-                <span className="text-xl sm:text-2xl font-bold font-mono text-white">
-                  {String(timeLeft.hours).padStart(2, '0')}
-                </span>
-                <span className="text-[10px] text-amber-200/80 uppercase font-semibold">Hours</span>
-              </div>
-              <span className="text-[#D4AF37] font-bold text-lg">:</span>
-              <div className="flex flex-col items-center bg-[#15381E] border border-emerald-700/80 rounded-lg px-3 sm:px-4 py-2 min-w-[64px]">
-                <span className="text-xl sm:text-2xl font-bold font-mono text-white">
-                  {String(timeLeft.minutes).padStart(2, '0')}
-                </span>
-                <span className="text-[10px] text-amber-200/80 uppercase font-semibold">Mins</span>
-              </div>
-              <span className="text-[#D4AF37] font-bold text-lg">:</span>
-              <div className="flex flex-col items-center bg-[#15381E] border border-emerald-700/80 rounded-lg px-3 sm:px-4 py-2 min-w-[64px]">
-                <span className="text-xl sm:text-2xl font-bold font-mono text-amber-300">
-                  {String(timeLeft.seconds).padStart(2, '0')}
-                </span>
-                <span className="text-[10px] text-amber-200/80 uppercase font-semibold">Secs</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Quick Fundraising Micro-Bar */}
-          <div className="mt-4 pt-4 border-t border-emerald-800/80 flex flex-col sm:flex-row items-center justify-between text-xs gap-2">
-            <div className="flex items-center gap-2 text-slate-200">
-              <CheckCircle className="w-4 h-4 text-emerald-400" />
-              <span>
-                <strong className="text-white">${(totalRaised || 0).toLocaleString()}</strong> raised of ${(goalAmount || 50000).toLocaleString()} goal ({goalPercentage || 0}%)
-              </span>
-            </div>
-            <div className="flex items-center gap-4 text-amber-200/90">
-              <span><strong>{totalGolfers}</strong> Golfers Registered</span>
-              <span>&bull;</span>
-              <span><strong>100%</strong> to Oncology Patient Relief</span>
-            </div>
-          </div>
         </motion.div>
       </div>
     </section>

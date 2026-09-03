@@ -27,13 +27,14 @@ export interface RegistrationRecord {
   addons: AddonSelection;
   totalAmount: number;
   paymentStatus: 'paid' | 'pending';
-  paymentMethod: 'credit_card' | 'check' | 'invoice';
+  paymentMethod: 'credit_card' | 'cheque' | 'cash' | 'check' | 'invoice';
   confirmationCode: string;
   registeredAt: string;
   checkedIn: boolean;
   assignedCart?: string;
   assignedStartingHole?: number;
   notes?: string;
+  routedToEmail?: string;
 }
 
 export type SponsorTier = 'presenting' | 'eagle' | 'birdie' | 'hole' | 'contest';

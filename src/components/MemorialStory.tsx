@@ -35,11 +35,11 @@ export const MemorialStory: React.FC = () => {
             <span>The Heart Behind the Tournament</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 font-serif-heading tracking-tight">
-            Honoring the Life & Light of <br className="hidden sm:inline" />
+            Honoring the Life &amp; Legacy of <br className="hidden sm:inline" />
             <span className="text-[#1E4D2B] italic">{EVENT_DETAILS.memorialHonoree}</span>
           </h2>
           <p className="mt-4 text-base sm:text-lg text-slate-600 leading-relaxed">
-            Every fairway played, every putt sunk, and every dollar raised stands as a living tribute to Amina’s boundless generosity and compassion.
+            Every fairway played, every putt sunk, and every dollar raised stands as a living tribute to Naseem’s boundless generosity and compassion.
           </p>
         </div>
 
@@ -53,13 +53,13 @@ export const MemorialStory: React.FC = () => {
                 A Letter from Founder {EVENT_DETAILS.founder}
               </h3>
               <p>
-                <em>"Amina had a radiant gift for making everyone feel seen, cherished, and valued. When she was diagnosed with cancer, her bravery was unmatched—she spent her days comforting other patients in the infusion room rather than dwelling on her own pain."</em>
+                <em>"Naseem had a radiant gift for making everyone feel seen, cherished, and valued. When she was diagnosed with cancer, her bravery was unmatched—she spent her days comforting other patients in the infusion room rather than dwelling on her own pain."</em>
               </p>
               <p>
                 <em>"Golf was something we shared that brought joy, fresh air, and deep friendships. In her memory, we founded the Saied October Charity Golf Classic to turn our collective love into tangible, life-changing support for patients and families fighting the very battle she faced."</em>
               </p>
               <p className="font-semibold text-slate-900">
-                <em>"Thank you for swinging with us, for giving generously, and for ensuring Amina's legacy of kindness continues to touch lives for generations to come."</em>
+                <em>"Thank you for swinging with us, for giving generously, and for ensuring Naseem's legacy of kindness continues to touch lives for generations to come."</em>
               </p>
             </div>
 
@@ -94,7 +94,7 @@ export const MemorialStory: React.FC = () => {
                 {EVENT_DETAILS.beneficiaryOrg}
               </h4>
               <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
-                Amina Hope for Juravinski Breast Cancer Research represents the oncology research, and the Canadian Red Cross – Fire &amp; Flood represents specialized clinical care programs, domestic disaster relief, and emergency response funds.
+                Naseem Hope for Juravinski Breast Cancer Research represents the oncology research, and the Canadian Red Cross – Fire &amp; Flood represents specialized clinical care programs, domestic disaster relief, and emergency response funds.
               </p>
             </div>
 

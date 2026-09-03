@@ -7,18 +7,21 @@ export const EVENT_DETAILS = {
   isoDate: "2026-10-05T09:30:00",
   venue: {
     name: "Burford Golf Links Course",
+    websiteUrl: "https://golfnorth.ca/burford/",
     address: "120 Golf Links Rd, Burford, ON N0E 1A0",
     courseRating: "71.8 / Slope 126 • 18-Hole Championship Layout",
     mapQuery: "Burford+Golf+Links",
     mapsUrl: "https://www.google.com/maps/place/Burford+Golf+Links/@43.1372601,-80.4660569,17z/data=!3m1!4b1!4m6!3m5!1s0x882c14c8d1531a5f:0x69ddaaae88c6605d!8m2!3d43.1372562!4d-80.4634766!16s%2Fg%2F1tfv15qz?entry=ttu&g_ep=EgoyMDI2MDgzMC4wIKXMDSoASAFQAw%3D%3D",
   },
-  goalAmount: 75000,
+  goalAmount: 20000,
   founder: "Saied Mohammed",
-  memorialHonoree: "Amina Mohammed",
-  beneficiaryOrg: "Amina Hope for Juravinski Breast Cancer Research & Canadian Red Cross – Fire & Flood",
+  email: "ms_smnm@outlook.com",
+  phone: "(905) 818-2005",
+  memorialHonoree: "Naseem Mohammed",
+  beneficiaryOrg: "Naseem Hope for Juravinski Breast Cancer Research & Canadian Red Cross – Fire & Flood",
   taxId: "84-9182740",
   squabbitCode: "SAIED-OCT-2026",
-  squabbitUrl: "https://squabbitgolf.com",
+  squabbitUrl: "https://squabbitgolf.com/",
 };
 
 export const SPONSORSHIP_PACKAGES: SponsorPackage[] = [
@@ -116,11 +119,11 @@ export const INITIAL_SPONSORS: SponsorRecord[] = [
     contactName: 'David Sterling',
     email: 'dsterling@pacificrimcap.com',
     phone: '(555) 382-9011',
-    tier: 'presenting',
+    tier: 'eagle',
     websiteUrl: 'https://pacificrimcap.example.com',
     pledgedAt: '2026-06-15T10:00:00Z',
     status: 'confirmed',
-    customNote: 'Proud to stand alongside Saied in memory of Amina.'
+    customNote: 'Proud to stand alongside Saied in memory of Naseem.'
   },
   {
     id: 'sp-2',
@@ -128,7 +131,7 @@ export const INITIAL_SPONSORS: SponsorRecord[] = [
     contactName: 'Elena Rostova',
     email: 'elena.rostova@apexhealth.example.com',
     phone: '(555) 774-2900',
-    tier: 'eagle',
+    tier: 'birdie',
     websiteUrl: 'https://apexhealth.example.com',
     pledgedAt: '2026-07-02T14:30:00Z',
     status: 'confirmed',
@@ -140,7 +143,7 @@ export const INITIAL_SPONSORS: SponsorRecord[] = [
     contactName: 'Marcus Vance',
     email: 'mvance@falconcrest.example.com',
     phone: '(555) 891-4432',
-    tier: 'eagle',
+    tier: 'hole',
     pledgedAt: '2026-07-10T09:15:00Z',
     status: 'confirmed',
   },
@@ -150,28 +153,8 @@ export const INITIAL_SPONSORS: SponsorRecord[] = [
     contactName: 'Karen Miller',
     email: 'karen@sierravalley.example.com',
     phone: '(555) 431-8899',
-    tier: 'birdie',
-    pledgedAt: '2026-07-22T11:00:00Z',
-    status: 'confirmed',
-  },
-  {
-    id: 'sp-5',
-    companyName: 'Summit Peak Construction',
-    contactName: 'Jack Thompson',
-    email: 'jack@summitpeak.example.com',
-    phone: '(555) 654-3210',
-    tier: 'hole',
-    pledgedAt: '2026-08-01T16:00:00Z',
-    status: 'confirmed',
-  },
-  {
-    id: 'sp-6',
-    companyName: 'Oakridge Family Orthodontics',
-    contactName: 'Dr. Sarah Chen',
-    email: 'office@oakridgeortho.example.com',
-    phone: '(555) 234-5678',
     tier: 'contest',
-    pledgedAt: '2026-08-12T13:45:00Z',
+    pledgedAt: '2026-07-22T11:00:00Z',
     status: 'confirmed',
   }
 ];
@@ -306,6 +289,42 @@ export const INITIAL_REGISTRATIONS: RegistrationRecord[] = [
     checkedIn: false,
     assignedCart: 'Cart #4A',
     assignedStartingHole: 4
+  },
+  {
+    id: 'reg-105',
+    type: 'foursome',
+    teamName: 'Hamilton Links Crew',
+    primaryContact: {
+      id: 'p-14',
+      name: 'Robert Jenkins',
+      email: 'rjenkins@hamiltonlinks.ca',
+      phone: '(905) 555-0144',
+      handicap: '15.4',
+      shirtSize: 'XL',
+      dietaryRestrictions: 'Gluten-Free'
+    },
+    additionalPlayers: [
+      { id: 'p-15', name: 'Mark Evans', email: 'mevans@hamiltonlinks.ca', phone: '(905) 555-0145', handicap: '18.0', shirtSize: 'L' },
+      { id: 'p-16', name: 'Gary Peterson', email: 'gpeterson@hamiltonlinks.ca', phone: '(905) 555-0146', handicap: '12.6', shirtSize: '2XL' },
+      { id: 'p-17', name: 'Paul MacIntyre', email: 'pmacintyre@hamiltonlinks.ca', phone: '(905) 555-0147', handicap: '20.1', shirtSize: 'L' }
+    ],
+    addons: {
+      mulligansCount: 6,
+      rafflePacks10: 2,
+      rafflePacks25: 0,
+      puttingContestCount: 4,
+      tigerDriveCount: 0
+    },
+    totalAmount: 1130,
+    paymentStatus: 'pending',
+    paymentMethod: 'cheque',
+    routedToEmail: 'ms_smnm@outlook.com',
+    confirmationCode: 'SAIED-4482',
+    registeredAt: '2026-08-01T10:15:00Z',
+    checkedIn: false,
+    assignedCart: 'Cart #5A & #5B',
+    assignedStartingHole: 5,
+    notes: 'Cheque payable to Saied Mohammed ($1,130) pending receipt at check-in'
   }
 ];
 
@@ -314,58 +333,58 @@ export const INITIAL_DONATIONS: DonationRecord[] = [
     id: 'don-1',
     donorName: 'Saied & Family',
     donorEmail: 'saied@family.org',
-    amount: 15000,
+    amount: 2500,
     isAnonymous: false,
     tributeType: 'in_memory_of',
-    tributeName: 'Amina Mohammed',
-    message: 'To my beloved Amina, your grace, warmth, and enduring love inspire everything we do today and forever.',
+    tributeName: 'Naseem Mohammed',
+    message: 'To my beloved Naseem, your grace, warmth, and enduring love inspire everything we do today and forever.',
     donatedAt: '2026-06-01T08:00:00Z'
   },
   {
     id: 'don-2',
     donorName: 'The Sterling Charitable Trust',
     donorEmail: 'sterlingtrust@example.com',
-    amount: 5000,
+    amount: 1000,
     isAnonymous: false,
     tributeType: 'in_memory_of',
-    tributeName: 'Amina Mohammed',
+    tributeName: 'Naseem Mohammed',
     message: 'In loving memory of a phenomenal woman who touched so many lives with unconditional kindness.',
     donatedAt: '2026-06-15T12:00:00Z'
   },
   {
     id: 'don-3',
     donorName: 'Oakridge Community Circle',
-    amount: 2500,
+    amount: 500,
     isAnonymous: false,
     tributeType: 'in_memory_of',
-    tributeName: 'Amina Mohammed',
-    message: 'Amina was the heart of our community volunteer drives. Honored to keep her legacy shining bright.',
+    tributeName: 'Naseem Mohammed',
+    message: 'Naseem was the heart of our community volunteer drives. Honored to keep her legacy shining bright.',
     donatedAt: '2026-07-12T15:20:00Z'
   },
   {
     id: 'don-4',
     donorName: 'Anonymous Supporter',
-    amount: 1000,
+    amount: 250,
     isAnonymous: true,
     tributeType: 'in_memory_of',
-    tributeName: 'Amina',
+    tributeName: 'Naseem',
     message: 'With deepest respect for Saied and family. Keep hitting fairways for hope!',
     donatedAt: '2026-07-28T19:40:00Z'
   },
   {
     id: 'don-5',
     donorName: 'Rahim & Yasmin Kassam',
-    amount: 750,
+    amount: 150,
     isAnonymous: false,
     tributeType: 'in_memory_of',
-    tributeName: 'Amina Mohammed',
+    tributeName: 'Naseem Mohammed',
     message: 'Always remembered for her bright smile and generous spirit.',
     donatedAt: '2026-08-05T10:15:00Z'
   },
   {
     id: 'don-6',
     donorName: 'Marcus & Jessica Rivera',
-    amount: 500,
+    amount: 100,
     isAnonymous: false,
     tributeType: 'general',
     message: 'Thrilled to support such an incredible cause! Have a great round everyone.',
@@ -461,14 +480,14 @@ export const TOURNAMENT_SCHEDULE: EventScheduleItem[] = [
     time: '4:00 PM',
     title: 'FABULOUS Turkey Dinner',
     location: 'Grand Ballroom & Clubhouse Terrace',
-    description: 'Post-round celebration featuring a fabulous turkey banquet feast, Squabbit live leaderboard reveal, trophy presentations, raffle draws, and memorial fundraising recap. ($50-$60 Dinner to be finalized).',
+    description: 'Dinner & Donation option ($50-$60 to be finalized) [LIMITED #,book early]. Post-round celebration featuring a fabulous turkey dinner, Squabbit live leaderboard reveal, trophy presentations, raffle draws, and memorial fundraising recap.',
     iconName: 'Trophy'
   },
   {
     time: '6:00 PM',
     title: 'Adjournment & Celebration',
     location: 'Main Clubhouse',
-    description: 'Official conclusion, final tribute dedication to Amina Mohammed, and heartfelt thank you to all donors and sponsors.',
+    description: 'Official conclusion, final tribute dedication to Naseem Mohammed, and heartfelt thank you to all donors and sponsors.',
     iconName: 'Heart'
   }
 ];
@@ -527,15 +546,23 @@ export const FAQ_DATA: FaqItem[] = [
 
 export const IMPACT_DATA = {
   allocation: [
-    { title: 'Direct Patient Emergency Relief Grants', percent: 50, color: 'bg-emerald-600', description: 'Co-pays, daily living expenses, groceries, and medical equipment for undergoing families.' },
-    { title: 'Medical Transportation & Lodging Vouchers', percent: 25, color: 'bg-[#D4AF37]', description: 'Gas cards, rideshare credits, and hotel accommodations near specialized oncology centers.' },
-    { title: 'Oncology Patient Care Kits & Comfort Items', percent: 15, color: 'bg-sky-600', description: 'Chemotherapy comfort bags, port shirts, cooling caps, and personalized wellness gifts.' },
-    { title: 'Caregiver Support & Bereavement Counseling', percent: 10, color: 'bg-rose-500', description: 'Free grief counseling, caregiver support groups, and family respite resources.' }
+    {
+      title: 'Juravinski Breast Cancer Research',
+      percent: 75,
+      color: 'bg-emerald-600',
+      description: 'Groundbreaking oncology research, vital clinical trials, and advanced patient treatment programs at Juravinski Cancer Centre.'
+    },
+    {
+      title: 'Canadian Red Cross - Fire & Flood',
+      percent: 25,
+      color: 'bg-rose-600',
+      description: 'Emergency disaster response, essential food and shelter provisions, and rapid crisis relief for families affected by fires and floods.'
+    }
   ],
   metrics: [
     { value: '100%', label: 'Net Proceeds to Charity', sub: 'Zero executive overhead or administrative fees' },
     { value: '180+', label: 'Patients Assisted to Date', sub: 'Across 14 regional cancer care centers' },
-    { value: '$120,000+', label: 'Lifetime Funds Raised', sub: 'In ongoing memory of Amina Mohammed' },
+    { value: '$120,000+', label: 'Lifetime Funds Raised', sub: 'In ongoing memory of Naseem Mohammed' },
     { value: '501(c)(3)', label: 'Tax-Deductible Status', sub: 'Official EIN tax receipts provided instantly' }
   ]
 };

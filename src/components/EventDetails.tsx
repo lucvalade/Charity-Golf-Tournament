@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { TOURNAMENT_SCHEDULE, EVENT_DETAILS } from '../data/initialData';
 import { useTournament } from '../context/TournamentContext';
-import { Calendar, Clock, MapPin, Coffee, Heart, Flag, Trophy, Compass, CloudSun, ShieldCheck, ChevronRight, CheckCircle2, CalendarDays } from 'lucide-react';
+import { Calendar, Clock, MapPin, Coffee, Heart, Flag, Trophy, Compass, CloudSun, ShieldCheck, ChevronRight, CheckCircle2, CalendarDays, ExternalLink } from 'lucide-react';
 
 export const EventDetails: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'schedule' | 'course' | 'rules'>('schedule');
@@ -131,7 +131,7 @@ export const EventDetails: React.FC = () => {
                       </>
                     ) : item.time.includes('4:00') ? (
                       <>
-                        Post-round celebration featuring a fabulous turkey banquet feast,{' '}
+                        Dinner &amp; Donation option ($50-$60 to be finalized) [LIMITED #,book early]. Post-round celebration featuring a fabulous turkey dinner,{' '}
                         <a
                           href="https://app.squabbitgolf.com/#z9"
                           target="_blank"
@@ -140,7 +140,7 @@ export const EventDetails: React.FC = () => {
                         >
                           Squabbit live leaderboard
                         </a>{' '}
-                        reveal, trophy presentations, raffle draws, and memorial fundraising recap. ($50-$60 Dinner to be finalized).
+                        reveal, trophy presentations, raffle draws, and memorial fundraising recap.
                       </>
                     ) : (
                       item.description
@@ -167,26 +167,44 @@ export const EventDetails: React.FC = () => {
           <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             <div className="lg:col-span-7 space-y-5">
               <div className="bg-[#1E4D2B] text-white p-8 rounded-2xl shadow-xl relative overflow-hidden">
-                <div className="text-xs font-bold uppercase tracking-widest text-[#D4AF37] mb-2 flex items-center gap-1.5">
-                  <Compass className="w-4 h-4" />
-                  Championship Golf Facility
-                </div>
                 <a
-                  href={EVENT_DETAILS.venue.mapsUrl}
+                  href={EVENT_DETAILS.venue.websiteUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group block"
-                  title="Open in Google Maps"
+                  className="text-xs font-bold uppercase tracking-widest text-[#D4AF37] hover:text-amber-200 mb-2 inline-flex items-center gap-1.5 transition"
+                  title="Visit Burford Golf Links Official Website"
                 >
-                  <h3 className="text-2xl font-bold font-serif-heading text-white group-hover:text-amber-200 transition underline-offset-2 group-hover:underline">
-                    {EVENT_DETAILS.venue.name}
-                  </h3>
-                  <p className="text-xs text-amber-200 mt-1 flex items-center gap-1.5 group-hover:text-amber-100 transition">
-                    <MapPin className="w-3.5 h-3.5" />
-                    {EVENT_DETAILS.venue.address}
-                    <span className="text-[10px] text-emerald-200 ml-1 underline font-semibold">(View on Google Maps ↗)</span>
-                  </p>
+                  <Compass className="w-4 h-4" />
+                  <span>Championship Golf Facility</span>
+                  <ExternalLink className="w-3 h-3 text-amber-300" />
                 </a>
+                <div className="space-y-1.5">
+                  <a
+                    href={EVENT_DETAILS.venue.websiteUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group inline-flex items-center gap-2"
+                    title="Visit Burford Golf Links Official Website"
+                  >
+                    <h3 className="text-2xl font-bold font-serif-heading text-white group-hover:text-amber-200 transition underline-offset-2 group-hover:underline">
+                      {EVENT_DETAILS.venue.name}
+                    </h3>
+                    <ExternalLink className="w-4 h-4 text-emerald-300 group-hover:text-amber-200 shrink-0" />
+                  </a>
+                  <a
+                    href={EVENT_DETAILS.venue.mapsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block group"
+                    title="Open venue location in Google Maps"
+                  >
+                    <p className="text-xs text-amber-200 flex items-center gap-1.5 group-hover:text-amber-100 transition">
+                      <MapPin className="w-3.5 h-3.5 text-amber-300" />
+                      <span>{EVENT_DETAILS.venue.address}</span>
+                      <span className="text-[10px] text-emerald-200 ml-1 underline font-semibold">(View on Google Maps ↗)</span>
+                    </p>
+                  </a>
+                </div>
 
                 <div className="mt-6 pt-6 border-t border-emerald-800/80 grid grid-cols-2 gap-4 text-xs">
                   <div>
@@ -208,7 +226,7 @@ export const EventDetails: React.FC = () => {
                   </div>
                   <div>
                     <div className="text-xs font-bold text-slate-800">October Climate</div>
-                    <div className="text-xs text-slate-500">Sunny 72°F &bull; 5mph Crisp Fall Breeze</div>
+                    <div className="text-xs text-slate-500">Sunny 18°C &bull; 5mph Crisp Fall Breeze</div>
                   </div>
                 </div>
 
