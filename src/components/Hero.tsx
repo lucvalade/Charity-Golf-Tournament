@@ -111,27 +111,27 @@ export const Hero: React.FC = () => {
             </div>
 
             {/* Timer digits */}
-            <div className="flex items-center gap-3 sm:gap-4">
-              <div className="flex flex-col items-center bg-[#15381E] border border-emerald-700/80 rounded-lg px-3 sm:px-4 py-2 min-w-[64px]">
+            <div className="flex items-center gap-1.5 sm:gap-4">
+              <div className="flex flex-col items-center bg-[#15381E] border border-emerald-700/80 rounded-lg px-2.5 sm:px-4 py-1.5 sm:py-2 min-w-[54px] sm:min-w-[64px]">
                 <span className="text-xl sm:text-2xl font-bold font-mono text-white">{timeLeft.days}</span>
                 <span className="text-[10px] text-amber-200/80 uppercase font-semibold">Days</span>
               </div>
               <span className="text-[#D4AF37] font-bold text-lg">:</span>
-              <div className="flex flex-col items-center bg-[#15381E] border border-emerald-700/80 rounded-lg px-3 sm:px-4 py-2 min-w-[64px]">
+              <div className="flex flex-col items-center bg-[#15381E] border border-emerald-700/80 rounded-lg px-2.5 sm:px-4 py-1.5 sm:py-2 min-w-[54px] sm:min-w-[64px]">
                 <span className="text-xl sm:text-2xl font-bold font-mono text-white">
                   {String(timeLeft.hours).padStart(2, '0')}
                 </span>
                 <span className="text-[10px] text-amber-200/80 uppercase font-semibold">Hours</span>
               </div>
               <span className="text-[#D4AF37] font-bold text-lg">:</span>
-              <div className="flex flex-col items-center bg-[#15381E] border border-emerald-700/80 rounded-lg px-3 sm:px-4 py-2 min-w-[64px]">
+              <div className="flex flex-col items-center bg-[#15381E] border border-emerald-700/80 rounded-lg px-2.5 sm:px-4 py-1.5 sm:py-2 min-w-[54px] sm:min-w-[64px]">
                 <span className="text-xl sm:text-2xl font-bold font-mono text-white">
                   {String(timeLeft.minutes).padStart(2, '0')}
                 </span>
                 <span className="text-[10px] text-amber-200/80 uppercase font-semibold">Mins</span>
               </div>
               <span className="text-[#D4AF37] font-bold text-lg">:</span>
-              <div className="flex flex-col items-center bg-[#15381E] border border-emerald-700/80 rounded-lg px-3 sm:px-4 py-2 min-w-[64px]">
+              <div className="flex flex-col items-center bg-[#15381E] border border-emerald-700/80 rounded-lg px-2.5 sm:px-4 py-1.5 sm:py-2 min-w-[54px] sm:min-w-[64px]">
                 <span className="text-xl sm:text-2xl font-bold font-mono text-amber-300">
                   {String(timeLeft.seconds).padStart(2, '0')}
                 </span>

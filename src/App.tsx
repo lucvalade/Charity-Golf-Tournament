@@ -31,15 +31,17 @@ import { DonationModal } from './components/DonationModal';
 import { AddMemorialNoteModal } from './components/AddMemorialNoteModal';
 import { GameDayAgendaModal } from './components/GameDayAgendaModal';
 import { WelcomePopup } from './components/WelcomePopup';
+import { ApiKeySettingsModal } from './components/ApiKeySettingsModal';
 
 function TournamentAppContent() {
-  const { isAdminOpen, setIsAdminOpen } = useTournament();
+  const { isAdminOpen, setIsAdminOpen, isApiKeyModalOpen, setIsApiKeyModalOpen } = useTournament();
 
   // If in Admin Mode (/admin), render as a regular standalone page, NOT a popup
   if (isAdminOpen) {
     return (
       <div className="min-h-screen bg-slate-100 text-slate-900 flex flex-col font-sans">
         <AdminPortalPage onBackToSite={() => setIsAdminOpen(false)} />
+        <ApiKeySettingsModal isOpen={isApiKeyModalOpen} onClose={() => setIsApiKeyModalOpen(false)} />
         <ToastContainer />
       </div>
     );
@@ -100,6 +102,7 @@ function TournamentAppContent() {
       <DonationModal />
       <AddMemorialNoteModal />
       <GameDayAgendaModal />
+      <ApiKeySettingsModal isOpen={isApiKeyModalOpen} onClose={() => setIsApiKeyModalOpen(false)} />
 
       {/* Global Notification Toast Container */}
       <ToastContainer />

@@ -35,8 +35,10 @@ import {
   Phone,
   Calendar,
   MapPin,
-  Sparkles
+  Sparkles,
+  Key
 } from 'lucide-react';
+import { ApiKeySettingsModal } from './ApiKeySettingsModal';
 
 interface AdminPortalPageProps {
   onBackToSite?: () => void;
@@ -60,7 +62,7 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({ onBackToSite }
     addToast
   } = useTournament();
 
-  const [activeTab, setActiveTab] = useState<'checkin' | 'golfers' | 'sponsors' | 'donations'>('golfers');
+  const [activeTab, setActiveTab] = useState<'checkin' | 'golfers' | 'sponsors' | 'donations' | 'apikeys'>('golfers');
   const [searchQuery, setSearchQuery] = useState('');
   const [paymentFilter, setPaymentFilter] = useState<'all' | 'cheque' | 'etransfer' | 'cash' | 'credit_card'>('all');
   const [statusFilter, setStatusFilter] = useState<'all' | 'paid' | 'pending'>('all');
@@ -432,6 +434,19 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({ onBackToSite }
           {/* Right: Quick Actions */}
           <div className="flex items-center gap-2">
             <button
+              onClick={() => setActiveTab('apikeys')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition cursor-pointer shadow-xs ${
+                activeTab === 'apikeys'
+                  ? 'bg-amber-400 text-slate-900 border-amber-300 font-bold'
+                  : 'bg-emerald-950/80 hover:bg-emerald-900 text-amber-200 hover:text-white border-emerald-700/60'
+              }`}
+              title="Configure Google Translate API Key"
+            >
+              <Key className="w-3.5 h-3.5 text-[#D4AF37]" />
+              <span>Translate API Key</span>
+            </button>
+
+            <button
               onClick={() => {
                 logoutAdmin();
                 addToast('info', 'Section Locked', 'Administrator section locked. Passcode is required to re-enter.');
@@ -609,6 +624,18 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({ onBackToSite }
           >
             <Heart className="w-4 h-4" />
             <span>Memorial Donations ({donations.length})</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('apikeys')}
+            className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-bold flex items-center gap-2 transition cursor-pointer ${
+              activeTab === 'apikeys'
+                ? 'bg-[#1E4D2B] text-white shadow-xs'
+                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+            }`}
+          >
+            <Key className="w-4 h-4 text-[#D4AF37]" />
+            <span>Google Translate API Key</span>
           </button>
         </div>
 
@@ -1137,6 +1164,11 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({ onBackToSite }
               </table>
             </div>
           </div>
+        )}
+
+        {/* Tab 5: API KEYS & INTEGRATIONS */}
+        {activeTab === 'apikeys' && (
+          <ApiKeySettingsModal isInlineScreen={true} />
         )}
 
         {/* Footer Administration Utility Bar */}

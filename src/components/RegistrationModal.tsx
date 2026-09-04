@@ -493,25 +493,28 @@ Status: PENDING RECEIPT BY SAIED MOHAMMED`
 
         {/* Stepper Progress Bar (Steps 1 to 4) */}
         {step < 5 && (
-          <div className="bg-slate-100 px-6 py-3 border-b border-slate-200 flex items-center justify-between text-xs font-semibold">
-            <div className={`flex items-center gap-1.5 ${step >= 1 ? 'text-[#1E4D2B] font-bold' : 'text-slate-400'}`}>
-              <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${step >= 1 ? 'bg-[#1E4D2B] text-white' : 'bg-slate-300 text-slate-600'}`}>1</span>
-              <span>Entry Type</span>
+          <div className="bg-slate-100 px-3 sm:px-6 py-3 border-b border-slate-200 flex items-center justify-between text-xs font-semibold">
+            <div className={`flex items-center gap-1 sm:gap-1.5 ${step >= 1 ? 'text-[#1E4D2B] font-bold' : 'text-slate-400'}`}>
+              <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] shrink-0 ${step >= 1 ? 'bg-[#1E4D2B] text-white' : 'bg-slate-300 text-slate-600'}`}>1</span>
+              <span className="hidden sm:inline">Entry Type</span>
+              <span className="sm:hidden">Type</span>
             </div>
-            <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-            <div className={`flex items-center gap-1.5 ${step >= 2 ? 'text-[#1E4D2B] font-bold' : 'text-slate-400'}`}>
-              <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${step >= 2 ? 'bg-[#1E4D2B] text-white' : 'bg-slate-300 text-slate-600'}`}>2</span>
-              <span>Player Roster</span>
+            <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+            <div className={`flex items-center gap-1 sm:gap-1.5 ${step >= 2 ? 'text-[#1E4D2B] font-bold' : 'text-slate-400'}`}>
+              <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] shrink-0 ${step >= 2 ? 'bg-[#1E4D2B] text-white' : 'bg-slate-300 text-slate-600'}`}>2</span>
+              <span className="hidden sm:inline">Player Roster</span>
+              <span className="sm:hidden">Roster</span>
             </div>
-            <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-            <div className={`flex items-center gap-1.5 ${step >= 3 ? 'text-[#1E4D2B] font-bold' : 'text-slate-400'}`}>
-              <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${step >= 3 ? 'bg-[#1E4D2B] text-white' : 'bg-slate-300 text-slate-600'}`}>3</span>
+            <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+            <div className={`flex items-center gap-1 sm:gap-1.5 ${step >= 3 ? 'text-[#1E4D2B] font-bold' : 'text-slate-400'}`}>
+              <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] shrink-0 ${step >= 3 ? 'bg-[#1E4D2B] text-white' : 'bg-slate-300 text-slate-600'}`}>3</span>
               <span>Add-Ons</span>
             </div>
-            <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-            <div className={`flex items-center gap-1.5 ${step >= 4 ? 'text-[#1E4D2B] font-bold' : 'text-slate-400'}`}>
-              <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${step >= 4 ? 'bg-[#1E4D2B] text-white' : 'bg-slate-300 text-slate-600'}`}>4</span>
-              <span>Checkout</span>
+            <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+            <div className={`flex items-center gap-1 sm:gap-1.5 ${step >= 4 ? 'text-[#1E4D2B] font-bold' : 'text-slate-400'}`}>
+              <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] shrink-0 ${step >= 4 ? 'bg-[#1E4D2B] text-white' : 'bg-slate-300 text-slate-600'}`}>4</span>
+              <span className="hidden sm:inline">Checkout</span>
+              <span className="sm:hidden">Pay</span>
             </div>
           </div>
         )}

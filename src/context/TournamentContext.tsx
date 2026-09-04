@@ -79,6 +79,9 @@ interface TournamentContextType {
   openSponsorModal: (preselectedTier?: SponsorTier) => void;
   openAgendaModal: () => void;
   openMemorialNoteModal: () => void;
+  isApiKeyModalOpen: boolean;
+  setIsApiKeyModalOpen: (open: boolean) => void;
+  openApiKeyModal: () => void;
   isRegModalOpen: boolean;
   setIsRegModalOpen: (open: boolean) => void;
   isDonationModalOpen: boolean;
@@ -157,6 +160,7 @@ export const TournamentProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [isSponsorModalOpen, setIsSponsorModalOpen] = useState(false);
   const [isAgendaOpen, setIsAgendaOpen] = useState(false);
   const [isMemorialNoteModalOpen, setIsMemorialNoteModalOpen] = useState(false);
+  const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpenState] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
       const p = window.location.pathname.toLowerCase();
@@ -531,6 +535,10 @@ export const TournamentProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     setIsMemorialNoteModalOpen(true);
   };
 
+  const openApiKeyModal = () => {
+    setIsApiKeyModalOpen(true);
+  };
+
   return (
     <TournamentContext.Provider
       value={{
@@ -561,6 +569,9 @@ export const TournamentProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         openSponsorModal,
         openAgendaModal,
         openMemorialNoteModal,
+        isApiKeyModalOpen,
+        setIsApiKeyModalOpen,
+        openApiKeyModal,
         isRegModalOpen,
         setIsRegModalOpen,
         isDonationModalOpen,

@@ -37,7 +37,9 @@ export const EventDetails: React.FC = () => {
   ];
 
   return (
-    <section id="schedule" className="py-20 bg-white border-t border-slate-200 relative">
+    <section id="schedule" className="py-20 bg-white border-t border-slate-200 relative scroll-mt-20">
+      <div id="logistics" className="-top-24 relative" />
+      <div id="itinerary" className="-top-24 relative" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-14">
@@ -54,11 +56,11 @@ export const EventDetails: React.FC = () => {
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex justify-center mb-10">
-          <div className="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200 text-xs sm:text-sm font-semibold">
+        <div className="flex justify-center mb-10 px-2">
+          <div className="flex flex-wrap sm:flex-nowrap justify-center p-1 rounded-xl bg-slate-100 border border-slate-200 text-xs sm:text-sm font-semibold gap-1 sm:gap-0 max-w-full">
             <button
               onClick={() => setActiveTab('schedule')}
-              className={`px-5 py-2 rounded-lg transition cursor-pointer ${
+              className={`px-4 sm:px-5 py-2.5 sm:py-2 rounded-lg transition cursor-pointer text-center flex-1 sm:flex-initial min-h-[44px] sm:min-h-0 flex items-center justify-center ${
                 activeTab === 'schedule'
                   ? 'bg-[#1E4D2B] text-white shadow-sm font-bold'
                   : 'text-slate-600 hover:text-slate-900'
@@ -68,23 +70,23 @@ export const EventDetails: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveTab('course')}
-              className={`px-5 py-2 rounded-lg transition cursor-pointer ${
+              className={`px-4 sm:px-5 py-2.5 sm:py-2 rounded-lg transition cursor-pointer text-center flex-1 sm:flex-initial min-h-[44px] sm:min-h-0 flex items-center justify-center ${
                 activeTab === 'course'
                   ? 'bg-[#1E4D2B] text-white shadow-sm font-bold'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              Venue & Course Guide
+              Venue &amp; Course Guide
             </button>
             <button
               onClick={() => setActiveTab('rules')}
-              className={`px-5 py-2 rounded-lg transition cursor-pointer ${
+              className={`px-4 sm:px-5 py-2.5 sm:py-2 rounded-lg transition cursor-pointer text-center flex-1 sm:flex-initial min-h-[44px] sm:min-h-0 flex items-center justify-center ${
                 activeTab === 'rules'
                   ? 'bg-[#1E4D2B] text-white shadow-sm font-bold'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              Scramble Rules & Prizes
+              Scramble Rules &amp; Prizes
             </button>
           </div>
         </div>
