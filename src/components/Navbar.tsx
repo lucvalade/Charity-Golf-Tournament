@@ -12,12 +12,14 @@ import {
   Users,
   HelpCircle,
   ArrowRight,
+  Lock,
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
-  const { openDonationModal, setIsAdminOpen } = useTournament();
+  const { openDonationModal, setIsAdminOpen, isAdminAuthenticated } = useTournament();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [adminHovered, setAdminHovered] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -62,7 +64,7 @@ export const Navbar: React.FC = () => {
             </div>
             <p className="text-[11px] sm:text-xs text-amber-200/95 font-medium tracking-wide flex items-center gap-1 leading-tight mt-0.5">
               <Heart className="w-3 h-3 text-rose-400 fill-rose-400 shrink-0 inline" />
-              <span>In Memory of Naseem</span>
+              <span>In Memory of Naseem Mohammed</span>
             </p>
           </div>
         </button>
@@ -133,15 +135,45 @@ export const Navbar: React.FC = () => {
             <span>Donate</span>
           </button>
 
-          {/* Tournament Director Portal Button */}
-          <button
-            onClick={() => setIsAdminOpen(true)}
-            title="Tournament Director Portal (Luc Valade)"
-            className="p-2 rounded-lg text-amber-200/80 hover:text-white hover:bg-emerald-900/60 border border-emerald-700/50 transition cursor-pointer"
-            aria-label="Admin Portal"
+          {/* Tournament Director Portal Button (Admins Only) with Hover Popup */}
+          <div
+            className="relative flex items-center"
+            onMouseEnter={() => setAdminHovered(true)}
+            onMouseLeave={() => setAdminHovered(false)}
           >
-            <Shield className="w-4 h-4" />
-          </button>
+            <button
+              onClick={() => setIsAdminOpen(true)}
+              onFocus={() => setAdminHovered(true)}
+              onBlur={() => setAdminHovered(false)}
+              title="Admins Only"
+              className="p-2 rounded-lg text-amber-200/90 hover:text-white hover:bg-emerald-900/60 border border-emerald-700/50 transition cursor-pointer relative flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-[#D4AF37]"
+              aria-label="Admins Only"
+              id="nav-admin-shield-button"
+            >
+              <Shield className="w-4 h-4 text-[#D4AF37]" />
+              {!isAdminAuthenticated ? (
+                <Lock className="w-2.5 h-2.5 absolute -bottom-0.5 -right-0.5 text-amber-300 bg-[#0F2D17] rounded-full p-0.5 border border-emerald-600" />
+              ) : (
+                <span className="w-2 h-2 absolute -top-0.5 -right-0.5 bg-emerald-400 rounded-full border border-[#0F2D17]" />
+              )}
+            </button>
+
+            {/* Small popup on hover: Admins Only */}
+            {adminHovered && (
+              <div
+                role="tooltip"
+                id="admin-shield-popup"
+                className="absolute top-full right-0 mt-2 z-50 pointer-events-none transition-all duration-150 transform translate-y-0 animate-in fade-in zoom-in-95"
+              >
+                <div className="relative px-2.5 py-1 bg-slate-950 text-white text-[11px] font-bold rounded-md shadow-2xl border border-amber-400/50 flex items-center gap-1.5 whitespace-nowrap">
+                  <Lock className="w-3 h-3 text-amber-400 shrink-0" />
+                  <span className="tracking-wide">Admins Only</span>
+                  {/* Arrow pointing up to shield */}
+                  <div className="absolute -top-1 right-3 w-2 h-2 bg-slate-950 border-t border-l border-amber-400/50 rotate-45" />
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Mobile Header Buttons (Brand on left, prominent Register CTA + Hamburger on right) */}
@@ -253,10 +285,11 @@ export const Navbar: React.FC = () => {
                 setMobileMenuOpen(false);
                 setIsAdminOpen(true);
               }}
-              className="w-full py-2 text-xs font-medium text-center text-amber-200 hover:text-white flex items-center justify-center gap-1.5 mt-1"
+              className="w-full py-2 text-xs font-semibold text-center text-amber-200 hover:text-white flex items-center justify-center gap-1.5 mt-1 border border-emerald-800/80 rounded-lg bg-emerald-950/40"
             >
-              <Shield className="w-3.5 h-3.5" />
-              <span>Tournament Director Portal (Luc Valade)</span>
+              <Shield className="w-3.5 h-3.5 text-[#D4AF37]" />
+              <Lock className="w-3 h-3 text-amber-300" />
+              <span>Admins Only (Director Portal)</span>
             </button>
           </div>
         </div>

@@ -1,10 +1,10 @@
 import React from 'react';
 import { useTournament } from '../context/TournamentContext';
 import { EVENT_DETAILS } from '../data/initialData';
-import { Heart, Trophy, Shield, MapPin, Mail, Phone, ExternalLink, QrCode } from 'lucide-react';
+import { Heart, Trophy, Shield, MapPin, Mail, Phone, ExternalLink, QrCode, Lock } from 'lucide-react';
 
 export const Footer: React.FC = () => {
-  const { setIsAdminOpen, openDonationModal, openRegistrationModal } = useTournament();
+  const { setIsAdminOpen, openDonationModal, openRegistrationModal, isAdminAuthenticated } = useTournament();
 
   return (
     <footer className="bg-[#0D2414] text-slate-300 border-t border-[#D4AF37]/30 pt-16 pb-12">
@@ -44,7 +44,7 @@ export const Footer: React.FC = () => {
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
-                <a href="#about" className="hover:text-white transition">Memorial Story & Mission</a>
+                <a href="#memorial" className="hover:text-white transition">Memorial Story &amp; Mission</a>
               </li>
               <li>
                 <a href="#register" className="hover:text-white transition">Golfer Registration</a>
@@ -53,13 +53,24 @@ export const Footer: React.FC = () => {
                 <a href="#sponsorships" className="hover:text-white transition">Sponsor Packages</a>
               </li>
               <li>
-                <a href="#scoring" className="hover:text-white transition">Squabbit Live Leaderboard</a>
+                <a href="#squabbit" className="hover:text-white transition">Go to Official Tournament Scoring System</a>
               </li>
               <li>
-                <a href="#tributes" className="hover:text-white transition">Tribute & Memorial Book</a>
+                <a
+                  href="https://app.squabbitgolf.com/w/tournament/TCaBLm4Hc?tab=leaderboard"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-white transition inline-flex items-center gap-1 text-amber-300/90 font-medium"
+                >
+                  <span>Squabbit Live Leaderboard</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
               </li>
               <li>
-                <a href="#schedule" className="hover:text-white transition">Schedule & Rules</a>
+                <a href="#tributes" className="hover:text-white transition">Tribute &amp; Memorial Book</a>
+              </li>
+              <li>
+                <a href="#schedule" className="hover:text-white transition">Schedule &amp; Rules</a>
               </li>
             </ul>
           </div>
@@ -125,8 +136,9 @@ export const Footer: React.FC = () => {
                 onClick={() => setIsAdminOpen(true)}
                 className="w-full py-2 px-3 bg-emerald-950 hover:bg-emerald-900 border border-emerald-700/80 rounded-xl text-xs font-bold text-amber-200 transition flex items-center justify-center gap-1.5 cursor-pointer"
               >
-                <Shield className="w-3.5 h-3.5" />
-                <span>Director Portal & Check-in</span>
+                <Shield className="w-3.5 h-3.5 text-[#D4AF37]" />
+                {!isAdminAuthenticated && <Lock className="w-3 h-3 text-amber-300" />}
+                <span>Admins Only (Director Portal)</span>
               </button>
             </div>
           </div>
@@ -138,7 +150,16 @@ export const Footer: React.FC = () => {
             &copy; 2026 {EVENT_DETAILS.name}. In Loving Memory of {EVENT_DETAILS.memorialHonoree}.
           </div>
           <div className="flex items-center gap-4 text-[11px] text-slate-300">
-            <span>Powered by Squabbit Scoring</span>
+            <a
+              href="https://squabbitgolf.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-emerald-300 hover:text-emerald-200 hover:underline inline-flex items-center gap-1 transition"
+              title="Squabbit Live Golf Scoring Portal"
+            >
+              <span>Powered by Squabbit Scoring</span>
+              <ExternalLink className="w-3 h-3 text-emerald-400" />
+            </a>
             <span>&bull;</span>
             <button
               onClick={() => openDonationModal(100)}

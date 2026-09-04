@@ -75,7 +75,7 @@ export const ImpactSection: React.FC = () => {
                 href="#register"
                 className="w-full py-3 px-6 bg-emerald-800/80 hover:bg-emerald-700 text-white font-semibold text-xs rounded-xl border border-emerald-600 transition flex items-center justify-center gap-2 text-center"
               >
-                <span>Register a Foursome Team ($800)</span>
+                <span>Register a Foursome Team</span>
                 <ArrowUpRight className="w-4 h-4" />
               </a>
             </div>

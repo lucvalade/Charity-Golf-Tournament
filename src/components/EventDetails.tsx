@@ -133,12 +133,13 @@ export const EventDetails: React.FC = () => {
                       <>
                         Dinner &amp; Donation option ($50-$60 to be finalized) [LIMITED #,book early]. Post-round celebration featuring a fabulous turkey dinner,{' '}
                         <a
-                          href="https://app.squabbitgolf.com/#z9"
+                          href="https://app.squabbitgolf.com/w/tournament/TCaBLm4Hc?tab=leaderboard"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-emerald-700 underline hover:text-emerald-900 font-semibold"
+                          className="text-emerald-700 underline hover:text-emerald-900 font-semibold inline-flex items-center gap-1"
                         >
-                          Squabbit live leaderboard
+                          <span>Squabbit live leaderboard</span>
+                          <ExternalLink className="w-3 h-3 inline" />
                         </a>{' '}
                         reveal, trophy presentations, raffle draws, and memorial fundraising recap.
                       </>

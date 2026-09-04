@@ -72,7 +72,18 @@ export const RegistrationSection: React.FC = () => {
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Live Squabbit Leaderboard Sync &amp; Contests</span>
+                  <span>
+                    Live Squabbit{' '}
+                    <a
+                      href="https://app.squabbitgolf.com/w/tournament/TCaBLm4Hc?tab=leaderboard"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline hover:text-emerald-700 font-semibold"
+                    >
+                      Leaderboard
+                    </a>{' '}
+                    Sync &amp; Contests
+                  </span>
                 </div>
               </div>
             </div>

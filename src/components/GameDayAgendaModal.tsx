@@ -14,7 +14,8 @@ import {
   MapPin, 
   CheckCircle2, 
   ArrowRight,
-  Gift
+  Gift,
+  ExternalLink
 } from 'lucide-react';
 
 export const GameDayAgendaModal: React.FC = () => {
@@ -186,12 +187,13 @@ export const GameDayAgendaModal: React.FC = () => {
                 <p className="text-[11px] text-slate-600 mt-0.5 leading-relaxed">
                   Dinner &amp; Donation option ($50-$60 to be finalized) [LIMITED #, book early]. Post-round celebration with{' '}
                   <a
-                    href="https://app.squabbitgolf.com/#z9"
+                    href="https://app.squabbitgolf.com/w/tournament/TCaBLm4Hc?tab=leaderboard"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-orange-800 underline hover:text-orange-950 font-semibold"
+                    className="text-orange-800 underline hover:text-orange-950 font-semibold inline-flex items-center gap-1"
                   >
-                    Squabbit live leaderboard
+                    <span>Squabbit live leaderboard</span>
+                    <ExternalLink className="w-3 h-3 inline" />
                   </a>
                   , trophy awards, and charity draws.
                 </p>

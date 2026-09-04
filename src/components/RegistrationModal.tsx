@@ -22,7 +22,8 @@ import {
   Banknote,
   FileText,
   Copy,
-  ExternalLink
+  ExternalLink,
+  Send
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -194,8 +195,8 @@ export const RegistrationModal: React.FC = () => {
     tigerDriveCount: 2
   });
 
-  // Payment Method Selection (Cheque, Cash, Credit Card)
-  const [paymentMethod, setPaymentMethod] = useState<'cheque' | 'cash' | 'credit_card'>('cheque');
+  // Payment Method Selection (Cheque, e-Transfer, Credit Card)
+  const [paymentMethod, setPaymentMethod] = useState<'cheque' | 'etransfer' | 'cash' | 'credit_card'>('cheque');
   const [cardNumber, setCardNumber] = useState('4532 8912 3456 7890');
   const [cardExp, setCardExp] = useState('12/26');
   const [cardCvc, setCardCvc] = useState('789');
@@ -291,7 +292,12 @@ export const RegistrationModal: React.FC = () => {
   };
 
   const generateSaiedEmailText = (rec: RegistrationRecord, total: number) => {
-    const methodLabel = rec.paymentMethod === 'cheque' ? 'CHEQUE' : rec.paymentMethod === 'cash' ? 'CASH' : 'CREDIT CARD';
+    const methodLabel =
+      rec.paymentMethod === 'cheque'
+        ? 'CHEQUE'
+        : rec.paymentMethod === 'etransfer' || rec.paymentMethod === 'cash'
+        ? 'INTERAC E-TRANSFER'
+        : 'CREDIT CARD';
     return `ATTENTION: Saied Mohammed (ms_smnm@outlook.com)
 TOURNAMENT: 2026 Memorial Charity Golf Classic
 ADMINISTRATOR: Luc Valade
@@ -345,8 +351,13 @@ ${rec.paymentMethod === 'cheque'
 Memo: 2026 Memorial Golf Classic - ${rec.confirmationCode} (${rec.primaryContact.name})
 Total Amount: $${total.toLocaleString()} CAD
 Mail to Saied Mohammed or present at 10:30 AM registration desk.` 
-  : rec.paymentMethod === 'cash'
-  ? `Amount: $${total.toLocaleString()} CAD cash payable directly to Saied Mohammed at morning check-in desk.`
+  : (rec.paymentMethod === 'etransfer' || rec.paymentMethod === 'cash')
+  ? `Interac e-Transfer Instructions:
+Send e-Transfer to: Saied Mohammed
+Recipient Email: ms_smnm@outlook.com
+Total Amount: $${total.toLocaleString()} CAD
+Memo / Note in Banking App: 2026 Memorial Golf - ${rec.confirmationCode} (${rec.primaryContact.name})
+Status: PENDING RECEIPT BY SAIED MOHAMMED`
   : `Online credit card payment processed.`}
 
 *All registration records are logged in the tournament database accessible by Tournament Administrator Luc Valade.*`;
@@ -407,9 +418,10 @@ Mail to Saied Mohammed or present at 10:30 AM registration desk.`
         paymentMethod
       });
 
-      // If Cheque or Cash is chosen, prepare mailto link for Saied Mohammed (ms_smnm@outlook.com)
-      if (paymentMethod === 'cheque' || paymentMethod === 'cash') {
-        const mailSubject = `[2026 Memorial Golf Classic] New Registration (${paymentMethod === 'cheque' ? 'Cheque' : 'Cash'}): ${primaryPlayer.name} - ${created.confirmationCode}`;
+      // If Cheque, e-Transfer, or Cash is chosen, prepare mailto link for Saied Mohammed (ms_smnm@outlook.com)
+      if (paymentMethod === 'cheque' || paymentMethod === 'etransfer' || paymentMethod === 'cash') {
+        const methodTitle = paymentMethod === 'cheque' ? 'Cheque' : 'e-Transfer';
+        const mailSubject = `[2026 Memorial Golf Classic] New Registration (${methodTitle}): ${primaryPlayer.name} - ${created.confirmationCode}`;
         const mailBody = generateSaiedEmailText(created, totalAmount);
         const mailtoUrl = `mailto:ms_smnm@outlook.com?subject=${encodeURIComponent(mailSubject)}&body=${encodeURIComponent(mailBody)}`;
         
@@ -1178,7 +1190,7 @@ Mail to Saied Mohammed or present at 10:30 AM registration desk.`
                     className="w-full px-3.5 py-2.5 text-sm font-semibold border-2 border-emerald-800/40 rounded-xl bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#1E4D2B] shadow-xs cursor-pointer"
                   >
                     <option value="cheque">Cheque (Payable to Saied Mohammed - ms_smnm@outlook.com)</option>
-                    <option value="cash">Cash (Pay to Saied Mohammed at Check-in - ms_smnm@outlook.com)</option>
+                    <option value="etransfer">Interac e-Transfer (Send to Saied Mohammed - ms_smnm@outlook.com)</option>
                     <option value="credit_card">Credit Card (Instant Online Card Payment)</option>
                   </select>
                 </div>
@@ -1242,22 +1254,23 @@ Mail to Saied Mohammed or present at 10:30 AM registration desk.`
                   </div>
                 )}
 
-                {/* CASH PAYMENT OPTION */}
-                {paymentMethod === 'cash' && (
-                  <div className="p-5 bg-gradient-to-br from-emerald-50/90 to-amber-50/50 rounded-xl border-2 border-emerald-300/80 space-y-4 shadow-sm">
+                {/* INTERAC E-TRANSFER PAYMENT OPTION */}
+                {(paymentMethod === 'etransfer' || paymentMethod === 'cash') && (
+                  <div className="p-5 bg-gradient-to-br from-emerald-50/90 via-amber-50/40 to-emerald-50/70 rounded-xl border-2 border-emerald-500/80 space-y-4 shadow-sm">
                     <div className="flex items-start gap-3">
-                      <div className="w-9 h-9 rounded-lg bg-emerald-100 border border-emerald-300 text-emerald-900 flex items-center justify-center shrink-0">
-                        <Banknote className="w-5 h-5" />
+                      <div className="w-9 h-9 rounded-lg bg-[#1E4D2B] text-white flex items-center justify-center shrink-0 shadow-xs">
+                        <Send className="w-4 h-4 text-amber-300" />
                       </div>
                       <div>
-                        <div className="text-[11px] uppercase tracking-wider font-bold text-emerald-900">
-                          Offline Payment Selected
+                        <div className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-wider font-extrabold text-[#1E4D2B]">
+                          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                          <span>Interac e-Transfer &bull; Direct Routing to Saied Mohammed</span>
                         </div>
                         <h5 className="text-sm font-bold text-slate-900">
-                          Cash at Check-in Desk &bull; Direct Routing to Saied Mohammed
+                          Electronic Funds Transfer via Online / Mobile Banking
                         </h5>
                         <p className="text-xs text-slate-600 mt-0.5">
-                          All registration and roster information will go directly to Tournament Founder{' '}
+                          All registration, team roster, handicap, and add-on reservation details are routed directly to Tournament Founder{' '}
                           <strong className="text-emerald-950 font-bold">Saied Mohammed</strong> at{' '}
                           <a
                             href="mailto:ms_smnm@outlook.com"
@@ -1271,31 +1284,33 @@ Mail to Saied Mohammed or present at 10:30 AM registration desk.`
 
                     <div className="p-3.5 bg-white rounded-lg border border-emerald-200 text-xs space-y-2 text-slate-800">
                       <div className="flex justify-between items-center pb-2 border-b border-slate-100">
-                        <span className="text-slate-500 font-medium">Hand Cash Directly To:</span>
+                        <span className="text-slate-500 font-medium">Send e-Transfer To:</span>
                         <span className="font-bold text-slate-900">Saied Mohammed</span>
                       </div>
                       <div className="flex justify-between items-center pb-2 border-b border-slate-100">
-                        <span className="text-slate-500 font-medium">Organizer Email:</span>
-                        <span className="font-mono font-bold text-[#1E4D2B]">ms_smnm@outlook.com</span>
+                        <span className="text-slate-500 font-medium">e-Transfer Email Address:</span>
+                        <span className="font-mono font-bold text-[#1E4D2B] bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                          ms_smnm@outlook.com
+                        </span>
                       </div>
                       <div className="flex justify-between items-center pb-2 border-b border-slate-100">
-                        <span className="text-slate-500 font-medium">When &amp; Where:</span>
+                        <span className="text-slate-500 font-medium">Memo / Transfer Note:</span>
                         <span className="font-semibold text-slate-800">
-                          Check-in Desk (10:30 AM &bull; Oct 5, 2026)
+                          2026 Memorial Golf &bull; {primaryPlayer.name || 'Your Name'}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-slate-500 font-medium">Total Cash Due:</span>
+                        <span className="text-slate-500 font-medium">Total e-Transfer Due:</span>
                         <span className="text-base font-extrabold font-mono text-[#1E4D2B]">
                           ${totalAmount.toLocaleString()} CAD
                         </span>
                       </div>
                     </div>
 
-                    <div className="flex items-start gap-2 text-[11px] text-emerald-900 bg-emerald-100/60 p-2.5 rounded-lg border border-emerald-200">
-                      <Mail className="w-4 h-4 shrink-0 text-emerald-800 mt-0.5" />
+                    <div className="p-2.5 rounded-lg bg-emerald-100/70 border border-emerald-300 text-[11px] text-emerald-950 flex items-start gap-2">
+                      <Mail className="w-4 h-4 shrink-0 text-[#1E4D2B] mt-0.5" />
                       <span>
-                        Your golfer spots and contest inventory are locked in immediately. All information provided goes to <strong>Saied Mohammed</strong> and is stored in the database for Admin <strong>Luc Valade</strong>.
+                        Your golfer spots and contest inventory are locked in immediately upon confirmation. A pre-formatted registration notification will open to send to <strong>Saied Mohammed</strong> (ms_smnm@outlook.com) and all records are logged in the database for Tournament Administrator <strong>Luc Valade</strong>.
                       </span>
                     </div>
                   </div>
@@ -1474,8 +1489,8 @@ Mail to Saied Mohammed or present at 10:30 AM registration desk.`
                     ? 'Confirming Registration...'
                     : paymentMethod === 'cheque'
                     ? `Confirm Cheque ($${totalAmount.toLocaleString()}) & Send to Saied`
-                    : paymentMethod === 'cash'
-                    ? `Confirm Cash at Check-in ($${totalAmount.toLocaleString()})`
+                    : paymentMethod === 'etransfer' || paymentMethod === 'cash'
+                    ? `Confirm e-Transfer ($${totalAmount.toLocaleString()}) & Send to Saied`
                     : `Pay $${totalAmount.toLocaleString()} & Confirm`}
                 </span>
               </button>
@@ -1503,7 +1518,7 @@ Mail to Saied Mohammed or present at 10:30 AM registration desk.`
             </div>
 
             {/* Offline Payment Routing Notice for Saied Mohammed */}
-            {(confirmedRecord.paymentMethod === 'cheque' || confirmedRecord.paymentMethod === 'cash') && (
+            {(confirmedRecord.paymentMethod === 'cheque' || confirmedRecord.paymentMethod === 'etransfer' || confirmedRecord.paymentMethod === 'cash') && (
               <div className="max-w-md mx-auto p-4 bg-amber-50 rounded-2xl border-2 border-amber-300 text-left space-y-3">
                 <div className="flex items-start gap-2.5">
                   <Mail className="w-5 h-5 text-amber-800 shrink-0 mt-0.5" />
@@ -1523,7 +1538,9 @@ Mail to Saied Mohammed or present at 10:30 AM registration desk.`
                   <div className="flex justify-between">
                     <span>Payment Method:</span>
                     <strong className="capitalize text-slate-900">
-                      {confirmedRecord.paymentMethod === 'cheque' ? 'Cheque (Payable to Saied Mohammed)' : 'Cash at Morning Check-in'}
+                      {confirmedRecord.paymentMethod === 'cheque'
+                        ? 'Cheque (Payable to Saied Mohammed)'
+                        : 'Interac e-Transfer (ms_smnm@outlook.com)'}
                     </strong>
                   </div>
                   <div className="flex justify-between">
@@ -1549,7 +1566,9 @@ Mail to Saied Mohammed or present at 10:30 AM registration desk.`
                 <div className="flex flex-wrap items-center gap-2 pt-1">
                   <a
                     href={`mailto:ms_smnm@outlook.com?subject=${encodeURIComponent(
-                      `[2026 Memorial Golf] ${confirmedRecord.paymentMethod === 'cheque' ? 'Cheque' : 'Cash'} Registration: ${confirmedRecord.primaryContact.name} - ${confirmedRecord.confirmationCode}`
+                      `[2026 Memorial Golf] ${
+                        confirmedRecord.paymentMethod === 'cheque' ? 'Cheque' : 'e-Transfer'
+                      } Registration: ${confirmedRecord.primaryContact.name} - ${confirmedRecord.confirmationCode}`
                     )}&body=${encodeURIComponent(
                       generateSaiedEmailText(confirmedRecord, confirmedRecord.totalAmount)
                     )}`}
@@ -1635,8 +1654,8 @@ Mail to Saied Mohammed or present at 10:30 AM registration desk.`
                   <span className="font-semibold text-amber-200">
                     {confirmedRecord.paymentMethod === 'cheque'
                       ? 'Cheque to Saied Mohammed'
-                      : confirmedRecord.paymentMethod === 'cash'
-                      ? 'Cash to Saied Mohammed'
+                      : confirmedRecord.paymentMethod === 'etransfer' || confirmedRecord.paymentMethod === 'cash'
+                      ? 'e-Transfer to Saied Mohammed'
                       : 'Credit Card (Paid)'}
                   </span>
                 </div>

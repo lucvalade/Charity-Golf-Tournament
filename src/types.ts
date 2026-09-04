@@ -27,7 +27,7 @@ export interface RegistrationRecord {
   addons: AddonSelection;
   totalAmount: number;
   paymentStatus: 'paid' | 'pending';
-  paymentMethod: 'credit_card' | 'cheque' | 'cash' | 'check' | 'invoice';
+  paymentMethod: 'credit_card' | 'cheque' | 'etransfer' | 'cash' | 'check' | 'invoice';
   confirmationCode: string;
   registeredAt: string;
   checkedIn: boolean;

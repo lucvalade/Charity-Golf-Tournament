@@ -45,7 +45,8 @@ export const SquabbitScoringSection: React.FC = () => {
   });
 
   return (
-    <section id="squabbit" className="py-20 bg-slate-900 text-white relative overflow-hidden">
+    <section id="squabbit" className="py-20 bg-slate-900 text-white relative overflow-hidden scroll-mt-20">
+      <span id="scoring" className="block relative -top-24 invisible" />
       {/* Background design elements */}
       <div className="absolute inset-0 bg-gradient-to-b from-[#111827] via-[#0F172A] to-[#111827]" />
       <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
@@ -63,7 +64,17 @@ export const SquabbitScoringSection: React.FC = () => {
               Live Tournament Scoring via <span className="text-emerald-400">Squabbit</span>
             </h2>
             <p className="mt-3 text-base text-slate-300 max-w-2xl">
-              We have partnered with <strong>Squabbit Golf</strong> for real-time live hole-by-hole scoring, digital scorecards, live GPS course yardages, and instant leaderboard updates right from your smartphone.
+              We have partnered with <strong>Squabbit Golf</strong> for real-time live hole-by-hole scoring, digital scorecards, live GPS course yardages, and instant{' '}
+              <a
+                href="https://app.squabbitgolf.com/w/tournament/TCaBLm4Hc?tab=leaderboard"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-emerald-400 hover:text-emerald-300 underline font-semibold inline-flex items-center gap-1"
+              >
+                <span>Leaderboard</span>
+                <ExternalLink className="w-3.5 h-3.5 inline" />
+              </a>{' '}
+              updates right from your smartphone.
             </p>
           </div>
 
@@ -184,7 +195,16 @@ export const SquabbitScoringSection: React.FC = () => {
                     3
                   </span>
                   <div>
-                    <strong className="text-white">Assign 1 Scorer Per Foursome</strong> to enter gross scramble score after each hole. Leaderboard updates instantly!
+                    <strong className="text-white">Assign 1 Scorer Per Foursome</strong> to enter gross scramble score after each hole.{' '}
+                    <a
+                      href="https://app.squabbitgolf.com/w/tournament/TCaBLm4Hc?tab=leaderboard"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[#D4AF37] hover:underline font-semibold"
+                    >
+                      Leaderboard
+                    </a>{' '}
+                    updates instantly!
                   </div>
                 </li>
               </ol>
@@ -204,14 +224,31 @@ export const SquabbitScoringSection: React.FC = () => {
                     <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                     Squabbit Live Feed • 18-Hole Scramble
                   </div>
-                  <h3 className="text-base sm:text-lg font-bold text-white">
-                    Saied October Charity Classic Leaderboard
-                  </h3>
+                  <a
+                    href="https://app.squabbitgolf.com/w/tournament/TCaBLm4Hc?tab=leaderboard"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-base sm:text-lg font-bold text-white hover:text-[#D4AF37] transition inline-flex items-center gap-2 group"
+                    title="Open live leaderboard at https://app.squabbitgolf.com/w/tournament/TCaBLm4Hc?tab=leaderboard"
+                  >
+                    <span>Saied October Charity Classic Leaderboard</span>
+                    <ExternalLink className="w-4 h-4 text-emerald-400 group-hover:text-[#D4AF37] transition" />
+                  </a>
                 </div>
               </div>
 
-              {/* Action: Simulate Live Score update */}
+              {/* Action: Open Live Leaderboard + Simulate Live Score update */}
               <div className="flex items-center gap-2">
+                <a
+                  href="https://app.squabbitgolf.com/w/tournament/TCaBLm4Hc?tab=leaderboard"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1.5 bg-[#D4AF37] hover:bg-[#AA771C] text-slate-950 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-sm cursor-pointer"
+                  title="Open live leaderboard at https://app.squabbitgolf.com/w/tournament/TCaBLm4Hc?tab=leaderboard"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  <span>Open Squabbit Leaderboard</span>
+                </a>
                 <button
                   onClick={handleSimulateHoleUpdate}
                   disabled={isSimulating}
@@ -226,27 +263,40 @@ export const SquabbitScoringSection: React.FC = () => {
 
             {/* Subheader / Tabs & Search */}
             <div className="px-6 py-3 bg-slate-900/90 border-b border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
-              <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-lg border border-slate-800 text-xs font-medium w-full sm:w-auto">
-                <button
-                  onClick={() => setActiveTab('leaderboard')}
-                  className={`px-3 py-1 rounded-md transition cursor-pointer ${
-                    activeTab === 'leaderboard'
-                      ? 'bg-emerald-600 text-white font-semibold'
-                      : 'text-slate-400 hover:text-white'
-                  }`}
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-lg border border-slate-800 text-xs font-medium w-full sm:w-auto">
+                  <button
+                    onClick={() => setActiveTab('leaderboard')}
+                    className={`px-3 py-1 rounded-md transition cursor-pointer ${
+                      activeTab === 'leaderboard'
+                        ? 'bg-emerald-600 text-white font-semibold'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    Leaderboard ({leaderboard.length})
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('pairings')}
+                    className={`px-3 py-1 rounded-md transition cursor-pointer ${
+                      activeTab === 'pairings'
+                        ? 'bg-emerald-600 text-white font-semibold'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    Tee Times & Holes
+                  </button>
+                </div>
+
+                <a
+                  href="https://app.squabbitgolf.com/w/tournament/TCaBLm4Hc?tab=leaderboard"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-amber-300 hover:text-white transition inline-flex items-center gap-1 font-semibold hover:underline px-2 py-1"
+                  title="Open Official Squabbit Tournament Leaderboard"
                 >
-                  Leaderboard ({leaderboard.length})
-                </button>
-                <button
-                  onClick={() => setActiveTab('pairings')}
-                  className={`px-3 py-1 rounded-md transition cursor-pointer ${
-                    activeTab === 'pairings'
-                      ? 'bg-emerald-600 text-white font-semibold'
-                      : 'text-slate-400 hover:text-white'
-                  }`}
-                >
-                  Tee Times & Holes
-                </button>
+                  <span>Official Web Leaderboard</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
               </div>
 
               {/* Search bar */}

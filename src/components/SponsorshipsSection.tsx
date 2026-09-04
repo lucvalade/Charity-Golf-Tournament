@@ -78,7 +78,37 @@ export const SponsorshipsSection: React.FC = () => {
                     {pkg.benefits.map((benefit, bIdx) => (
                       <div key={bIdx} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-700 leading-snug">
                         <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                        <span>{benefit}</span>
+                        <span>
+                          {benefit.includes('Leaderboard') ? (
+                            <>
+                              {benefit.split('Leaderboard')[0]}
+                              <a
+                                href="https://app.squabbitgolf.com/w/tournament/TCaBLm4Hc?tab=leaderboard"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="underline hover:text-emerald-700 font-semibold"
+                              >
+                                Leaderboard
+                              </a>
+                              {benefit.split('Leaderboard')[1]}
+                            </>
+                          ) : benefit.includes('leaderboards') ? (
+                            <>
+                              {benefit.split('leaderboards')[0]}
+                              <a
+                                href="https://app.squabbitgolf.com/w/tournament/TCaBLm4Hc?tab=leaderboard"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="underline hover:text-emerald-700 font-semibold"
+                              >
+                                leaderboards
+                              </a>
+                              {benefit.split('leaderboards')[1]}
+                            </>
+                          ) : (
+                            benefit
+                          )}
+                        </span>
                       </div>
                     ))}
                   </div>

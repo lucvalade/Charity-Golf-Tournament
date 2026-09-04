@@ -44,7 +44,7 @@ interface TournamentContextType {
     primaryContact: PlayerInfo;
     additionalPlayers: PlayerInfo[];
     addons: AddonSelection;
-    paymentMethod: 'credit_card' | 'cheque' | 'cash' | 'check' | 'invoice';
+    paymentMethod: 'credit_card' | 'cheque' | 'etransfer' | 'cash' | 'check' | 'invoice';
     notes?: string;
   }) => RegistrationRecord;
   addSponsorship: (data: {
@@ -78,6 +78,7 @@ interface TournamentContextType {
   openDonationModal: (preselectedAmount?: number) => void;
   openSponsorModal: (preselectedTier?: SponsorTier) => void;
   openAgendaModal: () => void;
+  openMemorialNoteModal: () => void;
   isRegModalOpen: boolean;
   setIsRegModalOpen: (open: boolean) => void;
   isDonationModalOpen: boolean;
@@ -86,11 +87,16 @@ interface TournamentContextType {
   setIsSponsorModalOpen: (open: boolean) => void;
   isAgendaOpen: boolean;
   setIsAgendaOpen: (open: boolean) => void;
+  isMemorialNoteModalOpen: boolean;
+  setIsMemorialNoteModalOpen: (open: boolean) => void;
   selectedRegType: RegistrationType;
   selectedSponsorTier: SponsorTier;
   selectedDonationAmount: number;
   isAdminOpen: boolean;
   setIsAdminOpen: (open: boolean) => void;
+  isAdminAuthenticated: boolean;
+  loginAdmin: (passcode: string) => boolean;
+  logoutAdmin: () => void;
   lastConfirmation: RegistrationRecord | null;
   setLastConfirmation: (rec: RegistrationRecord | null) => void;
   contactTab: 'inquiry' | 'volunteer';
@@ -150,7 +156,90 @@ export const TournamentProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [isDonationModalOpen, setIsDonationModalOpen] = useState(false);
   const [isSponsorModalOpen, setIsSponsorModalOpen] = useState(false);
   const [isAgendaOpen, setIsAgendaOpen] = useState(false);
-  const [isAdminOpen, setIsAdminOpen] = useState(false);
+  const [isMemorialNoteModalOpen, setIsMemorialNoteModalOpen] = useState(false);
+  const [isAdminOpen, setIsAdminOpenState] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      const p = window.location.pathname.toLowerCase();
+      const h = window.location.hash.toLowerCase();
+      return p === '/admin' || p.startsWith('/admin') || h === '#/admin' || h === '#admin';
+    }
+    return false;
+  });
+
+  const setIsAdminOpen = (open: boolean) => {
+    setIsAdminOpenState(open);
+    if (typeof window !== 'undefined') {
+      if (open) {
+        if (window.location.pathname !== '/admin' && window.location.hash !== '#/admin') {
+          window.history.pushState({ page: 'admin' }, '', '/admin');
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        if (window.location.pathname === '/admin' || window.location.hash === '#/admin' || window.location.hash === '#admin') {
+          window.history.pushState({ page: 'home' }, '', '/');
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+  };
+
+  useEffect(() => {
+    const handlePopState = () => {
+      if (typeof window !== 'undefined') {
+        const p = window.location.pathname.toLowerCase();
+        const h = window.location.hash.toLowerCase();
+        const shouldBeAdmin = p === '/admin' || p.startsWith('/admin') || h === '#/admin' || h === '#admin';
+        setIsAdminOpenState(shouldBeAdmin);
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    window.addEventListener('hashchange', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener('hashchange', handlePopState);
+    };
+  }, []);
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(() => {
+    try {
+      return sessionStorage.getItem('saied_tournament_admin_auth') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const loginAdmin = (passcode: string): boolean => {
+    const normalized = passcode.trim().toLowerCase();
+    const validCodes = [
+      'admin',
+      'admin2026',
+      'luc',
+      'luc2026',
+      '2026',
+      'saied2026',
+      'luc.valade@gmail.com',
+      'naseem2026'
+    ];
+    if (validCodes.includes(normalized)) {
+      setIsAdminAuthenticated(true);
+      try {
+        sessionStorage.setItem('saied_tournament_admin_auth', 'true');
+      } catch {
+        // ignore
+      }
+      return true;
+    }
+    return false;
+  };
+
+  const logoutAdmin = () => {
+    setIsAdminAuthenticated(false);
+    try {
+      sessionStorage.removeItem('saied_tournament_admin_auth');
+    } catch {
+      // ignore
+    }
+  };
+
   const [selectedRegType, setSelectedRegType] = useState<RegistrationType>('foursome');
   const [selectedSponsorTier, setSelectedSponsorTier] = useState<SponsorTier>('eagle');
   const [selectedDonationAmount, setSelectedDonationAmount] = useState<number>(100);
@@ -257,13 +346,13 @@ export const TournamentProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     primaryContact: PlayerInfo;
     additionalPlayers: PlayerInfo[];
     addons: AddonSelection;
-    paymentMethod: 'credit_card' | 'cheque' | 'cash' | 'check' | 'invoice';
+    paymentMethod: 'credit_card' | 'cheque' | 'etransfer' | 'cash' | 'check' | 'invoice';
     notes?: string;
   }): RegistrationRecord => {
     const totalAmount = calculateRegistrationTotal(data.type, data.addons);
     const codeNum = Math.floor(1000 + Math.random() * 9000);
     const confirmationCode = `SAIED-${codeNum}`;
-    const isOfflinePayment = data.paymentMethod === 'cheque' || data.paymentMethod === 'cash';
+    const isOfflinePayment = data.paymentMethod === 'cheque' || data.paymentMethod === 'etransfer' || data.paymentMethod === 'cash';
 
     const newReg: RegistrationRecord = {
       id: `reg-${Date.now()}`,
@@ -438,6 +527,10 @@ export const TournamentProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     setIsAgendaOpen(true);
   };
 
+  const openMemorialNoteModal = () => {
+    setIsMemorialNoteModalOpen(true);
+  };
+
   return (
     <TournamentContext.Provider
       value={{
@@ -467,6 +560,7 @@ export const TournamentProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         openDonationModal,
         openSponsorModal,
         openAgendaModal,
+        openMemorialNoteModal,
         isRegModalOpen,
         setIsRegModalOpen,
         isDonationModalOpen,
@@ -475,11 +569,16 @@ export const TournamentProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         setIsSponsorModalOpen,
         isAgendaOpen,
         setIsAgendaOpen,
+        isMemorialNoteModalOpen,
+        setIsMemorialNoteModalOpen,
         selectedRegType,
         selectedSponsorTier,
         selectedDonationAmount,
         isAdminOpen,
         setIsAdminOpen,
+        isAdminAuthenticated,
+        loginAdmin,
+        logoutAdmin,
         lastConfirmation,
         setLastConfirmation,
         contactTab,

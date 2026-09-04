@@ -26,7 +26,8 @@ export const MemorialStory: React.FC = () => {
   ];
 
   return (
-    <section id="memorial" className="py-20 bg-[#FBFBFA] relative overflow-hidden">
+    <section id="memorial" className="py-20 bg-[#FBFBFA] relative overflow-hidden scroll-mt-20">
+      <span id="about" className="block relative -top-24 invisible" />
       {/* Decorative leaf / crest background */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="text-center max-w-3xl mx-auto mb-16">

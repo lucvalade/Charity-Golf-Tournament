@@ -8,7 +8,7 @@ export const EVENT_DETAILS = {
   venue: {
     name: "Burford Golf Links Course",
     websiteUrl: "https://golfnorth.ca/burford/",
-    address: "120 Golf Links Rd, Burford, ON N0E 1A0",
+    address: "120 Golf Links Rd., Burford ON",
     courseRating: "71.8 / Slope 126 • 18-Hole Championship Layout",
     mapQuery: "Burford+Golf+Links",
     mapsUrl: "https://www.google.com/maps/place/Burford+Golf+Links/@43.1372601,-80.4660569,17z/data=!3m1!4b1!4m6!3m5!1s0x882c14c8d1531a5f:0x69ddaaae88c6605d!8m2!3d43.1372562!4d-80.4634766!16s%2Fg%2F1tfv15qz?entry=ttu&g_ep=EgoyMDI2MDgzMC4wIKXMDSoASAFQAw%3D%3D",
@@ -20,8 +20,8 @@ export const EVENT_DETAILS = {
   memorialHonoree: "Naseem Mohammed",
   beneficiaryOrg: "Naseem Hope for Juravinski Breast Cancer Research & Canadian Red Cross – Fire & Flood",
   taxId: "84-9182740",
-  squabbitCode: "SAIED-OCT-2026",
-  squabbitUrl: "https://squabbitgolf.com/",
+  squabbitCode: "CJECQD",
+  squabbitUrl: "https://app.squabbitgolf.com/w/tournament/TCaBLm4Hc?tab=leaderboard",
 };
 
 export const SPONSORSHIP_PACKAGES: SponsorPackage[] = [
@@ -325,6 +325,36 @@ export const INITIAL_REGISTRATIONS: RegistrationRecord[] = [
     assignedCart: 'Cart #5A & #5B',
     assignedStartingHole: 5,
     notes: 'Cheque payable to Saied Mohammed ($1,130) pending receipt at check-in'
+  },
+  {
+    id: 'reg-106',
+    type: 'individual',
+    primaryContact: {
+      id: 'p-18',
+      name: 'Julian Tremblay',
+      email: 'julian.tremblay@golfmail.ca',
+      phone: '(416) 555-0819',
+      handicap: '10.2',
+      shirtSize: 'L'
+    },
+    additionalPlayers: [],
+    addons: {
+      mulligansCount: 4,
+      rafflePacks10: 1,
+      rafflePacks25: 1,
+      puttingContestCount: 2,
+      tigerDriveCount: 1
+    },
+    totalAmount: 430,
+    paymentStatus: 'paid',
+    paymentMethod: 'etransfer',
+    routedToEmail: 'ms_smnm@outlook.com',
+    confirmationCode: 'SAIED-9204',
+    registeredAt: '2026-08-10T14:22:00Z',
+    checkedIn: false,
+    assignedCart: 'Cart #6A',
+    assignedStartingHole: 6,
+    notes: 'Interac e-Transfer received by Saied Mohammed (ms_smnm@outlook.com)'
   }
 ];
 
@@ -561,8 +591,8 @@ export const IMPACT_DATA = {
   ],
   metrics: [
     { value: '100%', label: 'Net Proceeds to Charity', sub: 'Zero executive overhead or administrative fees' },
-    { value: '180+', label: 'Patients Assisted to Date', sub: 'Across 14 regional cancer care centers' },
-    { value: '$120,000+', label: 'Lifetime Funds Raised', sub: 'In ongoing memory of Naseem Mohammed' },
+    { value: '7,000+', label: 'Patients Assisted per year', sub: 'Providing direct patient care, clinical trial access, and emergency relief' },
+    { value: '$6.6 Million+', label: 'Lifetime Funds Raised', sub: 'A cumulative total of $6.6 Million+ In Lifetime Funds Raised' },
     { value: '501(c)(3)', label: 'Tax-Deductible Status', sub: 'Official EIN tax receipts provided instantly' }
   ]
 };

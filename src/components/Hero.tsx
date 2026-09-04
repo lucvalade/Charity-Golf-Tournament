@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTournament } from '../context/TournamentContext';
 import { EVENT_DETAILS } from '../data/initialData';
-import { Calendar, MapPin, Trophy, Users, Heart, ArrowRight, QrCode, Sparkles, CheckCircle, CalendarDays } from 'lucide-react';
+import { Calendar, MapPin, Trophy, Users, Heart, ArrowRight, QrCode, Sparkles, CheckCircle, CalendarDays, ExternalLink } from 'lucide-react';
 import { motion } from 'motion/react';
 
 export const Hero: React.FC = () => {
@@ -224,7 +224,7 @@ export const Hero: React.FC = () => {
             onClick={() => openRegistrationModal('foursome')}
             className="w-full sm:w-auto px-8 py-4 bg-[#EA580C] hover:bg-[#C2410C] text-white text-base font-bold rounded-xl shadow-lg shadow-orange-950/40 hover:shadow-xl transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2.5 cursor-pointer"
           >
-            <span>Register Foursome or Golfer</span>
+            <span>Register Foursome</span>
             <ArrowRight className="w-5 h-5" />
           </button>
 
@@ -236,13 +236,17 @@ export const Hero: React.FC = () => {
             <span>Make Memorial Gift</span>
           </button>
 
-          <button
-            onClick={scrollToSquabbit}
+          <a
+            href="https://app.squabbitgolf.com/w/tournament/TCaBLm4Hc?tab=leaderboard"
+            target="_blank"
+            rel="noopener noreferrer"
             className="w-full sm:w-auto px-6 py-4 bg-sky-950/80 hover:bg-sky-900 text-sky-200 hover:text-white border border-sky-600/60 text-sm font-semibold rounded-xl shadow-md transition flex items-center justify-center gap-2 cursor-pointer"
+            title="Open Live Squabbit Tournament Leaderboard"
           >
             <QrCode className="w-4 h-4 text-sky-400" />
             <span>Squabbit Leaderboard</span>
-          </button>
+            <ExternalLink className="w-3.5 h-3.5 opacity-80" />
+          </a>
 
           <button
             onClick={openAgendaModal}

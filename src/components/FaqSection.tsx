@@ -124,7 +124,24 @@ export const FaqSection: React.FC = () => {
 
                 {isOpen && (
                   <div className="px-5 sm:px-6 pb-6 pt-1 text-slate-600 text-xs sm:text-sm leading-relaxed border-t border-slate-100 pl-16">
-                    <p>{faq.answer}</p>
+                    <p>
+                      {faq.answer.includes('leaderboard') ? (
+                        <>
+                          {faq.answer.split('leaderboard')[0]}
+                          <a
+                            href="https://app.squabbitgolf.com/w/tournament/TCaBLm4Hc?tab=leaderboard"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-emerald-700 underline hover:text-emerald-900 font-semibold"
+                          >
+                            leaderboard
+                          </a>
+                          {faq.answer.split('leaderboard')[1]}
+                        </>
+                      ) : (
+                        faq.answer
+                      )}
+                    </p>
                   </div>
                 )}
               </div>
