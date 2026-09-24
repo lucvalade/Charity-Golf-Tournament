@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTournament } from '../context/TournamentContext';
 import { EVENT_DETAILS } from '../data/initialData';
-import { Heart, Trophy, Shield, MapPin, Mail, Phone, ExternalLink, QrCode, Lock } from 'lucide-react';
+import { Heart, Shield, MapPin, Lock } from 'lucide-react';
 
 export const Footer: React.FC = () => {
   const { setIsAdminOpen, openDonationModal, openRegistrationModal, isAdminAuthenticated } = useTournament();
@@ -21,7 +21,7 @@ export const Footer: React.FC = () => {
                   October 2026 Memorial Classic
                 </span>
                 <span className="font-serif-heading text-lg font-bold text-white tracking-tight">
-                  Saied October Charity
+                  Fragrant Breeze Golf
                 </span>
               </div>
             </div>
@@ -53,18 +53,7 @@ export const Footer: React.FC = () => {
                 <a href="#sponsorships" className="hover:text-white transition">Sponsor Packages</a>
               </li>
               <li>
-                <a href="#squabbit" className="hover:text-white transition">Go to Official Tournament Scoring System</a>
-              </li>
-              <li>
-                <a
-                  href="https://app.squabbitgolf.com/w/tournament/TCaBLm4Hc?tab=leaderboard"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-white transition inline-flex items-center gap-1 text-amber-300/90 font-medium"
-                >
-                  <span>Squabbit Live Leaderboard</span>
-                  <ExternalLink className="w-3 h-3" />
-                </a>
+                <a href="#squabbit" className="hover:text-white transition">Go to Official Tournament Scoring</a>
               </li>
               <li>
                 <a href="#tributes" className="hover:text-white transition">Tribute &amp; Memorial Book</a>
@@ -107,18 +96,6 @@ export const Footer: React.FC = () => {
                 <span className="font-semibold text-white">Monday October 5, 2026</span>
                 <span className="text-slate-300 block text-[11px]">9:30 am Registration, Chipping and Putting Competition</span>
               </div>
-              <div className="pt-1">
-                <span className="text-slate-400 block text-[11px]">Live Scoring App:</span>
-                <a
-                  href="https://squabbitgolf.com/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-mono text-emerald-400 font-bold hover:text-emerald-300 hover:underline inline-flex items-center gap-1"
-                >
-                  <span>Squabbit Tournament App</span>
-                  <ExternalLink className="w-3 h-3 text-emerald-400" />
-                </a>
-              </div>
             </div>
           </div>
 
@@ -147,23 +124,12 @@ export const Footer: React.FC = () => {
         {/* Bottom Bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-300">
           <div>
-            &copy; 2026 {EVENT_DETAILS.name}. In Loving Memory of {EVENT_DETAILS.memorialHonoree}.
+            &copy; 2026 Saied  Fragrant Breeze Golf Tournament
           </div>
-          <div className="flex items-center gap-4 text-[11px] text-slate-300">
-            <a
-              href="https://squabbitgolf.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-emerald-300 hover:text-emerald-200 hover:underline inline-flex items-center gap-1 transition"
-              title="Squabbit Live Golf Scoring Portal"
-            >
-              <span>Powered by Squabbit Scoring</span>
-              <ExternalLink className="w-3 h-3 text-emerald-400" />
-            </a>
-            <span>&bull;</span>
+          <div className="flex items-center gap-3 text-[11px] text-slate-300">
             <button
               onClick={() => openDonationModal(100)}
-              className="text-[#D4AF37] hover:underline cursor-pointer"
+              className="text-[#D4AF37] hover:underline cursor-pointer font-medium"
             >
               Make Memorial Donation
             </button>

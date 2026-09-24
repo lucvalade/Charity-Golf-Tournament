@@ -13,7 +13,6 @@ import { MemorialStory } from './components/MemorialStory';
 import { EventDetails } from './components/EventDetails';
 import { RegistrationSection } from './components/RegistrationSection';
 import { SponsorshipsSection } from './components/SponsorshipsSection';
-import { SquabbitScoringSection } from './components/SquabbitScoringSection';
 import { ImpactSection } from './components/ImpactSection';
 import { DonationSection } from './components/DonationSection';
 import { TributesWall } from './components/TributesWall';
@@ -30,16 +29,25 @@ import { SponsorModal } from './components/SponsorModal';
 import { DonationModal } from './components/DonationModal';
 import { AddMemorialNoteModal } from './components/AddMemorialNoteModal';
 import { GameDayAgendaModal } from './components/GameDayAgendaModal';
-import { WelcomePopup } from './components/WelcomePopup';
 import { ApiKeySettingsModal } from './components/ApiKeySettingsModal';
+import { SplashScreen } from './components/SplashScreen';
 
 function TournamentAppContent() {
-  const { isAdminOpen, setIsAdminOpen, isApiKeyModalOpen, setIsApiKeyModalOpen } = useTournament();
+  const {
+    isAdminOpen,
+    setIsAdminOpen,
+    isApiKeyModalOpen,
+    setIsApiKeyModalOpen,
+    isSplashVisible,
+    closeSplash
+  } = useTournament();
 
   // If in Admin Mode (/admin), render as a regular standalone page, NOT a popup
   if (isAdminOpen) {
     return (
       <div className="min-h-screen bg-slate-100 text-slate-900 flex flex-col font-sans">
+        {/* Launch Splash Screen (5 seconds) */}
+        {isSplashVisible && <SplashScreen duration={5000} onComplete={closeSplash} />}
         <AdminPortalPage onBackToSite={() => setIsAdminOpen(false)} />
         <ApiKeySettingsModal isOpen={isApiKeyModalOpen} onClose={() => setIsApiKeyModalOpen(false)} />
         <ToastContainer />
@@ -50,6 +58,9 @@ function TournamentAppContent() {
   // Otherwise, render the public tournament application
   return (
     <div className="min-h-screen bg-[#FBFBFA] text-slate-900 flex flex-col font-sans selection:bg-[#D4AF37]/30 selection:text-[#1E4D2B]">
+      {/* Launch Splash Screen (5 seconds) */}
+      {isSplashVisible && <SplashScreen duration={5000} onComplete={closeSplash} />}
+
       {/* Navigation Bar */}
       <Navbar />
 
@@ -73,8 +84,7 @@ function TournamentAppContent() {
         {/* 6. Sponsorships: Tiered Corporate Packages & Showcase */}
         <SponsorshipsSection />
 
-        {/* 7. Live Scoring (Squabbit): Hub, Pairing Matrix, Direct App Links & Rules */}
-        <SquabbitScoringSection />
+        {/* 7. Live Scoring: Hub, Pairing Matrix, Direct App Links & Rules */}
 
         {/* 8. Our Cause / Impact: Metric counters & Fund Allocation Breakdown */}
         <ImpactSection />
@@ -95,9 +105,7 @@ function TournamentAppContent() {
       {/* Footer */}
       <Footer />
 
-      {/* Interactive Public Modals & Site Load Announcement */}
-      <WelcomePopup />
-      <RegistrationModal />
+      {/* Interactive Public Modals */}
       <SponsorModal />
       <DonationModal />
       <AddMemorialNoteModal />

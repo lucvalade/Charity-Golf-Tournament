@@ -8,11 +8,11 @@ export const FundraisingTracker: React.FC = () => {
   const { totalRaised, goalAmount, goalPercentage, totalGolfers, sponsors, donations, registrations, openDonationModal, openRegistrationModal } = useTournament();
 
   const juravinskiRaised = totalRaised * 0.75;
-  const juravinskiTarget = (goalAmount || 20000) * 0.75;
+  const juravinskiTarget = (goalAmount || 2000) * 0.75;
   const juravinskiPct = Math.min(100, Math.round((juravinskiRaised / juravinskiTarget) * 100));
 
   const redCrossRaised = totalRaised * 0.25;
-  const redCrossTarget = (goalAmount || 20000) * 0.25;
+  const redCrossTarget = (goalAmount || 2000) * 0.25;
   const redCrossPct = Math.min(100, Math.round((redCrossRaised / redCrossTarget) * 100));
 
   const sponsorTotal = sponsors.reduce((acc, s) => {
@@ -39,7 +39,7 @@ export const FundraisingTracker: React.FC = () => {
                 </span>
                 <div>
                   <h3 className="text-xl sm:text-2xl font-bold text-slate-900 font-serif-heading">
-                    2026 Memorial Fundraising Goal
+                    2026 Memorial Goal
                   </h3>
                   <p className="text-xs sm:text-sm text-slate-500">
                     Supporting Juravinski Breast Cancer Research (75%) &amp; Canadian Red Cross - Fire &amp; Flood (25%)
@@ -53,7 +53,7 @@ export const FundraisingTracker: React.FC = () => {
                   ${(totalRaised || 0).toLocaleString()}
                 </span>
                 <span className="text-lg sm:text-xl font-medium text-slate-500">
-                  raised of <strong className="text-slate-800 font-semibold">${(goalAmount || 20000).toLocaleString()}</strong> goal
+                  raised of <strong className="text-slate-800 font-semibold">${(goalAmount || 2000).toLocaleString()}</strong> goal
                 </span>
                 <span className="px-3 py-1 text-xs font-bold rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
                   {goalPercentage || 0}% Funded
@@ -75,15 +75,15 @@ export const FundraisingTracker: React.FC = () => {
                 <div className="flex justify-between text-xs font-semibold text-slate-500">
                   <span>$0 (Kickoff)</span>
                   <span className="text-[#1E4D2B] font-bold">Current: ${(totalRaised || 0).toLocaleString()}</span>
-                  <span>${(goalAmount || 20000).toLocaleString()} (Target Goal)</span>
+                  <span>${(goalAmount || 2000).toLocaleString()} (Target Goal)</span>
                 </div>
               </div>
 
               {/* Dynamic Live Fund Allocation Split (As money is raised) */}
               <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
                 <div className="flex items-center justify-between text-xs font-bold text-slate-700">
-                  <span>Live Fund Allocation Breakdown (As Money is Raised):</span>
-                  <span className="text-emerald-700 font-mono">100% Directed to Beneficiaries</span>
+                  <span>Live Fund Breakdown:</span>
+                  <span className="text-emerald-700 font-mono">100% Directly to Beneficiaries</span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
@@ -148,13 +148,13 @@ export const FundraisingTracker: React.FC = () => {
                   className="px-5 py-2.5 bg-[#EA580C] hover:bg-[#C2410C] text-white text-sm font-bold rounded-xl shadow-sm transition transform hover:-translate-y-0.5 flex items-center gap-2 cursor-pointer"
                 >
                   <Heart className="w-4 h-4 fill-white" />
-                  Make a Memorial Contribution
+                  Donate in memoriam
                 </button>
                 <button
                   onClick={() => openRegistrationModal('foursome')}
                   className="px-5 py-2.5 bg-white hover:bg-slate-50 text-[#1E4D2B] border border-[#1E4D2B]/30 text-sm font-bold rounded-xl transition cursor-pointer"
                 >
-                  Register as Player / Team
+                  Register Player/Team
                 </button>
               </div>
             </div>

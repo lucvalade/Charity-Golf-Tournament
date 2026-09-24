@@ -49,13 +49,26 @@ const AI_TRIBUTE_SUGGESTIONS = [
   "Your bright spirit, radiant smile, and gentle strength will forever guide us. Playing in loving remembrance today and always."
 ];
 
-export const DonationModal: React.FC = () => {
-  const { isDonationModalOpen, setIsDonationModalOpen, selectedDonationAmount, addDonation } = useTournament();
+export interface DonationModalProps {
+  inline?: boolean;
+  onClose?: () => void;
+}
+
+export const DonationModal: React.FC<DonationModalProps> = ({ inline = false, onClose }) => {
+  const {
+    isDonationModalOpen,
+    setIsDonationModalOpen,
+    isInlineDonationOpen,
+    setIsInlineDonationOpen,
+    selectedDonationAmount,
+    addDonation
+  } = useTournament();
 
   const [amount, setAmount] = useState<number>(100);
   const [customInput, setCustomInput] = useState<string>('100');
   const [donorName, setDonorName] = useState('');
   const [donorEmail, setDonorEmail] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState<'Cash' | 'e-transfer' | 'Cheque' | ''>('');
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [tributeType, setTributeType] = useState<'in_memory_of' | 'in_honor_of' | 'general'>('in_memory_of');
   const [tributeName, setTributeName] = useState(EVENT_DETAILS.memorialHonoree);
@@ -67,6 +80,7 @@ export const DonationModal: React.FC = () => {
   const [amountError, setAmountError] = useState<string>('');
   const [nameError, setNameError] = useState<string>('');
   const [emailError, setEmailError] = useState<string>('');
+  const [paymentMethodError, setPaymentMethodError] = useState<string>('');
 
   // AI suggestions modal/tray state
   const [showAiSuggestions, setShowAiSuggestions] = useState(false);
@@ -83,7 +97,13 @@ export const DonationModal: React.FC = () => {
     }
   }, [selectedDonationAmount, isDonationModalOpen]);
 
-  if (!isDonationModalOpen) return null;
+  // If inline, display when either isInlineDonationOpen or isDonationModalOpen is true
+  // If not inline (modal dialog in App.tsx), only display when isDonationModalOpen is true AND isInlineDonationOpen is false
+  if (inline) {
+    if (!isInlineDonationOpen && !isDonationModalOpen) return null;
+  } else {
+    if (!isDonationModalOpen || isInlineDonationOpen) return null;
+  }
 
   const handlePresetClick = (val: number) => {
     const safeVal = Math.max(100, val);
@@ -94,14 +114,17 @@ export const DonationModal: React.FC = () => {
 
   const handleCustomAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value;
-    setCustomInput(raw);
-    const parsed = Number(raw);
-    if (!raw || isNaN(parsed)) {
+    // Only numbers allowed: strip any non-digit characters
+    const digitsOnly = raw.replace(/\D/g, '');
+    setCustomInput(digitsOnly);
+    const parsed = Number(digitsOnly);
+
+    if (!digitsOnly || isNaN(parsed)) {
       setAmount(0);
-      setAmountError('Please enter your donation amount. Min $100');
+      setAmountError('Donation amount must be at least $100 CAD.');
     } else if (parsed < 100) {
       setAmount(parsed);
-      setAmountError('Please enter your donation amount. Min $100');
+      setAmountError('Donation amount must be at least $100 CAD.');
     } else {
       setAmount(parsed);
       setAmountError('');
@@ -118,13 +141,12 @@ export const DonationModal: React.FC = () => {
   };
 
   const handleEmailBlur = (val: string) => {
-    let trimmed = val.trim();
-    if (trimmed && !trimmed.includes('@')) {
-      trimmed = `${trimmed}@gmail.com`;
-    }
+    const trimmed = val.trim();
     setDonorEmail(trimmed);
-    if (trimmed && !isValidEmail(trimmed)) {
-      setEmailError('Please enter a valid email address with @ and domain (e.g. name@domain.com).');
+    if (!trimmed) {
+      setEmailError('Email address is required.');
+    } else if (!isValidEmail(trimmed)) {
+      setEmailError('Please enter a valid email address with @ and domain (e.g. name@example.com).');
     } else {
       setEmailError('');
     }
@@ -162,12 +184,23 @@ export const DonationModal: React.FC = () => {
       setNameError('');
     }
 
-    // Validate Email
-    if (donorEmail.trim() && !isValidEmail(donorEmail.trim())) {
-      setEmailError('Please enter a valid email address with @ and domain (e.g. name@domain.com).');
+    // Validate Mandatory Email
+    if (!donorEmail.trim()) {
+      setEmailError('Email address is required.');
+      hasError = true;
+    } else if (!isValidEmail(donorEmail.trim())) {
+      setEmailError('Please enter a valid email address with @ and domain (e.g. name@example.com).');
       hasError = true;
     } else {
       setEmailError('');
+    }
+
+    // Validate Mandatory Payment Method
+    if (!paymentMethod) {
+      setPaymentMethodError('Please select a payment method (Cash, e-transfer, or Cheque).');
+      hasError = true;
+    } else {
+      setPaymentMethodError('');
     }
 
     if (hasError) return;
@@ -178,6 +211,7 @@ export const DonationModal: React.FC = () => {
       addDonation({
         donorName: isAnonymous ? 'Anonymous Supporter' : donorName,
         donorEmail: donorEmail.trim(),
+        paymentMethod,
         amount: Math.max(100, amount),
         isAnonymous,
         tributeType,
@@ -197,41 +231,63 @@ export const DonationModal: React.FC = () => {
   };
 
   const handleClose = () => {
+    if (onClose) onClose();
     setIsDonationModalOpen(false);
+    setIsInlineDonationOpen(false);
     setIsSuccess(false);
     setDonorName('');
     setDonorEmail('');
+    setPaymentMethod('');
     setMessage('');
     setAmountError('');
     setNameError('');
     setEmailError('');
+    setPaymentMethodError('');
     setShowAiSuggestions(false);
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-xl w-full overflow-hidden border border-slate-200 relative animate-in fade-in zoom-in-95 duration-200">
+    <div
+      id="inline-donation-container"
+      className={
+        inline
+          ? "w-full lg:w-[75%] max-w-5xl mx-auto my-8 scroll-mt-28"
+          : "fixed inset-0 z-50 overflow-y-auto bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6"
+      }
+    >
+      <div
+        className={
+          inline
+            ? "bg-white rounded-3xl shadow-2xl w-full overflow-hidden border-2 border-emerald-800/40 relative animate-in fade-in slide-in-from-top-4 duration-300"
+            : "bg-white rounded-2xl shadow-2xl w-full max-w-2xl md:max-w-3xl lg:w-[50vw] max-h-[85vh] overflow-y-auto border border-slate-200 relative animate-in fade-in zoom-in-95 duration-200"
+        }
+      >
         {/* Header */}
-        <div className="bg-gradient-to-r from-[#1E4D2B] to-[#15381E] text-white p-6 flex items-center justify-between">
+        <div className="bg-gradient-to-r from-[#1E4D2B] to-[#15381E] text-white p-6 sm:p-7 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-rose-500/20 border border-rose-400/50 flex items-center justify-center">
-              <Heart className="w-5 h-5 text-rose-300 fill-rose-300" />
+            <div className="w-11 h-11 rounded-xl bg-rose-500/20 border border-rose-400/50 flex items-center justify-center">
+              <Heart className="w-6 h-6 text-rose-300 fill-rose-300" />
             </div>
             <div>
               <span className="text-[11px] uppercase font-bold text-amber-200 tracking-wider">
                 Memorial Dedication Gift
               </span>
-              <h3 className="text-lg sm:text-xl font-bold font-serif-heading text-white">
-                Support Cancer Patient Relief
+              <h3 className="text-xl sm:text-2xl font-bold font-serif-heading text-white">
+                Be Generous &bull; It’s for great causes
               </h3>
             </div>
           </div>
           <button
             onClick={handleClose}
-            className="p-2 text-slate-300 hover:text-white rounded-lg transition"
-            aria-label="Close modal"
+            className={
+              inline
+                ? "px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer border border-white/20"
+                : "p-2 text-slate-300 hover:text-white rounded-lg transition cursor-pointer flex items-center gap-1"
+            }
+            aria-label="Close form"
           >
             <X className="w-5 h-5" />
+            <span className="font-bold uppercase tracking-wider text-xs">Close</span>
           </button>
         </div>
 
@@ -260,8 +316,14 @@ export const DonationModal: React.FC = () => {
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">Receipt Email:</span>
-                <span className="text-slate-800">{donorEmail || 'Receipt Generated on Screen'}</span>
+                <span className="font-medium text-slate-800">{donorEmail || 'Receipt Generated on Screen'}</span>
               </div>
+              {paymentMethod && (
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Payment Method:</span>
+                  <span className="font-bold text-emerald-800">{paymentMethod}</span>
+                </div>
+              )}
             </div>
 
             <button
@@ -296,18 +358,24 @@ export const DonationModal: React.FC = () => {
                 ))}
               </div>
 
-              {/* Custom amount input restricted to min $100 */}
+              {/* Custom amount input restricted to min $100 & numbers only */}
               <div className="relative">
                 <span className="absolute left-3 top-2.5 text-slate-400 font-bold">$</span>
                 <input
-                  type="number"
-                  min="100"
-                  step="5"
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
                   placeholder="100"
                   value={customInput}
                   onChange={handleCustomAmountChange}
                   onBlur={handleCustomAmountBlur}
-                  className={`w-full pl-7 pr-3 py-2 text-sm border rounded-lg font-mono focus:outline-none focus:ring-2 focus:ring-[#1E4D2B] ${
+                  onKeyDown={(e) => {
+                    // Block non-numeric keystrokes except backspace, tab, enter, arrow keys
+                    if (['e', 'E', '+', '-', '.'].includes(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}
+                  className={`w-full pl-7 pr-3 py-2 text-sm border rounded-lg font-mono focus:outline-none focus:ring-2 focus:ring-[#1E4D2B] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${
                     amountError ? 'border-rose-400 bg-rose-50/40' : 'border-slate-300'
                   }`}
                 />
@@ -315,7 +383,7 @@ export const DonationModal: React.FC = () => {
 
               {/* Requested notice text below donation amounts */}
               <p className={`text-xs mt-1.5 font-medium ${amountError ? 'text-rose-600 font-semibold' : 'text-slate-500'}`}>
-                Please enter your donation amount. Min $100
+                {amountError || 'Please enter your donation amount (Minimum $100 CAD).'}
               </p>
             </div>
 
@@ -456,7 +524,9 @@ export const DonationModal: React.FC = () => {
             {/* Donor Identity */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-slate-700">Donor Information</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                  Donor Information
+                </span>
                 <label className="flex items-center gap-1.5 text-xs text-slate-600 cursor-pointer">
                   <input
                     type="checkbox"
@@ -473,9 +543,12 @@ export const DonationModal: React.FC = () => {
                 </label>
               </div>
 
-              {!isAnonymous && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {!isAnonymous && (
+                  <div className="sm:col-span-2">
+                    <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                      Your Full Name <span className="text-rose-500 font-bold">*</span>
+                    </label>
                     <input
                       type="text"
                       required={!isAnonymous}
@@ -496,28 +569,64 @@ export const DonationModal: React.FC = () => {
                       </p>
                     )}
                   </div>
-                  <div>
-                    <input
-                      type="email"
-                      placeholder="Email for Tax Receipt (name@domain.com)"
-                      value={donorEmail}
-                      onChange={(e) => {
-                        setDonorEmail(e.target.value);
-                        if (emailError) setEmailError('');
-                      }}
-                      onBlur={(e) => handleEmailBlur(e.target.value)}
-                      className={`w-full px-3 py-2 text-xs border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E4D2B] ${
-                        emailError ? 'border-rose-400 bg-rose-50/50' : 'border-slate-300'
-                      }`}
-                    />
-                    {emailError && (
-                      <p className="text-[10px] text-rose-600 mt-1 flex items-center gap-1">
-                        <AlertCircle className="w-3 h-3" /> {emailError}
-                      </p>
-                    )}
-                  </div>
+                )}
+
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                    Email Address <span className="text-rose-500 font-bold">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    id="user-email"
+                    name="email"
+                    required
+                    autoComplete="email"
+                    inputMode="email"
+                    placeholder="name@example.com *"
+                    value={donorEmail}
+                    onChange={(e) => {
+                      setDonorEmail(e.target.value);
+                      if (emailError) setEmailError('');
+                    }}
+                    onBlur={(e) => handleEmailBlur(e.target.value)}
+                    className={`w-full px-3 py-2 text-xs border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E4D2B] ${
+                      emailError ? 'border-rose-400 bg-rose-50/50' : 'border-slate-300'
+                    }`}
+                  />
+                  {emailError && (
+                    <p id="email-error" className="text-[10px] text-rose-600 mt-1 flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3" /> {emailError}
+                    </p>
+                  )}
                 </div>
-              )}
+
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                    Payment Method <span className="text-rose-500 font-bold">*</span>
+                  </label>
+                  <select
+                    value={paymentMethod}
+                    required
+                    onChange={(e) => {
+                      setPaymentMethod(e.target.value as any);
+                      if (paymentMethodError) setPaymentMethodError('');
+                    }}
+                    className={`w-full px-3 py-2 text-xs border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#1E4D2B] font-medium text-slate-800 ${
+                      paymentMethodError ? 'border-rose-400 bg-rose-50/50' : 'border-slate-300'
+                    }`}
+                  >
+                    <option value="">-- Select Payment Method * --</option>
+                    <option value="Cash">Cash</option>
+                    <option value="e-transfer">e-transfer</option>
+                    <option value="Cheque">Cheque</option>
+                  </select>
+                  {paymentMethodError && (
+                    <p className="text-[10px] text-rose-600 mt-1 flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3" /> {paymentMethodError}
+                    </p>
+                  )}
+                </div>
+              </div>
             </div>
 
             <div className="flex justify-between items-center pt-2 border-t border-slate-100">

@@ -1,47 +1,32 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useTournament } from '../context/TournamentContext';
 import { PRICING_RULES, EVENT_DETAILS } from '../data/initialData';
 import { RegistrationType, AddonSelection, PlayerInfo, RegistrationRecord } from '../types';
+import {
+  formatTitleCase,
+  formatCanadianPostalCode,
+  isValidCanadianPostalCode
+} from '../utils/formatters';
 import { QRCodeSVG } from 'qrcode.react';
 import {
   X,
-  Users,
   User,
-  Trophy,
-  Ticket,
   CheckCircle,
-  CreditCard,
+  Check,
   ChevronRight,
   ChevronLeft,
   Sparkles,
   Printer,
   Heart,
   ShieldCheck,
+  Copy,
   AlertCircle,
   Mail,
-  Banknote,
   FileText,
-  Copy,
-  ExternalLink,
-  Send
+  Send,
+  Banknote
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
-
-// --- Validation and formatting helpers ---
-
-export const formatTitleCase = (str: string): string => {
-  if (!str) return '';
-  return str
-    .split(' ')
-    .map((word) => {
-      if (!word) return '';
-      return word
-        .split('-')
-        .map((sub) => (sub.length > 0 ? sub.charAt(0).toUpperCase() + sub.slice(1) : ''))
-        .join('-');
-    })
-    .join(' ');
-};
 
 export const formatPhoneNumber = (value: string): string => {
   const digits = value.replace(/\D/g, '').slice(0, 10);
@@ -49,73 +34,6 @@ export const formatPhoneNumber = (value: string): string => {
   if (digits.length <= 3) return `(${digits}`;
   if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
   return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
-};
-
-export const detectCardBrand = (num: string): 'visa' | 'mastercard' | 'amex' | 'discover' | 'generic' => {
-  const clean = num.replace(/\D/g, '');
-  if (/^4/.test(clean)) return 'visa';
-  if (/^(5[1-5]|222[1-9]|22[3-9]\d|2[3-6]\d{2}|27[01]\d|2720)/.test(clean)) return 'mastercard';
-  if (/^3[47]/.test(clean)) return 'amex';
-  if (/^(6011|65|64[4-9])/.test(clean)) return 'discover';
-  return 'generic';
-};
-
-export const formatCardNumber = (val: string): string => {
-  const clean = val.replace(/\D/g, '');
-  const brand = detectCardBrand(clean);
-  if (brand === 'amex') {
-    const limited = clean.slice(0, 15);
-    const parts = [limited.slice(0, 4), limited.slice(4, 10), limited.slice(10, 15)].filter(Boolean);
-    return parts.join(' ');
-  } else {
-    const limited = clean.slice(0, 19);
-    const parts = limited.match(/.{1,4}/g) || [];
-    return parts.join(' ');
-  }
-};
-
-export const isValidLuhn = (numStr: string): boolean => {
-  const clean = numStr.replace(/\D/g, '');
-  if (clean.length < 13 || clean.length > 19) return false;
-  let sum = 0;
-  let shouldDouble = false;
-  for (let i = clean.length - 1; i >= 0; i--) {
-    let digit = parseInt(clean.charAt(i), 10);
-    if (shouldDouble) {
-      digit *= 2;
-      if (digit > 9) digit -= 9;
-    }
-    sum += digit;
-    shouldDouble = !shouldDouble;
-  }
-  return sum % 10 === 0;
-};
-
-export const formatCardExp = (val: string): string => {
-  const clean = val.replace(/\D/g, '').slice(0, 4);
-  if (clean.length <= 2) return clean;
-  return `${clean.slice(0, 2)}/${clean.slice(2)}`;
-};
-
-export const isValidExp = (exp: string): boolean => {
-  const parts = exp.split('/');
-  if (parts.length !== 2) return false;
-  const month = parseInt(parts[0], 10);
-  const year = parseInt(parts[1], 10);
-  if (isNaN(month) || month < 1 || month > 12) return false;
-  if (isNaN(year) || year < 26 || year > 35) return false;
-  return true;
-};
-
-export const formatCardCvc = (val: string, brand: string): string => {
-  const maxLen = brand === 'amex' ? 4 : 3;
-  return val.replace(/\D/g, '').slice(0, maxLen);
-};
-
-export const isValidCvc = (cvc: string, brand: string): boolean => {
-  const clean = cvc.replace(/\D/g, '');
-  if (brand === 'amex') return clean.length === 4 || clean.length === 3;
-  return clean.length === 3;
 };
 
 export const isValidEmail = (email: string): boolean => {
@@ -126,47 +44,29 @@ export const isValidPhone = (phone: string): boolean => {
   return /^\(\d{3}\) \d{3}-\d{4}$/.test(phone.trim());
 };
 
-export const isValidHandicapOrGHIN = (val: string): boolean => {
-  const clean = val.trim();
-  if (!clean) return true; // Optional if not provided yet
+export interface RegistrationModalProps {
+  inline?: boolean;
+  onClose?: () => void;
+}
 
-  // No Handicap (NH, N/H, No Handicap)
-  if (/^(NH|N\/H|No Handicap)$/i.test(clean)) {
-    return true;
-  }
-
-  // Official GHIN: 6 to 8 purely numeric digits (no letters)
-  if (/^\d{6,8}$/.test(clean)) {
-    return true;
-  }
-
-  // Plus Handicap: + followed by number with optional single decimal (e.g. +2.4, +0.5, +3)
-  if (/^\+\d{1,2}(\.\d)?$/.test(clean)) {
-    return true;
-  }
-
-  // Standard Handicap Index: number with optional single decimal (e.g. 14.2, 5.0, 18, 0.0, 36.4, 54.0)
-  if (/^\d{1,2}(\.\d)?$/.test(clean)) {
-    return true;
-  }
-
-  return false;
-};
-
-export const RegistrationModal: React.FC = () => {
+export const RegistrationModal: React.FC<RegistrationModalProps> = ({ inline = false, onClose }) => {
   const {
     isRegModalOpen,
     setIsRegModalOpen,
     selectedRegType,
     registerTeamOrPlayer,
-    calculateRegistrationTotal
+    calculateRegistrationTotal,
+    openDonationModal,
+    registrations,
+    isAdminAuthenticated,
+    regModalInitialStep,
+    addToast
   } = useTournament();
 
-  const [step, setStep] = useState<1 | 2 | 3 | 4 | 5>(1);
+  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [regType, setRegType] = useState<RegistrationType>(
     selectedRegType && selectedRegType !== 'foursome' ? selectedRegType : 'individual'
   );
-  const [teamName, setTeamName] = useState('');
 
   // Primary Contact
   const [primaryPlayer, setPrimaryPlayer] = useState<PlayerInfo>({
@@ -174,62 +74,331 @@ export const RegistrationModal: React.FC = () => {
     name: '',
     email: '',
     phone: '',
-    handicap: '',
-    shirtSize: 'L',
     dietaryRestrictions: ''
   });
 
-  // Additional 3 players for foursome
-  const [additionalPlayers, setAdditionalPlayers] = useState<PlayerInfo[]>([
-    { id: `p-${Date.now()}-2`, name: '', email: '', phone: '', handicap: '', shirtSize: 'L', dietaryRestrictions: '' },
-    { id: `p-${Date.now()}-3`, name: '', email: '', phone: '', handicap: '', shirtSize: 'XL', dietaryRestrictions: '' },
-    { id: `p-${Date.now()}-4`, name: '', email: '', phone: '', handicap: '', shirtSize: 'M', dietaryRestrictions: '' }
-  ]);
+  // "I would like to play with (First & Last Name)" - 3 additional text areas
+  const [requestedTeammates, setRequestedTeammates] = useState<string[]>(['', '', '']);
 
-  // Add-ons
-  const [addons, setAddons] = useState<AddonSelection>({
-    mulligansCount: 3, // default bundle of 3
-    rafflePacks10: 1,
+  // Receipt option
+  const [needReceipt, setNeedReceipt] = useState(false);
+  const [receiptAddress, setReceiptAddress] = useState('');
+  const [receiptCity, setReceiptCity] = useState('');
+  const [receiptProvince, setReceiptProvince] = useState('');
+  const [receiptPostalCode, setReceiptPostalCode] = useState('');
+
+  // Add-ons (Default zero since Add-Ons tab is removed)
+  const [addons] = useState<AddonSelection>({
+    mulligansCount: 0,
+    rafflePacks10: 0,
     rafflePacks25: 0,
-    puttingContestCount: 2,
-    tigerDriveCount: 2
+    puttingContestCount: 0,
+    tigerDriveCount: 0
   });
 
-  // Payment Method Selection (Cheque, e-Transfer, Credit Card)
-  const [paymentMethod, setPaymentMethod] = useState<'cheque' | 'etransfer' | 'cash' | 'credit_card'>('cheque');
-  const [cardNumber, setCardNumber] = useState('4532 8912 3456 7890');
-  const [cardExp, setCardExp] = useState('12/26');
-  const [cardCvc, setCardCvc] = useState('789');
-  const [cardName, setCardName] = useState('');
+  // Google Workspace SMTP Settings State
+  const [smtpPassword, setSmtpPassword] = useState(() => {
+    return localStorage.getItem('fb_smtp_pass') || '';
+  });
+  const [showSmtpPassword, setShowSmtpPassword] = useState(false);
+  const [isTestingSmtp, setIsTestingSmtp] = useState(false);
+  const [isSavingSmtp, setIsSavingSmtp] = useState(false);
+  const [smtpStatusMsg, setSmtpStatusMsg] = useState<{ text: string; isError: boolean } | null>(null);
+  const [emailSendResult, setEmailSendResult] = useState<{
+    attempted: boolean;
+    success: boolean;
+    message?: string;
+  } | null>(null);
+
+  // Payment Method Selection (Cheque, Interac e-Transfer, Cash) - NO Credit Card
+  const [paymentMethod, setPaymentMethod] = useState<'cheque' | 'etransfer' | 'cash'>('cheque');
+  const [golferEmailPreviewMethod, setGolferEmailPreviewMethod] = useState<'cheque' | 'etransfer' | 'cash'>('cheque');
+  const [emailPreviewMode, setEmailPreviewMode] = useState<'formatted' | 'text'>('formatted');
+  const [copiedGolferEmail, setCopiedGolferEmail] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [confirmedRecord, setConfirmedRecord] = useState<RegistrationRecord | null>(null);
   const [copiedDetails, setCopiedDetails] = useState(false);
 
+  // Golfer Classification state (Member $100 vs Other $120)
+  const [golferType, setGolferType] = useState<'member' | 'other'>('other');
+
   // Inline Validation Errors
   const [rosterErrors, setRosterErrors] = useState<{ [key: string]: string }>({});
-  const [paymentErrors, setPaymentErrors] = useState<{ [key: string]: string }>({});
+  const [receiptErrors, setReceiptErrors] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
+    setGolferEmailPreviewMethod(paymentMethod);
+  }, [paymentMethod]);
+
+  useEffect(() => {
+    if (isRegModalOpen) {
+      setStep(regModalInitialStep || 1);
+    }
     if (selectedRegType && selectedRegType !== 'foursome') {
       setRegType(selectedRegType);
     } else {
       setRegType('individual');
     }
-  }, [selectedRegType, isRegModalOpen]);
+  }, [selectedRegType, isRegModalOpen, regModalInitialStep]);
 
-  if (!isRegModalOpen) return null;
+  // Sync SMTP config from backend
+  useEffect(() => {
+    fetch('/api/smtp-config')
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.hasPassword && !smtpPassword) {
+          // password already present in server environment
+        }
+      })
+      .catch(() => {});
+  }, []);
 
-  const totalAmount = calculateRegistrationTotal(regType, addons);
-  const detectedBrand = detectCardBrand(cardNumber);
-
-  // Email blur helper (auto-append @ if missing)
-  const handleEmailBlur = (val: string, setter: (newVal: string) => void) => {
-    let trimmed = val.trim();
-    if (trimmed && !trimmed.includes('@')) {
-      trimmed = `${trimmed}@gmail.com`;
+  const handleSaveSmtpPassword = async () => {
+    if (!smtpPassword.trim()) {
+      setSmtpStatusMsg({ text: 'Please enter a password before saving.', isError: true });
+      return;
     }
-    setter(trimmed);
+    setIsSavingSmtp(true);
+    setSmtpStatusMsg(null);
+    try {
+      localStorage.setItem('fb_smtp_pass', smtpPassword.trim());
+      const res = await fetch('/api/smtp-config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: smtpPassword.trim() })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSmtpStatusMsg({ text: 'Password saved to backend and browser storage.', isError: false });
+      } else {
+        setSmtpStatusMsg({ text: data.error || 'Saved in browser storage.', isError: false });
+      }
+    } catch (e: any) {
+      setSmtpStatusMsg({ text: 'Saved in browser storage.', isError: false });
+    } finally {
+      setIsSavingSmtp(false);
+    }
   };
+
+  const handleTestSmtpConnection = async () => {
+    if (!smtpPassword.trim()) {
+      setSmtpStatusMsg({ text: 'Please enter a password to test connection.', isError: true });
+      return;
+    }
+    setIsTestingSmtp(true);
+    setSmtpStatusMsg(null);
+    try {
+      const res = await fetch('/api/test-smtp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: smtpPassword.trim() })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSmtpStatusMsg({
+          text: 'Connected successfully to smtp.gmail.com:587 as sales@aiopenhouseconnect.com!',
+          isError: false
+        });
+      } else {
+        setSmtpStatusMsg({
+          text: data.error || 'Connection failed. Verify your password or App Password.',
+          isError: true
+        });
+      }
+    } catch (e: any) {
+      setSmtpStatusMsg({ text: e.message || 'Server connection error.', isError: true });
+    } finally {
+      setIsTestingSmtp(false);
+    }
+  };
+
+  // Check if an existing registrant requested to play with this golfer's name
+  const pairingInvitation = useMemo(() => {
+    const trimmedName = primaryPlayer.name.trim().toLowerCase();
+    if (!trimmedName || trimmedName.length < 3) return null;
+
+    for (const reg of registrations) {
+      if (reg.requestedTeammates && Array.isArray(reg.requestedTeammates)) {
+        const found = reg.requestedTeammates.some(
+          (tm) => tm && tm.trim().toLowerCase() === trimmedName
+        );
+        if (found) {
+          return reg.primaryContact?.name || 'A registered golfer';
+        }
+      }
+    }
+    return null;
+  }, [primaryPlayer.name, registrations]);
+
+  const totalAmount = useMemo(
+    () => calculateRegistrationTotal(regType, addons, golferType),
+    [calculateRegistrationTotal, regType, addons, golferType]
+  );
+
+  const getGolferEmailData = (method: 'cheque' | 'cash' | 'etransfer', record?: RegistrationRecord | null) => {
+    const golferName = record ? record.primaryContact.name : (primaryPlayer.name.trim() || 'Valued Participant');
+    const golferEmail = record ? record.primaryContact.email : (primaryPlayer.email.trim() || 'golfer@example.com');
+    const totalDue = record ? record.totalAmount.toLocaleString() : totalAmount.toLocaleString();
+    const code = record ? record.confirmationCode : 'FB-2026-SAMPLE';
+    const isDinner = (record ? record.type : regType) === 'dinner_only';
+    const recGolferType = record ? record.golferType : golferType;
+    const packageTitle = isDinner
+      ? 'Dinner Guest Pass ($60)'
+      : recGolferType === 'member'
+      ? 'Green Fee & Cart Package - Member ($100)'
+      : 'Green Fee & Cart Package - Other ($120)';
+    const teammates = (record ? record.requestedTeammates : requestedTeammates) || [];
+    const teammatesList = teammates.filter(Boolean);
+    const teammatesStr = teammatesList.length > 0
+      ? teammatesList.map((t, idx) => `  ${idx + 1}. ${t}`).join('\n')
+      : '  None specified (we will pair you with friendly tournament players)';
+    const receiptReq = record ? record.receiptInfo?.needed : needReceipt;
+    const taxAddress = receiptReq
+      ? (record
+          ? `${record.receiptInfo?.address || ''}, ${record.receiptInfo?.city || ''}, ${record.receiptInfo?.province || ''} ${record.receiptInfo?.postalCode || ''}`
+          : `${receiptAddress || ''}, ${receiptCity || ''}, ${receiptProvince || ''} ${receiptPostalCode || ''}`)
+      : 'Not requested';
+
+    let subject = '';
+    let methodBadge = '';
+    let actionHighlights: { label: string; value: string }[] = [];
+    let paymentInstructions = '';
+
+    if (method === 'cheque') {
+      subject = `Registration Confirmation & Cheque Payment Instructions • 2026 Fragrant Breeze Golf Classic [Code: ${code}]`;
+      methodBadge = 'Cheque (Payable to Saied Mohammed)';
+      actionHighlights = [
+        { label: 'Payable To', value: 'Saied Mohammed' },
+        { label: 'Total Amount', value: `$${totalDue} CAD` },
+        { label: 'Cheque Memo Line', value: `2026 Memorial Golf - ${golferName}` },
+        { label: 'Payment Timing', value: 'Bring to 9:30 AM check-in desk on Monday, Oct 5, 2026 or mail in advance' },
+        { label: 'Status', value: 'Spot Reserved (Pending cheque presentation at check-in)' }
+      ];
+      paymentInstructions = `=======================================================
+CHEQUE PAYMENT INSTRUCTIONS FOR THE GOLFER
+=======================================================
+• Make Cheque Payable To: Saied Mohammed
+• Total Amount: $${totalDue} CAD
+• Cheque Memo Line: 2026 Memorial Golf - ${golferName}
+• Delivery Options:
+  Option 1 (Recommended): Bring your cheque directly to the 9:30 AM registration desk on tournament morning (Monday, October 5, 2026) at Burford Golf Links Course.
+  Option 2: Mail or hand-deliver your cheque in advance to tournament founder Saied Mohammed.
+• What Happens at Check-In:
+  Present your confirmation code [${code}] at the registration table. Our desk team will record your payment, hand you your player gift bag, driving range pass, dinner wristband, and cart assignment!
+• Status: SPOT RESERVED (Pending cheque presentation at check-in)`;
+    } else if (method === 'cash') {
+      subject = `Registration Confirmation & Cash Check-In Instructions • 2026 Fragrant Breeze Golf Classic [Code: ${code}]`;
+      methodBadge = 'Cash (Bring to Event Check-In)';
+      actionHighlights = [
+        { label: 'Payment Method', value: 'Cash (Bring to Event Check-In)' },
+        { label: 'Total Amount Due', value: `$${totalDue} CAD (Exact amount appreciated)` },
+        { label: 'When to Pay', value: 'Monday, Oct 5, 2026 at 9:30 AM registration desk (or prior to Saied)' },
+        { label: 'Desk Receipt', value: 'Signed physical receipt and gift bag issued upon payment at check-in' },
+        { label: 'Status', value: 'Spot Reserved (Pending cash payment at check-in)' }
+      ];
+      paymentInstructions = `=======================================================
+CASH PAYMENT INSTRUCTIONS FOR THE GOLFER
+=======================================================
+• Total Amount Due: $${totalDue} CAD (Exact cash is appreciated)
+• Payment Timing: Bring cash to the registration desk on tournament morning (Monday, October 5, 2026 starting at 9:30 AM) at Burford Golf Links Course, or pay prior to tournament founder Saied Mohammed.
+• What Happens at Check-In:
+  Present your confirmation code [${code}] at the desk. Our welcome team will provide a signed physical cash receipt, your player credentials, raffle tickets, and golf cart keys.
+• Status: SPOT RESERVED (Pending cash payment at check-in)`;
+    } else {
+      subject = `Registration Confirmation & Interac e-Transfer Instructions • 2026 Fragrant Breeze Golf Classic [Code: ${code}]`;
+      methodBadge = 'Interac e-Transfer (fragrant.breeze2023@gmail.com)';
+      actionHighlights = [
+        { label: 'Send e-Transfer To', value: 'fragrant.breeze2023@gmail.com' },
+        { label: 'Recipient Name', value: 'Saied Mohammed' },
+        { label: 'Transfer Amount', value: `$${totalDue} CAD` },
+        { label: 'Required Memo / Note', value: `2026 Memorial Golf - ${golferName} - ${code}` },
+        { label: 'Security Question', value: 'Auto-deposit enabled (If prompted: Q: Tournament / A: Memorial2026)' }
+      ];
+      paymentInstructions = `=======================================================
+INTERAC E-TRANSFER INSTRUCTIONS FOR THE GOLFER
+=======================================================
+• Open your online banking app and initiate an Interac e-Transfer.
+• Recipient Name: Saied Mohammed
+• Recipient Email: fragrant.breeze2023@gmail.com
+• Transfer Amount: $${totalDue} CAD
+• Required Memo / Message: 2026 Memorial Golf - ${golferName} - ${code}
+• Security Question / Answer:
+  Auto-deposit is typically enabled. If your bank requires a security question:
+  Question: "Tournament"
+  Answer: "Memorial2026"
+• Status: PENDING E-TRANSFER (Your spot is reserved; marked completed as soon as transfer is confirmed)`;
+    }
+
+    const fullPlainText = `FROM: Fragrant Breeze Golf Tournament <sales@aiopenhouseconnect.com>
+TO: ${golferName} <${golferEmail}>
+DATE: ${new Date().toLocaleDateString('en-CA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+SUBJECT: ${subject}
+
+Dear ${golferName},
+
+Thank you for registering for the 6th Annual Fragrant Breeze Golf Tournament in loving memory of Naseem Mohammed. We are delighted to confirm your entry!
+
+Here is your complete registration record and instructions for completing your payment via ${methodBadge}:
+
+=======================================================
+REGISTRATION CONFIRMATION SUMMARY
+=======================================================
+• Confirmation Code: ${code}
+• Golfer / Guest: ${golferName}
+• Email: ${golferEmail}
+• Entry Package: ${packageTitle}
+• Total Amount: $${totalDue} CAD
+• Payment Method: ${methodBadge}
+• Tournament Date: Monday, October 5, 2026
+• Location: Burford Golf Links Course (120 Golf Links Rd., Burford, ON)
+• Assigned Starting Hole: Hole #1A (Cart TBA)
+• Requested Teammates:
+${teammatesStr}
+• Charitable Tax Receipt Address: ${taxAddress}
+
+${paymentInstructions}
+
+=======================================================
+TOURNAMENT DAY ITINERARY (MONDAY, OCTOBER 5, 2026)
+=======================================================
+• 9:30 AM: Registration, Practice Range Access, & Gift Bag Pickup
+• 11:00 AM: Shotgun Start (18 Holes, dynamic 6-6-6 Swapping Partners format)
+• 4:00 PM: FABULOUS Turkey Dinner & Awards Banquet
+
+=======================================================
+CONTACT & QUESTIONS
+=======================================================
+If you have any questions or need to make adjustments:
+• Tournament Founder: Saied Mohammed (fragrant.breeze2023@gmail.com)
+• Tournament Administrator: Luc Valade (luc.valade@gmail.com)
+
+Thank you for your generous support of Hamilton Health Sciences Foundation & Juravinski Cancer Centre in honor of Naseem Mohammed. See you on the green!
+
+Warm regards,
+The Fragrant Breeze Tournament Committee
+Burford Golf Links Course • October 5, 2026
+`;
+
+    return {
+      subject,
+      methodBadge,
+      actionHighlights,
+      paymentInstructions,
+      fullPlainText,
+      golferName,
+      golferEmail,
+      totalDue,
+      code,
+      packageTitle,
+      teammatesList,
+      receiptReq,
+      taxAddress
+    };
+  };
+
+  const sampleEmailText = useMemo(() => {
+    return getGolferEmailData(paymentMethod).fullPlainText;
+  }, [paymentMethod, regType, totalAmount, primaryPlayer, requestedTeammates, needReceipt, receiptAddress, receiptCity, receiptProvince, receiptPostalCode]);
 
   const handleNextStep = (e: React.FormEvent) => {
     e.preventDefault();
@@ -246,7 +415,7 @@ export const RegistrationModal: React.FC = () => {
       if (!primaryPlayer.email.trim()) {
         errors.email = 'Email address is required.';
       } else if (!isValidEmail(primaryPlayer.email)) {
-        errors.email = 'Please enter a valid email address with @ and a valid domain (e.g. name@domain.com).';
+        errors.email = 'Please enter a valid email address with @ and domain (e.g. name@example.com).';
       }
 
       if (!primaryPlayer.phone.trim()) {
@@ -255,52 +424,52 @@ export const RegistrationModal: React.FC = () => {
         errors.phone = 'Phone format must be exactly (###) ###-####';
       }
 
-      if (primaryPlayer.handicap && !isValidHandicapOrGHIN(primaryPlayer.handicap)) {
-        errors.handicap = 'Invalid format. Enter a 6–8 digit GHIN (e.g. 1234567), Handicap Index (e.g. 14.2, +2.4), or NH.';
-      }
-
-      // If Foursome, validate teammates with the exact same rules if entered
-      if (regType === 'foursome') {
-        additionalPlayers.forEach((player, idx) => {
-          const num = idx + 2;
-          if (player.email && player.email.trim()) {
-            if (!isValidEmail(player.email)) {
-              errors[`teammate_${idx}_email`] = `Golfer #${num}: Please enter a valid email (e.g. name@domain.com).`;
-            }
-          }
-          if (player.phone && player.phone.trim()) {
-            if (!isValidPhone(player.phone)) {
-              errors[`teammate_${idx}_phone`] = `Golfer #${num}: Phone format must be (###) ###-####`;
-            }
-          }
-          if (player.handicap && !isValidHandicapOrGHIN(player.handicap)) {
-            errors[`teammate_${idx}_handicap`] = `Golfer #${num}: Enter a 6–8 digit GHIN, Index (e.g. 14.2, +2.4), or NH.`;
-          }
-        });
-      }
-
       if (Object.keys(errors).length > 0) {
         setRosterErrors(errors);
         return;
       }
-
       setRosterErrors({});
+
+      // Validate Receipt fields if activated
+      if (needReceipt) {
+        const rErrors: { [key: string]: string } = {};
+        if (!receiptAddress.trim()) {
+          rErrors.address = 'Street address is required for your official tax receipt.';
+        }
+        if (!receiptCity.trim()) {
+          rErrors.city = 'City is required (first letter capitalized).';
+        }
+        if (!receiptProvince.trim()) {
+          rErrors.province = 'Province is required (first letter capitalized).';
+        }
+        if (!receiptPostalCode.trim()) {
+          rErrors.postalCode = 'Canada postal code is required (Format: A1A 1A1).';
+        } else if (!isValidCanadianPostalCode(receiptPostalCode)) {
+          rErrors.postalCode = 'Invalid postal code format. Use alternating ANA NAN with single space (e.g. L8P 4S6), no hyphens.';
+        }
+
+        if (Object.keys(rErrors).length > 0) {
+          setReceiptErrors(rErrors);
+          return;
+        }
+      }
+      setReceiptErrors({});
       setStep(3);
-    } else if (step === 3) {
-      setStep(4);
     }
   };
 
   const generateSaiedEmailText = (rec: RegistrationRecord, total: number) => {
     const methodLabel =
       rec.paymentMethod === 'cheque'
-        ? 'CHEQUE'
-        : rec.paymentMethod === 'etransfer' || rec.paymentMethod === 'cash'
-        ? 'INTERAC E-TRANSFER'
-        : 'CREDIT CARD';
-    return `ATTENTION: Saied Mohammed (ms_smnm@outlook.com)
-TOURNAMENT: 2026 Memorial Charity Golf Classic
-ADMINISTRATOR: Luc Valade
+        ? 'CHEQUE (Payable to Saied Mohammed)'
+        : rec.paymentMethod === 'cash'
+        ? 'CASH (Bring it to the event)'
+        : 'INTERAC E-TRANSFER';
+
+    return `ATTENTION: Luc Valade (luc.valade@gmail.com)
+TOURNAMENT: Fragrant Breeze Golf Tournament (Fragrant Breeze Memorial Classic)
+PRE-LAUNCH ROUTING: Registration routed to Luc Valade (luc.valade@gmail.com)
+FOUNDER: Saied Mohammed (fragrant.breeze2023@gmail.com)
 
 NEW GOLFER REGISTRATION RECEIVED (${methodLabel})
 
@@ -308,328 +477,483 @@ NEW GOLFER REGISTRATION RECEIVED (${methodLabel})
 REGISTRATION SUMMARY
 =======================================================
 Confirmation Code: ${rec.confirmationCode}
-Entry Type: ${rec.type === 'foursome' ? 'Tournament Foursome' : rec.type === 'dinner_only' ? 'Dinner & Awards Guest' : 'Individual Golfer'}
-Team Name: ${rec.teamName || 'N/A'}
+Entry Type: ${rec.type === 'dinner_only' ? 'Dinner Guest Pass ($60)' : rec.golferType === 'member' ? 'Green Fee & Cart Package - Member ($100)' : 'Green Fee & Cart Package - Other ($120)'}
 Payment Method: ${methodLabel}
-Payment Status: ${rec.paymentMethod === 'credit_card' ? 'PAID' : 'PENDING RECEIPT BY SAIED MOHAMMED'}
+Payment Status: PENDING RECEIPT BY SAIED MOHAMMED
 Total Amount Due: $${total.toLocaleString()} CAD
 Registration Date: ${new Date(rec.registeredAt).toLocaleString()}
 Starting Hole: Hole #${rec.assignedStartingHole}A
 Assigned Cart: ${rec.assignedCart}
 
 =======================================================
-PRIMARY GOLFER / CAPTAIN DETAILS
+PRIMARY GOLFER / CONTACT DETAILS
 =======================================================
 Full Name: ${rec.primaryContact.name}
 Email: ${rec.primaryContact.email}
 Phone: ${rec.primaryContact.phone}
-Handicap / GHIN: ${rec.primaryContact.handicap || 'None / Not Provided'}
-Shirt Size: ${rec.primaryContact.shirtSize || 'None'}
 Dietary Restrictions: ${rec.primaryContact.dietaryRestrictions || 'None'}
 
-${rec.type === 'foursome' && rec.additionalPlayers.length > 0 ? `=======================================================
-TEAM ROSTER MEMBERS
+${
+  rec.requestedTeammates && rec.requestedTeammates.filter(Boolean).length > 0
+    ? `=======================================================
+REQUESTED FOURSOME TEAMMATES ("I would like to play with:")
 =======================================================
-` + rec.additionalPlayers.map((p, idx) => `Player #${idx + 2}: ${p.name || 'TBD'}
-  Email: ${p.email || 'N/A'} | Phone: ${p.phone || 'N/A'}
-  Handicap / GHIN: ${p.handicap || 'N/A'} | Shirt: ${p.shirtSize || 'N/A'} | Dietary: ${p.dietaryRestrictions || 'None'}`).join('\n\n') : ''}
+${rec.requestedTeammates.filter(Boolean).map((n, i) => `${i + 1}. ${n}`).join('\n')}
+`
+    : ''
+}
+
+${
+  rec.receiptInfo?.needed
+    ? `=======================================================
+OFFICIAL TAX RECEIPT MAILING ADDRESS
+=======================================================
+Street Address: ${rec.receiptInfo.address || 'N/A'}
+City: ${rec.receiptInfo.city || 'N/A'}
+Province: ${rec.receiptInfo.province || 'N/A'}
+Postal Code: ${rec.receiptInfo.postalCode || 'N/A'}
+`
+    : 'Official Tax Receipt Requested: No'
+}
 
 =======================================================
-CHARITY ADD-ONS & CONTEST INVENTORY
+PAYMENT INSTRUCTIONS
 =======================================================
-- Mulligans: ${rec.addons.mulligansCount}
-- 10-Raffle Ticket Packs: ${rec.addons.rafflePacks10}
-- 25-Raffle Ticket Packs: ${rec.addons.rafflePacks25}
-- Putting Shootout Entries: ${rec.addons.puttingContestCount}
-- Tiger Drive Advantage (#11): ${rec.addons.tigerDriveCount}
-
-=======================================================
-OFFLINE PAYMENT INSTRUCTIONS
-=======================================================
-${rec.paymentMethod === 'cheque' 
-  ? `Make cheque payable to: Saied Mohammed
-Memo: 2026 Memorial Golf Classic - ${rec.confirmationCode} (${rec.primaryContact.name})
+${
+  rec.paymentMethod === 'cheque'
+    ? `Make Cheque Payable To: Saied Mohammed
+Memo Line: 2026 Memorial Golf
 Total Amount: $${total.toLocaleString()} CAD
-Mail to Saied Mohammed or present at 10:30 AM registration desk.` 
-  : (rec.paymentMethod === 'etransfer' || rec.paymentMethod === 'cash')
-  ? `Interac e-Transfer Instructions:
-Send e-Transfer to: Saied Mohammed
-Recipient Email: ms_smnm@outlook.com
+Mail to Saied Mohammed or present at the 9:30 AM registration desk.`
+    : rec.paymentMethod === 'cash'
+    ? `Cash Payment Selected:
+Bring cash to the 9:30 AM event check-in desk or prior to Saied Mohammed.
+Memo Line: 2026 Memorial Golf
+Total Amount: $${total.toLocaleString()} CAD`
+    : `Interac e-Transfer Instructions:
+Send e-Transfer to: fragrant.breeze2023@gmail.com
 Total Amount: $${total.toLocaleString()} CAD
-Memo / Note in Banking App: 2026 Memorial Golf - ${rec.confirmationCode} (${rec.primaryContact.name})
+Memo / Transfer Note: 2026 Memorial Golf
 Status: PENDING RECEIPT BY SAIED MOHAMMED`
-  : `Online credit card payment processed.`}
+}
 
-*All registration records are logged in the tournament database accessible by Tournament Administrator Luc Valade.*`;
+*All registration records are logged in the tournament database.*`;
   };
 
-  const handleFinalSubmit = (e: React.FormEvent) => {
+  const handleFinalSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (paymentMethod === 'credit_card') {
-      const errors: { [key: string]: string } = {};
-      const cleanNum = cardNumber.replace(/\D/g, '');
-
-      if (!cleanNum) {
-        errors.cardNumber = 'Credit card number is required.';
-      } else if (!isValidLuhn(cleanNum)) {
-        errors.cardNumber = 'Invalid credit card number (failed Luhn algorithm check).';
-      } else {
-        // Check brand length specific rules
-        if (detectedBrand === 'amex' && cleanNum.length !== 15) {
-          errors.cardNumber = 'American Express card must have 15 digits.';
-        } else if (detectedBrand === 'visa' && cleanNum.length !== 16 && cleanNum.length !== 19) {
-          errors.cardNumber = 'Visa card must have 16 or 19 digits.';
-        } else if (detectedBrand === 'mastercard' && cleanNum.length !== 16) {
-          errors.cardNumber = 'Mastercard must have 16 digits.';
-        } else if (detectedBrand === 'discover' && cleanNum.length !== 16) {
-          errors.cardNumber = 'Discover card must have 16 digits.';
-        }
-      }
-
-      if (!cardExp.trim()) {
-        errors.cardExp = 'Expiration date is required (MM/YY).';
-      } else if (!isValidExp(cardExp)) {
-        errors.cardExp = 'Expiration must be between 01-12 for month and 26-35 for year (e.g. 10/26).';
-      }
-
-      if (!cardCvc.trim()) {
-        errors.cardCvc = 'CVC / CVV code is required.';
-      } else if (!isValidCvc(cardCvc, detectedBrand)) {
-        errors.cardCvc = detectedBrand === 'amex' ? 'Amex requires 3 or 4 digits.' : 'CVC must be exactly 3 numeric digits.';
-      }
-
-      if (Object.keys(errors).length > 0) {
-        setPaymentErrors(errors);
-        return;
-      }
-    }
-
-    setPaymentErrors({});
     setIsProcessing(true);
 
-    setTimeout(() => {
-      const created = registerTeamOrPlayer({
-        type: regType,
-        teamName: regType === 'foursome' ? (teamName.trim() || `${primaryPlayer.name}'s Foursome`) : undefined,
-        primaryContact: primaryPlayer,
-        additionalPlayers: regType === 'foursome' ? additionalPlayers : [],
-        addons,
-        paymentMethod
-      });
+    const created = registerTeamOrPlayer({
+      type: regType,
+      golferType: regType === 'dinner_only' ? undefined : golferType,
+      primaryContact: primaryPlayer,
+      additionalPlayers: [],
+      requestedTeammates: requestedTeammates.filter(Boolean),
+      receiptInfo: {
+        needed: needReceipt,
+        address: needReceipt ? receiptAddress : undefined,
+        city: needReceipt ? receiptCity : undefined,
+        province: needReceipt ? receiptProvince : undefined,
+        postalCode: needReceipt ? receiptPostalCode : undefined
+      },
+      addons,
+      paymentMethod
+    });
 
-      // If Cheque, e-Transfer, or Cash is chosen, prepare mailto link for Saied Mohammed (ms_smnm@outlook.com)
-      if (paymentMethod === 'cheque' || paymentMethod === 'etransfer' || paymentMethod === 'cash') {
-        const methodTitle = paymentMethod === 'cheque' ? 'Cheque' : 'e-Transfer';
-        const mailSubject = `[2026 Memorial Golf Classic] New Registration (${methodTitle}): ${primaryPlayer.name} - ${created.confirmationCode}`;
-        const mailBody = generateSaiedEmailText(created, totalAmount);
-        const mailtoUrl = `mailto:ms_smnm@outlook.com?subject=${encodeURIComponent(mailSubject)}&body=${encodeURIComponent(mailBody)}`;
-        
-        try {
-          const mailLink = document.createElement('a');
-          mailLink.href = mailtoUrl;
-          mailLink.target = '_blank';
-          mailLink.rel = 'noopener noreferrer';
-          document.body.appendChild(mailLink);
-          mailLink.click();
-          document.body.removeChild(mailLink);
-        } catch (err) {
-          console.warn('Mailto link triggered', err);
-        }
+    // Send the email in the backend to Saied Mohammed (fragrant.breeze2023@gmail.com) via Google Workspace Gmail SMTP
+    let emailSuccess = false;
+    let emailErrorMsg = '';
+
+    try {
+      const resp = await fetch('/api/send-registration-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          registration: created,
+          totalAmount,
+          customPassword: smtpPassword.trim(),
+          recipientEmail: 'luc.valade@gmail.com'
+        })
+      });
+      const data = await resp.json();
+      if (data.success) {
+        emailSuccess = true;
+      } else {
+        emailErrorMsg = data.error || 'SMTP delivery could not complete';
       }
+    } catch (err: any) {
+      emailErrorMsg = err?.message || 'Server connection error';
+    }
 
-      setIsProcessing(false);
-      setConfirmedRecord(created);
-      setStep(5);
+    setEmailSendResult({
+      attempted: true,
+      success: emailSuccess,
+      message: emailSuccess
+        ? 'Email dispatched to tournament administrator Luc Valade (luc.valade@gmail.com) via Google Workspace Gmail SMTP'
+        : emailErrorMsg
+    });
 
-      confetti({
-        particleCount: 100,
-        spread: 80,
-        origin: { y: 0.5 }
-      });
-    }, 600);
+    setIsProcessing(false);
+    setConfirmedRecord(created);
+    setStep(4);
+    resetFormFields();
+
+    confetti({
+      particleCount: 100,
+      spread: 80,
+      origin: { y: 0.5 }
+    });
+  };
+
+  const resetFormFields = () => {
+    setPrimaryPlayer({
+      id: `p-${Date.now()}-1`,
+      name: '',
+      email: '',
+      phone: '',
+      dietaryRestrictions: ''
+    });
+    setRequestedTeammates(['', '', '']);
+    setNeedReceipt(false);
+    setReceiptAddress('');
+    setReceiptCity('');
+    setReceiptProvince('');
+    setReceiptPostalCode('');
+    setPaymentMethod('cheque');
+    setRosterErrors({});
+    setReceiptErrors({});
   };
 
   const handleClose = () => {
+    if (onClose) onClose();
     setIsRegModalOpen(false);
     setStep(1);
     setConfirmedRecord(null);
     setRosterErrors({});
-    setPaymentErrors({});
+    setReceiptErrors({});
+    setEmailSendResult(null);
+    resetFormFields();
   };
 
-  const updateAdditionalPlayer = (index: number, field: keyof PlayerInfo, value: string) => {
-    const updated = [...additionalPlayers];
-    updated[index] = { ...updated[index], [field]: value };
-    setAdditionalPlayers(updated);
-  };
+  if (!inline && !isRegModalOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full overflow-hidden border border-slate-200 relative animate-in fade-in zoom-in-95 duration-200 my-8">
-        {/* Modal Header */}
-        <div className="bg-[#1E4D2B] text-white p-5 sm:p-6 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-400/20 border border-[#D4AF37] flex items-center justify-center">
-              <Trophy className="w-5 h-5 text-[#D4AF37]" />
-            </div>
-            <div>
-              <span className="text-[11px] uppercase font-bold text-amber-200 tracking-wider">
-                Digital Registration Card • October 2026
-              </span>
-              <h3 className="text-lg sm:text-xl font-bold font-serif-heading text-white">
-                {step === 5 ? 'Registration Confirmed!' : 'Charity Golf Classic Entry'}
-              </h3>
-            </div>
-          </div>
+    <div
+      id="inline-registration-container"
+      className={
+        inline
+          ? "w-full lg:w-[75%] max-w-5xl mx-auto my-8 scroll-mt-28"
+          : "fixed inset-0 z-50 overflow-y-auto bg-slate-950/80 backdrop-blur-xs flex items-start justify-center p-3 sm:p-6 md:py-10"
+      }
+    >
+      <div
+        className={
+          inline
+            ? "bg-white rounded-3xl w-full overflow-hidden shadow-2xl border-2 border-[#1E4D2B] relative animate-in fade-in slide-in-from-top-4 duration-300"
+            : "bg-white rounded-3xl max-w-2xl sm:max-w-3xl w-full overflow-hidden shadow-2xl border border-slate-200 relative animate-in fade-in zoom-in-95 duration-200 my-auto"
+        }
+      >
+        {/* Header */}
+        <div className="bg-[#1E4D2B] text-white p-5 sm:p-6 relative flex flex-col">
           <button
             onClick={handleClose}
-            className="p-2 text-slate-300 hover:text-white rounded-lg transition"
-            aria-label="Close modal"
+            className={
+              inline
+                ? "mb-4 self-end px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer border border-white/20"
+                : "mb-3 sm:absolute sm:top-4 sm:right-4 p-2 rounded-full hover:bg-white/20 text-white transition cursor-pointer self-end sm:self-auto"
+            }
+            aria-label="Close"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
+            {inline && <span>Hide Form</span>}
           </button>
+          
+          <div className="hidden sm:flex items-center gap-2 text-amber-300 text-xs font-semibold uppercase tracking-wider mb-1">
+            <Sparkles className="w-4 h-4" />
+            <span>Fragrant Breeze Golf Tournament Entry</span>
+          </div>
+          <h3 className="text-xl sm:text-2xl font-bold font-serif-heading">
+            {step === 4 ? 'Registration Confirmed' : 'Digital Registration Card • October 2026'}
+          </h3>
+          <div className="sm:hidden flex items-center gap-2 text-amber-300 text-[10px] font-semibold uppercase tracking-wider mt-2">
+            <Sparkles className="w-3 h-3" />
+            <span>Fragrant Breeze Golf Tournament Entry</span>
+          </div>
+          <p className="text-xs text-emerald-100/90 mt-1">
+            Honoring {EVENT_DETAILS.memorialHonoree} &bull; Benefiting {EVENT_DETAILS.beneficiaryOrg}
+          </p>
+
+          {/* Stepper Progress: Sky Blue for completed steps, Gold for current active step */}
+          {step < 4 && (
+            <div className="flex items-center justify-between mt-4 pt-3 border-t border-emerald-800/80 text-xs">
+              {/* Step 1 */}
+              <div
+                className={`px-2.5 sm:px-3 py-1 rounded-full flex items-center gap-1.5 transition text-xs ${
+                  step > 1
+                    ? 'bg-sky-500/25 text-sky-300 border border-sky-400/60 font-semibold shadow-xs'
+                    : step === 1
+                    ? 'bg-gradient-to-r from-[#D4AF37] via-[#F6E8B6] to-[#D4AF37] text-[#0F2D17] font-extrabold shadow-sm ring-1 ring-[#D4AF37]'
+                    : 'text-emerald-300/50 bg-emerald-950/40 border border-emerald-800/40'
+                }`}
+              >
+                {step > 1 ? (
+                  <CheckCircle className="w-3.5 h-3.5 text-sky-300 shrink-0" />
+                ) : (
+                  <span className="w-4 h-4 rounded-full bg-[#0F2D17] text-[#D4AF37] text-[10px] font-bold flex items-center justify-center shrink-0">1</span>
+                )}
+                <span>1. Card Format</span>
+              </div>
+
+              <span className="text-emerald-400/40">&bull;</span>
+
+              {/* Step 2 */}
+              <div
+                className={`px-2.5 sm:px-3 py-1 rounded-full flex items-center gap-1.5 transition text-xs ${
+                  step > 2
+                    ? 'bg-sky-500/25 text-sky-300 border border-sky-400/60 font-semibold shadow-xs'
+                    : step === 2
+                    ? 'bg-gradient-to-r from-[#D4AF37] via-[#F6E8B6] to-[#D4AF37] text-[#0F2D17] font-extrabold shadow-sm ring-1 ring-[#D4AF37]'
+                    : 'text-emerald-300/50 bg-emerald-950/40 border border-emerald-800/40'
+                }`}
+              >
+                {step > 2 ? (
+                  <CheckCircle className="w-3.5 h-3.5 text-sky-300 shrink-0" />
+                ) : (
+                  <span className={`w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center shrink-0 ${
+                    step === 2 ? 'bg-[#0F2D17] text-[#D4AF37]' : 'bg-emerald-900/60 text-emerald-400'
+                  }`}>2</span>
+                )}
+                <span>{regType === 'dinner_only' ? '2. Guest Details' : '2. Player Roster'}</span>
+              </div>
+
+              <span className="text-emerald-400/40">&bull;</span>
+
+              {/* Step 3 */}
+              <div
+                className={`px-2.5 sm:px-3 py-1 rounded-full flex items-center gap-1.5 transition text-xs ${
+                  step > 3
+                    ? 'bg-sky-500/25 text-sky-300 border border-sky-400/60 font-semibold shadow-xs'
+                    : step === 3
+                    ? 'bg-gradient-to-r from-[#D4AF37] via-[#F6E8B6] to-[#D4AF37] text-[#0F2D17] font-extrabold shadow-sm ring-1 ring-[#D4AF37]'
+                    : 'text-emerald-300/50 bg-emerald-950/40 border border-emerald-800/40'
+                }`}
+              >
+                {step > 3 ? (
+                  <CheckCircle className="w-3.5 h-3.5 text-sky-300 shrink-0" />
+                ) : (
+                  <span className={`w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center shrink-0 ${
+                    step === 3 ? 'bg-[#0F2D17] text-[#D4AF37]' : 'bg-emerald-900/60 text-emerald-400'
+                  }`}>3</span>
+                )}
+                <span>3. Payment Method</span>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Stepper Progress Bar (Steps 1 to 4) */}
-        {step < 5 && (
-          <div className="bg-slate-100 px-3 sm:px-6 py-3 border-b border-slate-200 flex items-center justify-between text-xs font-semibold">
-            <div className={`flex items-center gap-1 sm:gap-1.5 ${step >= 1 ? 'text-[#1E4D2B] font-bold' : 'text-slate-400'}`}>
-              <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] shrink-0 ${step >= 1 ? 'bg-[#1E4D2B] text-white' : 'bg-slate-300 text-slate-600'}`}>1</span>
-              <span className="hidden sm:inline">Entry Type</span>
-              <span className="sm:hidden">Type</span>
-            </div>
-            <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-            <div className={`flex items-center gap-1 sm:gap-1.5 ${step >= 2 ? 'text-[#1E4D2B] font-bold' : 'text-slate-400'}`}>
-              <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] shrink-0 ${step >= 2 ? 'bg-[#1E4D2B] text-white' : 'bg-slate-300 text-slate-600'}`}>2</span>
-              <span className="hidden sm:inline">Player Roster</span>
-              <span className="sm:hidden">Roster</span>
-            </div>
-            <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-            <div className={`flex items-center gap-1 sm:gap-1.5 ${step >= 3 ? 'text-[#1E4D2B] font-bold' : 'text-slate-400'}`}>
-              <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] shrink-0 ${step >= 3 ? 'bg-[#1E4D2B] text-white' : 'bg-slate-300 text-slate-600'}`}>3</span>
-              <span>Add-Ons</span>
-            </div>
-            <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-            <div className={`flex items-center gap-1 sm:gap-1.5 ${step >= 4 ? 'text-[#1E4D2B] font-bold' : 'text-slate-400'}`}>
-              <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] shrink-0 ${step >= 4 ? 'bg-[#1E4D2B] text-white' : 'bg-slate-300 text-slate-600'}`}>4</span>
-              <span className="hidden sm:inline">Checkout</span>
-              <span className="sm:hidden">Pay</span>
-            </div>
-          </div>
-        )}
-
-        {/* STEP 1: Entry Type Selection */}
+        {/* STEP 1: Choose Registration Card Format */}
         {step === 1 && (
-          <form onSubmit={handleNextStep} className="p-6 sm:p-8 space-y-6">
+          <form onSubmit={handleNextStep} className="p-6 sm:p-7 space-y-6">
             <div className="space-y-3">
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
-                Choose Registration Format
+                Choose Registration Card Format
               </label>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Individual Golfer Card - Green Fee & Cart $120-$130 */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {/* 1. Green Fee & Cart Package */}
                 <button
                   type="button"
                   onClick={() => setRegType('individual')}
-                  className={`p-4 sm:p-5 rounded-2xl text-left border-2 transition cursor-pointer flex flex-col justify-between ${
+                  className={`p-4 rounded-2xl text-left border-2 transition cursor-pointer flex flex-col justify-between ${
                     regType === 'individual'
-                      ? 'border-[#1E4D2B] bg-emerald-50/60 ring-2 ring-[#1E4D2B]'
+                      ? 'border-[#1E4D2B] bg-emerald-50/70 ring-2 ring-[#1E4D2B]'
                       : 'border-slate-200 hover:border-slate-300 bg-white'
                   }`}
                 >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-900 bg-emerald-100 px-2 py-0.5 rounded-full">
-                      Green Fee &amp; Cart $120-$130
-                    </span>
-                    <User className="w-5 h-5 text-slate-600" />
-                  </div>
                   <div>
-                    <h4 className="text-base sm:text-lg font-bold text-slate-900">Green Fee &amp; Cart</h4>
-                    <p className="text-xs text-slate-500 mt-0.5">1 Golfer &bull; 18 Holes &bull; GPS Cart</p>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-900 bg-emerald-100 px-2 py-0.5 rounded-full">
+                        - $100 Members | - $120 Others
+                      </span>
+                      <User className="w-4 h-4 text-[#1E4D2B]" />
+                    </div>
+                    <h4 className="text-base font-bold text-slate-900 leading-tight">
+                      Green Fee &amp; Cart
+                    </h4>
+                    <p className="text-[11px] text-slate-500 mt-0.5">
+                      1 Golfer &bull; 18 Holes &bull; GPS Cart
+                    </p>
                   </div>
-                  <div className="mt-4 pt-3 border-t border-slate-200/80 flex items-baseline justify-between">
-                    <span className="text-xl font-extrabold text-slate-900 font-mono">$120–$130</span>
-                    <span className="text-xs text-slate-500">Per Player</span>
+                  <div className="mt-3 pt-3 border-t border-slate-200 flex flex-col font-mono text-xs font-bold text-[#1E4D2B]">
+                    <div>- $100 Members</div>
+                    <div>- $120 Others</div>
                   </div>
                 </button>
 
-                {/* Dinner Card */}
+                {/* 2. Supporter - Dinner */}
                 <button
                   type="button"
                   onClick={() => setRegType('dinner_only')}
-                  className={`p-4 sm:p-5 rounded-2xl text-left border-2 transition cursor-pointer flex flex-col justify-between ${
+                  className={`p-4 rounded-2xl text-left border-2 transition cursor-pointer flex flex-col justify-between ${
                     regType === 'dinner_only'
-                      ? 'border-[#1E4D2B] bg-emerald-50/60 ring-2 ring-[#1E4D2B]'
+                      ? 'border-[#1E4D2B] bg-emerald-50/70 ring-2 ring-[#1E4D2B]'
                       : 'border-slate-200 hover:border-slate-300 bg-white'
                   }`}
                 >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full">
-                      Supporter
-                    </span>
-                    <Sparkles className="w-5 h-5 text-amber-700" />
-                  </div>
                   <div>
-                    <h4 className="text-base sm:text-lg font-bold text-slate-900">Dinner</h4>
-                    <p className="text-xs text-slate-500 mt-0.5">Dinner &amp; Awards Banquet</p>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-amber-900 bg-amber-100 px-2 py-0.5 rounded-full">
+                        Supporter $60
+                      </span>
+                      <Sparkles className="w-4 h-4 text-amber-700" />
+                    </div>
+                    <h4 className="text-base font-bold text-slate-900 leading-tight">
+                      Dinner Guest Pass
+                    </h4>
+                    <p className="text-[11px] text-slate-500 mt-0.5">
+                      Dinner &amp; Awards Banquet
+                    </p>
                   </div>
-                  <div className="mt-4 pt-3 border-t border-slate-200/80 flex items-baseline justify-between">
-                    <span className="text-xl font-extrabold text-slate-900 font-mono">$50–$60</span>
-                    <span className="text-xs text-slate-500">(to be finalized) Per Guest</span>
+                  <div className="mt-4 pt-3 border-t border-slate-200 flex items-baseline justify-between">
+                    <span className="text-lg font-extrabold text-slate-900 font-mono">
+                      $60
+                    </span>
+                    <span className="text-[10px] text-slate-500 font-medium">Per Guest</span>
+                  </div>
+                </button>
+
+                {/* 3. Donations Card */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleClose();
+                    openDonationModal(100);
+                  }}
+                  className="p-4 rounded-2xl text-left border-2 border-rose-200 hover:border-rose-400 bg-rose-50/40 hover:bg-rose-50/80 transition cursor-pointer flex flex-col justify-between group"
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-rose-800 bg-rose-100 px-2 py-0.5 rounded-full">
+                        Donations
+                      </span>
+                      <Heart className="w-4 h-4 text-rose-600 fill-rose-600 group-hover:scale-110 transition-transform" />
+                    </div>
+                    <h4 className="text-base font-bold text-slate-900 leading-tight">
+                      Be Generous
+                    </h4>
+                    <p className="text-[11px] text-slate-500 mt-0.5">
+                      It’s for great causes
+                    </p>
+                  </div>
+                  <div className="mt-4 pt-3 border-t border-rose-200 flex items-baseline justify-between">
+                    <span className="text-xs font-bold text-rose-700">Tax Receipt</span>
+                    <span className="text-[11px] text-rose-600 font-bold flex items-center gap-0.5">
+                      Donate Now <ChevronRight className="w-3 h-3" />
+                    </span>
                   </div>
                 </button>
               </div>
             </div>
-
-            {regType === 'foursome' && (
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Team / Foursome Name (Optional)
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Fairway Eagles, Apex Golfers, The Bogeymen"
-                  value={teamName}
-                  onChange={(e) => setTeamName(formatTitleCase(e.target.value))}
-                  className="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1E4D2B]"
-                />
-              </div>
-            )}
 
             <div className="flex justify-end pt-2">
               <button
                 type="submit"
                 className="px-6 py-3 bg-[#EA580C] hover:bg-[#C2410C] text-white font-bold text-sm rounded-xl shadow-md transition flex items-center gap-2 cursor-pointer"
               >
-                <span>{regType === 'dinner_only' ? 'Continue to Guest Details' : 'Continue to Golfer Details'}</span>
+                <span>
+                  {regType === 'dinner_only'
+                    ? 'Continue to Guest Details (Step 2)'
+                    : 'Continue to Player Roster (Step 2)'}
+                </span>
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>
           </form>
         )}
 
-        {/* STEP 2: Golfer Info & Roster */}
+        {/* STEP 2: TAB - Player Roster Step */}
         {step === 2 && (
-          <form onSubmit={handleNextStep} className="p-6 sm:p-8 space-y-6 max-h-[70vh] overflow-y-auto">
-            {/* Primary Golfer */}
-            <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+          <form onSubmit={handleNextStep} className="p-6 sm:p-7 space-y-5">
+            {/* Pairing Notice Alert if someone previously requested to play with this golfer */}
+            {pairingInvitation && (
+              <div className="p-3.5 bg-emerald-50 border-2 border-emerald-500 rounded-xl text-xs text-emerald-950 flex items-start gap-2.5 animate-fadeIn shadow-xs">
+                <Sparkles className="w-5 h-5 text-emerald-700 shrink-0 mt-0.5" />
+                <div>
+                  <span className="font-bold uppercase tracking-wider text-[10px] text-emerald-800">
+                    Foursome Pairing Invitation Found!
+                  </span>
+                  <p className="mt-0.5">
+                    Notice: <strong>{pairingInvitation}</strong> would like you to be part of their foursome for golf!
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Golfer Classification (Member $100 vs Other $120) */}
+            {regType !== 'dinner_only' && (
+              <div className="bg-emerald-50/70 p-4 rounded-2xl border border-emerald-200/90 space-y-2">
+                <label className="block text-xs font-bold text-slate-800">
+                  Golfer Classification / Fee Rate *
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setGolferType('member')}
+                    className={`p-3 rounded-xl border-2 text-left transition cursor-pointer flex items-center justify-between ${
+                      golferType === 'member'
+                        ? 'border-[#1E4D2B] bg-white ring-2 ring-[#1E4D2B]'
+                        : 'border-slate-200 bg-white/70 hover:border-slate-300'
+                    }`}
+                  >
+                    <div>
+                      <div className="text-xs font-bold text-slate-900">Member Rate</div>
+                      <div className="text-[10px] text-slate-500">Course / Club Member</div>
+                    </div>
+                    <span className="font-mono font-extrabold text-[#1E4D2B] text-xs sm:text-sm">- $100 Members</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setGolferType('other')}
+                    className={`p-3 rounded-xl border-2 text-left transition cursor-pointer flex items-center justify-between ${
+                      golferType === 'other'
+                        ? 'border-[#1E4D2B] bg-white ring-2 ring-[#1E4D2B]'
+                        : 'border-slate-200 bg-white/70 hover:border-slate-300'
+                    }`}
+                  >
+                    <div>
+                      <div className="text-xs font-bold text-slate-900">Other Rate</div>
+                      <div className="text-[10px] text-slate-500">Non-Member / Guest</div>
+                    </div>
+                    <span className="font-mono font-extrabold text-[#1E4D2B] text-xs sm:text-sm">- $120 Others</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Primary Golfer Info */}
+            <div className="bg-slate-50 p-4 sm:p-5 rounded-2xl border border-slate-200 space-y-3.5">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-200">
                 <div className="flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-full bg-[#1E4D2B] text-white font-bold text-xs flex items-center justify-center">
+                  <span className="w-5 h-5 rounded-full bg-[#1E4D2B] text-white font-bold text-xs flex items-center justify-center">
                     1
                   </span>
-                  <h4 className="font-bold text-slate-900 text-sm">
-                    {regType === 'dinner_only' ? 'Guest & Supporter Details (Contact) *' : 'Primary Golfer / Team Captain (Contact) *'}
+                  <h4 className="font-bold text-slate-900 text-xs sm:text-sm">
+                    {regType === 'dinner_only'
+                      ? 'Guest & Supporter Details (Contact) *'
+                      : 'Primary Golfer Details (Contact) *'}
                   </h4>
                 </div>
-                <span className="text-[11px] text-[#1E4D2B] font-semibold">Receives Confirmation</span>
+                <span className="text-[10px] text-[#1E4D2B] font-semibold">Receives Confirmation</span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {/* Full Name: Capitalized first letter of each word */}
-                <div className="sm:col-span-1">
-                  <label className="block text-[11px] font-semibold text-slate-700 mb-1">Full Name *</label>
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                    Full Name *
+                  </label>
                   <input
                     type="text"
                     required
@@ -642,7 +966,7 @@ Status: PENDING RECEIPT BY SAIED MOHAMMED`
                         setRosterErrors((prev) => ({ ...prev, name: '' }));
                       }
                     }}
-                    className={`w-full px-3 py-2 text-xs border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E4D2B] ${
+                    className={`w-full px-3 py-2 text-xs border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E4D2B] bg-white ${
                       rosterErrors.name ? 'border-rose-400 bg-rose-50/50' : 'border-slate-300'
                     }`}
                   />
@@ -653,13 +977,15 @@ Status: PENDING RECEIPT BY SAIED MOHAMMED`
                   )}
                 </div>
 
-                {/* Email Address: Must contain @ and valid domain extension */}
-                <div className="sm:col-span-1">
-                  <label className="block text-[11px] font-semibold text-slate-700 mb-1">Email Address *</label>
+                {/* Email Address */}
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                    Email Address *
+                  </label>
                   <input
                     type="email"
                     required
-                    placeholder="saied@example.com"
+                    placeholder="name@example.com"
                     value={primaryPlayer.email}
                     onChange={(e) => {
                       setPrimaryPlayer({ ...primaryPlayer, email: e.target.value });
@@ -667,12 +993,7 @@ Status: PENDING RECEIPT BY SAIED MOHAMMED`
                         setRosterErrors((prev) => ({ ...prev, email: '' }));
                       }
                     }}
-                    onBlur={(e) => {
-                      handleEmailBlur(e.target.value, (newVal) =>
-                        setPrimaryPlayer((prev) => ({ ...prev, email: newVal }))
-                      );
-                    }}
-                    className={`w-full px-3 py-2 text-xs border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E4D2B] ${
+                    className={`w-full px-3 py-2 text-xs border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E4D2B] bg-white ${
                       rosterErrors.email ? 'border-rose-400 bg-rose-50/50' : 'border-slate-300'
                     }`}
                   />
@@ -683,9 +1004,11 @@ Status: PENDING RECEIPT BY SAIED MOHAMMED`
                   )}
                 </div>
 
-                {/* Phone: Auto formatted as (###) ###-#### */}
-                <div className="sm:col-span-1">
-                  <label className="block text-[11px] font-semibold text-slate-700 mb-1">Phone *</label>
+                {/* Phone */}
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                    Phone *
+                  </label>
                   <input
                     type="tel"
                     required
@@ -698,7 +1021,7 @@ Status: PENDING RECEIPT BY SAIED MOHAMMED`
                         setRosterErrors((prev) => ({ ...prev, phone: '' }));
                       }
                     }}
-                    className={`w-full px-3 py-2 text-xs border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E4D2B] ${
+                    className={`w-full px-3 py-2 text-xs border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E4D2B] bg-white ${
                       rosterErrors.phone ? 'border-rose-400 bg-rose-50/50' : 'border-slate-300'
                     }`}
                   />
@@ -710,182 +1033,205 @@ Status: PENDING RECEIPT BY SAIED MOHAMMED`
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {/* Handicap / GHIN: Validates 6-8 digit GHIN, Index, +handicap, or NH */}
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label className="block text-[11px] font-semibold text-slate-700">Handicap Index / GHIN #</label>
-                    <span className="text-[10px] text-slate-500">Optional</span>
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="e.g. 14.2, +2.4, 1234567, NH"
-                    value={primaryPlayer.handicap || ''}
-                    onChange={(e) => {
-                      setPrimaryPlayer({ ...primaryPlayer, handicap: e.target.value });
-                      if (rosterErrors.handicap) {
-                        setRosterErrors((prev) => ({ ...prev, handicap: '' }));
-                      }
-                    }}
-                    className={`w-full px-3 py-2 text-xs border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E4D2B] ${
-                      rosterErrors.handicap ? 'border-rose-400 bg-rose-50/50' : 'border-slate-300'
-                    }`}
-                  />
-                  {rosterErrors.handicap ? (
-                    <p className="text-[10px] text-rose-600 mt-1 flex items-center gap-1">
-                      <AlertCircle className="w-3 h-3 shrink-0" /> {rosterErrors.handicap}
-                    </p>
-                  ) : (
-                    <p className="text-[10px] text-slate-500 mt-1">
-                      6–8 digit GHIN, Index (e.g. 14.2, +2.4), or NH
-                    </p>
-                  )}
-                </div>
-
-                {/* Shirt Size with 'Non Needed' option at bottom */}
-                <div>
-                  <label className="block text-[11px] font-semibold text-slate-700 mb-1">Shirt / Glove Size</label>
-                  <select
-                    value={primaryPlayer.shirtSize}
-                    onChange={(e) => setPrimaryPlayer({ ...primaryPlayer, shirtSize: e.target.value as any })}
-                    className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E4D2B] bg-white"
-                  >
-                    <option value="S">Small (S)</option>
-                    <option value="M">Medium (M)</option>
-                    <option value="L">Large (L)</option>
-                    <option value="XL">Extra Large (XL)</option>
-                    <option value="2XL">2X-Large (2XL)</option>
-                    <option value="3XL">3X-Large (3XL)</option>
-                    <option value="None">Non Needed</option>
-                  </select>
-                </div>
-
-                {/* Dietary Needs: Title Case capitalization */}
-                <div>
-                  <label className="block text-[11px] font-semibold text-slate-700 mb-1">Dietary Needs</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Halal, Vegan, Gluten-Free"
-                    value={primaryPlayer.dietaryRestrictions || ''}
-                    onChange={(e) =>
-                      setPrimaryPlayer({
-                        ...primaryPlayer,
-                        dietaryRestrictions: formatTitleCase(e.target.value)
-                      })
-                    }
-                    className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E4D2B]"
-                  />
-                </div>
+              {/* Dietary Needs */}
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                  Dietary Needs (Optional)
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Vegetarian, Halal, Gluten-Free"
+                  value={primaryPlayer.dietaryRestrictions || ''}
+                  onChange={(e) =>
+                    setPrimaryPlayer({
+                      ...primaryPlayer,
+                      dietaryRestrictions: formatTitleCase(e.target.value)
+                    })
+                  }
+                  className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E4D2B] bg-white"
+                />
               </div>
             </div>
 
-            {/* Additional 3 Golfers if Foursome */}
-            {regType === 'foursome' && (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-bold text-slate-900 text-sm">
-                    Foursome Teammates (Can be updated later if TBD)
+            {/* "I would like to play with (First & Last Name)" */}
+            {regType !== 'dinner_only' && (
+              <div className="bg-emerald-50/60 p-4 sm:p-5 rounded-2xl border border-emerald-200/80 space-y-3">
+                <div>
+                  <h4 className="text-xs sm:text-sm font-bold text-slate-900">
+                    I would like to play with (First &amp; Last Name)
                   </h4>
-                  <span className="text-xs text-slate-500">Players 2, 3, &amp; 4</span>
+                  <p className="text-[11px] text-slate-600 mt-0.5">
+                    Enter the full names of up to 3 golfers you would like paired with in your foursome. The first letter of each name will be capitalized automatically.
+                  </p>
                 </div>
 
-                {additionalPlayers.map((player, idx) => (
-                  <div key={idx} className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
-                    <div className="flex items-center gap-2">
-                      <span className="w-5 h-5 rounded-full bg-slate-300 text-slate-800 font-bold text-[10px] flex items-center justify-center">
-                        {idx + 2}
-                      </span>
-                      <span className="font-semibold text-xs text-slate-800">Golfer #{idx + 2}</span>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                  {[0, 1, 2].map((idx) => (
+                    <div key={idx}>
+                      <label className="block text-[10px] font-semibold text-slate-700 mb-1">
+                        Golfer #{idx + 2} Full Name
+                      </label>
+                      <input
+                        type="text"
+                        placeholder={`Golfer #${idx + 2} Name`}
+                        value={requestedTeammates[idx] || ''}
+                        onChange={(e) => {
+                          const val = formatTitleCase(e.target.value);
+                          const updated = [...requestedTeammates];
+                          updated[idx] = val;
+                          setRequestedTeammates(updated);
+                        }}
+                        className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E4D2B] bg-white"
+                      />
                     </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-2.5">
-                      <div className="sm:col-span-1">
-                        <label className="block text-[10px] font-medium text-slate-600 mb-0.5">Name</label>
-                        <input
-                          type="text"
-                          placeholder="Golfer Name (or TBD)"
-                          value={player.name}
-                          onChange={(e) => {
-                            updateAdditionalPlayer(idx, 'name', formatTitleCase(e.target.value));
-                            if (rosterErrors[`teammate_${idx}_name`]) {
-                              setRosterErrors((prev) => ({ ...prev, [`teammate_${idx}_name`]: '' }));
-                            }
-                          }}
-                          className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E4D2B]"
-                        />
-                      </div>
-                      <div className="sm:col-span-1">
-                        <label className="block text-[10px] font-medium text-slate-600 mb-0.5">Email</label>
-                        <input
-                          type="email"
-                          placeholder="Email (Optional)"
-                          value={player.email}
-                          onChange={(e) => {
-                            updateAdditionalPlayer(idx, 'email', e.target.value);
-                            if (rosterErrors[`teammate_${idx}_email`]) {
-                              setRosterErrors((prev) => ({ ...prev, [`teammate_${idx}_email`]: '' }));
-                            }
-                          }}
-                          onBlur={(e) => {
-                            handleEmailBlur(e.target.value, (newVal) =>
-                              updateAdditionalPlayer(idx, 'email', newVal)
-                            );
-                          }}
-                          className={`w-full px-3 py-1.5 text-xs border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E4D2B] ${
-                            rosterErrors[`teammate_${idx}_email`] ? 'border-rose-400 bg-rose-50/50' : 'border-slate-300'
-                          }`}
-                        />
-                        {rosterErrors[`teammate_${idx}_email`] && (
-                          <p className="text-[10px] text-rose-600 mt-1 flex items-center gap-1">
-                            <AlertCircle className="w-3 h-3" /> {rosterErrors[`teammate_${idx}_email`]}
-                          </p>
-                        )}
-                      </div>
-                      <div className="sm:col-span-1">
-                        <label className="block text-[10px] font-medium text-slate-600 mb-0.5">Handicap / GHIN</label>
-                        <input
-                          type="text"
-                          placeholder="e.g. 14.2, +2.4, 1234567, NH"
-                          value={player.handicap || ''}
-                          onChange={(e) => {
-                            updateAdditionalPlayer(idx, 'handicap', e.target.value);
-                            if (rosterErrors[`teammate_${idx}_handicap`]) {
-                              setRosterErrors((prev) => ({ ...prev, [`teammate_${idx}_handicap`]: '' }));
-                            }
-                          }}
-                          className={`w-full px-3 py-1.5 text-xs border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E4D2B] ${
-                            rosterErrors[`teammate_${idx}_handicap`] ? 'border-rose-400 bg-rose-50/50' : 'border-slate-300'
-                          }`}
-                        />
-                        {rosterErrors[`teammate_${idx}_handicap`] && (
-                          <p className="text-[10px] text-rose-600 mt-1 flex items-center gap-1">
-                            <AlertCircle className="w-3 h-3" /> {rosterErrors[`teammate_${idx}_handicap`]}
-                          </p>
-                        )}
-                      </div>
-                      <div className="sm:col-span-1">
-                        <label className="block text-[10px] font-medium text-slate-600 mb-0.5">Shirt Size</label>
-                        <select
-                          value={player.shirtSize || 'L'}
-                          onChange={(e) => updateAdditionalPlayer(idx, 'shirtSize', e.target.value)}
-                          className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E4D2B] bg-white"
-                        >
-                          <option value="S">Small (S)</option>
-                          <option value="M">Medium (M)</option>
-                          <option value="L">Large (L)</option>
-                          <option value="XL">Extra Large (XL)</option>
-                          <option value="2XL">2X-Large (2XL)</option>
-                          <option value="3XL">3X-Large (3XL)</option>
-                          <option value="None">Non Needed</option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             )}
 
-            <div className="flex justify-between pt-2">
+            {/* "Need a receipt?" check mark option */}
+            <div className="bg-slate-50 p-4 sm:p-5 rounded-2xl border border-slate-200 space-y-3">
+              <label className="flex items-center gap-2.5 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={needReceipt}
+                  onChange={(e) => setNeedReceipt(e.target.checked)}
+                  className="w-4 h-4 text-[#1E4D2B] rounded border-slate-300 focus:ring-[#1E4D2B] cursor-pointer"
+                />
+                <span className="text-xs sm:text-sm font-bold text-slate-900">
+                  Need a receipt?
+                </span>
+                <span className="text-[10px] text-emerald-800 font-semibold bg-emerald-100 px-2 py-0.5 rounded-full">
+                  Tax Deductible
+                </span>
+              </label>
+
+              {/* Conditional Receipt Fields */}
+              {needReceipt && (
+                <div className="pt-3 border-t border-slate-200 space-y-3 animate-fadeIn">
+                  <p className="text-[11px] text-slate-600">
+                    Please provide your mailing address for your official charitable donation tax receipt:
+                  </p>
+
+                  {/* Address: First letter of each word in caps */}
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                      Address (Street Address, Unit / Suite) *
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. 123 Main Street, Suite 400"
+                      value={receiptAddress}
+                      onChange={(e) => {
+                        const val = formatTitleCase(e.target.value);
+                        setReceiptAddress(val);
+                        if (receiptErrors.address) {
+                          setReceiptErrors((prev) => ({ ...prev, address: '' }));
+                        }
+                      }}
+                      className={`w-full px-3 py-2 text-xs border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E4D2B] bg-white capitalize ${
+                        receiptErrors.address ? 'border-rose-400 bg-rose-50/50' : 'border-slate-300'
+                      }`}
+                    />
+                    {receiptErrors.address && (
+                      <p className="text-[10px] text-rose-600 mt-1 flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3" /> {receiptErrors.address}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {/* City: First letter capitalized */}
+                    <div>
+                      <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                        City *
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Hamilton"
+                        value={receiptCity}
+                        onChange={(e) => {
+                          const val = formatTitleCase(e.target.value);
+                          setReceiptCity(val);
+                          if (receiptErrors.city) {
+                            setReceiptErrors((prev) => ({ ...prev, city: '' }));
+                          }
+                        }}
+                        className={`w-full px-3 py-2 text-xs border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E4D2B] bg-white ${
+                          receiptErrors.city ? 'border-rose-400 bg-rose-50/50' : 'border-slate-300'
+                        }`}
+                      />
+                      {receiptErrors.city && (
+                        <p className="text-[10px] text-rose-600 mt-1 flex items-center gap-1">
+                          <AlertCircle className="w-3 h-3" /> {receiptErrors.city}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Province: First letter of every word is in caps */}
+                    <div>
+                      <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                        Province *
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Ontario"
+                        value={receiptProvince}
+                        onChange={(e) => {
+                          const val = formatTitleCase(e.target.value);
+                          setReceiptProvince(val);
+                          if (receiptErrors.province) {
+                            setReceiptErrors((prev) => ({ ...prev, province: '' }));
+                          }
+                        }}
+                        className={`w-full px-3 py-2 text-xs border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E4D2B] bg-white ${
+                          receiptErrors.province ? 'border-rose-400 bg-rose-50/50' : 'border-slate-300'
+                        }`}
+                      />
+                      {receiptErrors.province && (
+                        <p className="text-[10px] text-rose-600 mt-1 flex items-center gap-1">
+                          <AlertCircle className="w-3 h-3" /> {receiptErrors.province}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Postal Code: Canada Postal Codes (Format: A1A 1A1, ANA NAN, single space, no hyphens) */}
+                    <div>
+                      <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                        Postal Code (A1A 1A1) *
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. L8P 4S6"
+                        maxLength={7}
+                        value={receiptPostalCode}
+                        onChange={(e) => {
+                          const formatted = formatCanadianPostalCode(e.target.value);
+                          setReceiptPostalCode(formatted);
+                          if (receiptErrors.postalCode) {
+                            setReceiptErrors((prev) => ({ ...prev, postalCode: '' }));
+                          }
+                        }}
+                        className={`w-full px-3 py-2 text-xs border rounded-lg font-mono uppercase focus:outline-none focus:ring-2 focus:ring-[#1E4D2B] bg-white ${
+                          receiptErrors.postalCode ? 'border-rose-400 bg-rose-50/50' : 'border-slate-300'
+                        }`}
+                      />
+                      {receiptErrors.postalCode ? (
+                        <p className="text-[10px] text-rose-600 mt-1 flex items-center gap-1">
+                          <AlertCircle className="w-3 h-3" /> {receiptErrors.postalCode}
+                        </p>
+                      ) : (
+                        <span className="text-[9px] text-slate-400 mt-0.5 block">
+                          Format: ANA NAN (e.g. L8P 4S6)
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-between pt-2 border-t border-slate-100">
               <button
                 type="button"
                 onClick={() => setStep(1)}
@@ -897,589 +1243,358 @@ Status: PENDING RECEIPT BY SAIED MOHAMMED`
                 type="submit"
                 className="px-6 py-3 bg-[#EA580C] hover:bg-[#C2410C] text-white font-bold text-sm rounded-xl shadow-md transition flex items-center gap-2 cursor-pointer"
               >
-                <span>Select Add-Ons &amp; Mulligans</span>
+                <span>Continue to Payment Method</span>
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>
           </form>
         )}
 
-        {/* STEP 3: Add-On Inventory Selection */}
+        {/* STEP 3: Review & Payment Method (NO Credit Card) */}
         {step === 3 && (
-          <form onSubmit={handleNextStep} className="p-6 sm:p-8 space-y-6">
-            <div>
-              <h4 className="text-base font-bold text-slate-900 font-serif-heading">
-                Customize Tournament Day Add-Ons
-              </h4>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Every add-on directly increases our donation total for cancer patient assistance.
-              </p>
-            </div>
-
-            <div className="space-y-4">
-              {/* Mulligans */}
-              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-slate-900 text-sm">Tournament Mulligans</span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-300">
-                      3 for $50 Bundle (Save $10)
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    $20 each or $50 for a 3-pack. Extra tee shots or putts on any hole!
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-3 self-end sm:self-auto">
-                  <div className="flex items-center border border-slate-300 rounded-lg bg-white overflow-hidden">
-                    <button
-                      type="button"
-                      onClick={() => setAddons({ ...addons, mulligansCount: Math.max(0, addons.mulligansCount - 1) })}
-                      className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-sm"
-                    >
-                      -
-                    </button>
-                    <span className="px-4 py-1.5 text-xs font-bold font-mono text-slate-900">
-                      {addons.mulligansCount}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setAddons({ ...addons, mulligansCount: addons.mulligansCount + 1 })}
-                      className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-sm"
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Mega Raffle Packs */}
-              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-slate-900 text-sm">Charity Mega Raffle Packs</span>
-                    <Ticket className="w-4 h-4 text-emerald-600" />
-                  </div>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Win signed sports memorabilia, luxury golf getaways, TaylorMade clubs, and fine dining packages.
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <div className="flex flex-col items-center">
-                    <span className="text-[10px] text-slate-500 mb-0.5">10 Tickets ($25)</span>
-                    <div className="flex items-center border border-slate-300 rounded-lg bg-white overflow-hidden">
-                      <button
-                        type="button"
-                        onClick={() => setAddons({ ...addons, rafflePacks10: Math.max(0, addons.rafflePacks10 - 1) })}
-                        className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 font-bold text-xs"
-                      >
-                        -
-                      </button>
-                      <span className="px-3 py-1 text-xs font-bold font-mono">{addons.rafflePacks10}</span>
-                      <button
-                        type="button"
-                        onClick={() => setAddons({ ...addons, rafflePacks10: addons.rafflePacks10 + 1 })}
-                        className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 font-bold text-xs"
-                      >
-                        +
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col items-center">
-                    <span className="text-[10px] text-emerald-700 font-bold mb-0.5">25 Tickets ($50)</span>
-                    <div className="flex items-center border border-slate-300 rounded-lg bg-white overflow-hidden">
-                      <button
-                        type="button"
-                        onClick={() => setAddons({ ...addons, rafflePacks25: Math.max(0, addons.rafflePacks25 - 1) })}
-                        className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 font-bold text-xs"
-                      >
-                        -
-                      </button>
-                      <span className="px-3 py-1 text-xs font-bold font-mono">{addons.rafflePacks25}</span>
-                      <button
-                        type="button"
-                        onClick={() => setAddons({ ...addons, rafflePacks25: addons.rafflePacks25 + 1 })}
-                        className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 font-bold text-xs"
-                      >
-                        +
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Putting Contest & Tiger Drive */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
-                  <div>
-                    <span className="text-xs font-bold text-slate-900">Putting Shootout ($20)</span>
-                    <p className="text-[11px] text-slate-500">$5,000 Putt finalist entry</p>
-                  </div>
-                  <div className="flex items-center border border-slate-300 rounded-lg bg-white overflow-hidden">
-                    <button
-                      type="button"
-                      onClick={() => setAddons({ ...addons, puttingContestCount: Math.max(0, addons.puttingContestCount - 1) })}
-                      className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 font-bold text-xs"
-                    >
-                      -
-                    </button>
-                    <span className="px-3 py-1 text-xs font-bold font-mono">{addons.puttingContestCount}</span>
-                    <button
-                      type="button"
-                      onClick={() => setAddons({ ...addons, puttingContestCount: addons.puttingContestCount + 1 })}
-                      className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 font-bold text-xs"
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-
-                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
-                  <div>
-                    <span className="text-xs font-bold text-slate-900">Tiger Drive Hole #11 ($25)</span>
-                    <p className="text-[11px] text-slate-500">Tee off from 150yd fairway marker</p>
-                  </div>
-                  <div className="flex items-center border border-slate-300 rounded-lg bg-white overflow-hidden">
-                    <button
-                      type="button"
-                      onClick={() => setAddons({ ...addons, tigerDriveCount: Math.max(0, addons.tigerDriveCount - 1) })}
-                      className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 font-bold text-xs"
-                    >
-                      -
-                    </button>
-                    <span className="px-3 py-1 text-xs font-bold font-mono">{addons.tigerDriveCount}</span>
-                    <button
-                      type="button"
-                      onClick={() => setAddons({ ...addons, tigerDriveCount: addons.tigerDriveCount + 1 })}
-                      className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 font-bold text-xs"
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Subtotal preview */}
-            <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-200 flex items-center justify-between">
-              <div>
-                <span className="text-xs text-emerald-800 font-semibold">Registration + Selected Add-Ons:</span>
-                <div className="text-xs text-emerald-600">All proceeds benefit {EVENT_DETAILS.beneficiaryOrg}</div>
-              </div>
-              <div className="text-2xl font-extrabold text-[#1E4D2B] font-mono">
-                ${totalAmount.toLocaleString()}
-              </div>
-            </div>
-
-            <div className="flex justify-between pt-2">
-              <button
-                type="button"
-                onClick={() => setStep(2)}
-                className="px-4 py-2.5 text-xs font-semibold text-slate-600 hover:text-slate-900 flex items-center gap-1 cursor-pointer"
-              >
-                <ChevronLeft className="w-4 h-4" /> Back
-              </button>
-              <button
-                type="submit"
-                className="px-6 py-3 bg-[#EA580C] hover:bg-[#C2410C] text-white font-bold text-sm rounded-xl shadow-md transition flex items-center gap-2 cursor-pointer"
-              >
-                <span>Proceed to Payment</span>
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-          </form>
-        )}
-
-        {/* STEP 4: Review & Payment Checkout */}
-        {step === 4 && (
-          <form onSubmit={handleFinalSubmit} className="p-6 sm:p-8 space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+          <form onSubmit={handleFinalSubmit} className="p-6 sm:p-7 space-y-5">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
               {/* Order Summary Column */}
-              <div className="md:col-span-5 bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
-                <h4 className="font-bold text-slate-900 text-sm uppercase tracking-wider pb-2 border-b border-slate-200">
+              <div className="md:col-span-5 bg-slate-50 p-4 sm:p-5 rounded-2xl border border-slate-200 space-y-3">
+                <h4 className="font-bold text-slate-900 text-xs uppercase tracking-wider pb-2 border-b border-slate-200">
                   Registration Summary
                 </h4>
 
-                <div className="space-y-2 text-xs">
+                <div className="space-y-1.5 text-xs">
                   <div className="flex justify-between">
                     <span className="text-slate-600">
-                      {regType === 'foursome'
-                        ? 'Tournament Foursome Team'
-                        : regType === 'dinner_only'
-                        ? 'Dinner & Awards Banquet Pass'
-                        : 'Green Fee & Cart Golfer Entry'}
+                      {regType === 'dinner_only'
+                        ? 'Dinner Guest Pass'
+                        : golferType === 'member'
+                        ? 'Green Fee & Cart (Member)'
+                        : 'Green Fee & Cart (Other)'}
                     </span>
                     <span className="font-mono font-bold text-slate-900">
-                      ${regType === 'foursome'
-                        ? PRICING_RULES.foursomeTeam
-                        : regType === 'dinner_only'
+                      ${regType === 'dinner_only'
                         ? PRICING_RULES.dinnerOnly
-                        : PRICING_RULES.individualGolfer}
+                        : golferType === 'member'
+                        ? PRICING_RULES.memberGolfer
+                        : PRICING_RULES.otherGolfer}
                     </span>
                   </div>
 
-                  {addons.mulligansCount > 0 && (
-                    <div className="flex justify-between text-slate-600">
-                      <span>{addons.mulligansCount}x Mulligans</span>
-                      <span className="font-mono font-semibold">
-                        ${Math.floor(addons.mulligansCount / 3) * 50 + (addons.mulligansCount % 3) * 20}
-                      </span>
-                    </div>
-                  )}
-
-                  {addons.rafflePacks10 > 0 && (
-                    <div className="flex justify-between text-slate-600">
-                      <span>{addons.rafflePacks10}x 10-Raffle Packs</span>
-                      <span className="font-mono font-semibold">${addons.rafflePacks10 * 25}</span>
-                    </div>
-                  )}
-
-                  {addons.rafflePacks25 > 0 && (
-                    <div className="flex justify-between text-slate-600">
-                      <span>{addons.rafflePacks25}x 25-Raffle Packs</span>
-                      <span className="font-mono font-semibold">${addons.rafflePacks25 * 50}</span>
-                    </div>
-                  )}
-
-                  {addons.puttingContestCount > 0 && (
-                    <div className="flex justify-between text-slate-600">
-                      <span>{addons.puttingContestCount}x Putting Shootout</span>
-                      <span className="font-mono font-semibold">${addons.puttingContestCount * 20}</span>
-                    </div>
-                  )}
-
-                  {addons.tigerDriveCount > 0 && (
-                    <div className="flex justify-between text-slate-600">
-                      <span>{addons.tigerDriveCount}x Tiger Drive #11</span>
-                      <span className="font-mono font-semibold">${addons.tigerDriveCount * 25}</span>
-                    </div>
-                  )}
+                  <div className="pt-2 text-[11px] text-slate-500 space-y-0.5 border-t border-slate-200/60">
+                    <div>Golfer: <strong className="text-slate-800">{primaryPlayer.name || 'Participant'}</strong></div>
+                    <div>Email: <strong className="text-slate-800">{primaryPlayer.email || 'N/A'}</strong></div>
+                    {requestedTeammates.filter(Boolean).length > 0 && (
+                      <div className="mt-1 text-emerald-800">
+                        Playing with: {requestedTeammates.filter(Boolean).join(', ')}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div className="pt-3 border-t border-slate-200 flex justify-between items-baseline">
                   <span className="font-bold text-slate-900 text-sm">Total Due:</span>
                   <span className="text-2xl font-extrabold text-[#1E4D2B] font-mono">
-                    ${totalAmount.toLocaleString()}
+                    ${totalAmount.toLocaleString()} CAD
                   </span>
                 </div>
 
-                <div className="pt-2 text-[10px] text-slate-500 flex items-center gap-1">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>256-Bit SSL Encrypted &amp; Luhn Validated</span>
-                </div>
+                {needReceipt && (
+                  <div className="pt-2 text-[11px] text-emerald-800 bg-emerald-50 p-2.5 rounded-lg border border-emerald-200">
+                    <span className="font-bold">Official Tax Receipt Requested</span>
+                    <div className="text-slate-600 text-[10px] mt-0.5">
+                      {receiptAddress}, {receiptCity}, {receiptProvince} {receiptPostalCode}
+                    </div>
+                  </div>
+                )}
               </div>
 
-              {/* Payment Details Column (Cheque, Cash, or Credit Card) */}
+              {/* Payment Details Column (Cheque, Interac e-Transfer, Cash) */}
               <div className="md:col-span-7 space-y-4">
+                {/* Notice Banner */}
+                <div className="p-3 bg-amber-50 border border-amber-300 rounded-xl text-amber-900 text-xs flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-bold uppercase tracking-wider text-[10px] text-amber-950 block">
+                      Important Payment Notice:
+                    </span>
+                    <span>
+                      Payment can only be made via <strong>Cash</strong> at the event or prior to Saied, <strong>Cheque</strong> payable to Saied Mohammed, or <strong>Interac e-Transfer</strong> to{' '}
+                      <span className="inline-flex items-center gap-1 font-mono font-bold text-emerald-950 bg-emerald-100/90 px-1.5 py-0.5 rounded border border-emerald-300">
+                        <span>fragrant.breeze2023@gmail.com</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            navigator.clipboard.writeText('fragrant.breeze2023@gmail.com');
+                            setCopiedDetails(true);
+                            addToast('info', 'Email Copied', 'fragrant.breeze2023@gmail.com copied to clipboard.');
+                            setTimeout(() => setCopiedDetails(false), 2000);
+                          }}
+                          className="p-1 rounded bg-white hover:bg-emerald-200 text-emerald-800 transition cursor-pointer shadow-2xs"
+                          title="Copy e-Transfer email address"
+                        >
+                          {copiedDetails ? <Check className="w-3 h-3 text-emerald-700" /> : <Copy className="w-3 h-3 text-emerald-800" />}
+                        </button>
+                      </span>.
+                    </span>
+                  </div>
+                </div>
+
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5 flex items-center justify-between">
-                    <span className="flex items-center gap-1.5">
-                      <CreditCard className="w-4 h-4 text-[#1E4D2B]" />
-                      Payment Method *
-                    </span>
-                    <span className="text-[10px] text-emerald-800 font-semibold lowercase">
-                      Choose offline or card
-                    </span>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                    Payment Method
                   </label>
                   <select
                     value={paymentMethod}
-                    onChange={(e) => {
-                      setPaymentMethod(e.target.value as any);
-                      setPaymentErrors({});
-                    }}
-                    className="w-full px-3.5 py-2.5 text-sm font-semibold border-2 border-emerald-800/40 rounded-xl bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#1E4D2B] shadow-xs cursor-pointer"
+                    onChange={(e) => setPaymentMethod(e.target.value as any)}
+                    className="w-full px-3.5 py-2.5 text-xs font-semibold border-2 border-[#1E4D2B] rounded-xl bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#1E4D2B] shadow-xs cursor-pointer"
                   >
-                    <option value="cheque">Cheque (Payable to Saied Mohammed - ms_smnm@outlook.com)</option>
-                    <option value="etransfer">Interac e-Transfer (Send to Saied Mohammed - ms_smnm@outlook.com)</option>
-                    <option value="credit_card">Credit Card (Instant Online Card Payment)</option>
+                    <option value="cheque">Cheque (Payable to Saied Mohammed)</option>
+                    <option value="cash">Cash (Bring it to the event)</option>
+                    <option value="etransfer">Interac e-Transfer</option>
                   </select>
                 </div>
 
-                {/* CHEQUE PAYMENT OPTION */}
+                {/* CHEQUE PAYMENT DETAILS */}
                 {paymentMethod === 'cheque' && (
-                  <div className="p-5 bg-gradient-to-br from-amber-50/90 to-emerald-50/60 rounded-xl border-2 border-amber-300/80 space-y-4 shadow-sm">
-                    <div className="flex items-start gap-3">
-                      <div className="w-9 h-9 rounded-lg bg-amber-100 border border-amber-300 text-amber-900 flex items-center justify-center shrink-0">
-                        <FileText className="w-5 h-5" />
+                  <div className="p-4 bg-gradient-to-br from-amber-50/90 to-emerald-50/60 rounded-xl border border-amber-300 space-y-3 shadow-xs">
+                    <div className="flex items-start gap-2.5">
+                      <div className="w-8 h-8 rounded-lg bg-amber-100 border border-amber-300 text-amber-900 flex items-center justify-center shrink-0">
+                        <FileText className="w-4 h-4" />
                       </div>
                       <div>
-                        <div className="text-[11px] uppercase tracking-wider font-bold text-amber-900">
-                          Offline Payment Selected
-                        </div>
-                        <h5 className="text-sm font-bold text-slate-900">
-                          Cheque Payment &bull; Direct Routing to Saied Mohammed
+                        <span className="text-[10px] uppercase tracking-wider font-bold text-amber-900 block">
+                          Cheque Payment Instructions
+                        </span>
+                        <h5 className="text-xs font-bold text-slate-900">
+                          Payable to Saied Mohammed
                         </h5>
-                        <p className="text-xs text-slate-600 mt-0.5">
-                          All registration and golfer details will be routed directly to Tournament Founder{' '}
-                          <strong className="text-emerald-950 font-bold">Saied Mohammed</strong> at{' '}
-                          <a
-                            href="mailto:ms_smnm@outlook.com"
-                            className="text-[#1E4D2B] font-bold underline hover:text-emerald-700"
-                          >
-                            ms_smnm@outlook.com
-                          </a>.
-                        </p>
                       </div>
                     </div>
 
-                    <div className="p-3.5 bg-white rounded-lg border border-amber-200 text-xs space-y-2 text-slate-800">
-                      <div className="flex justify-between items-center pb-2 border-b border-slate-100">
+                    <div className="p-3 bg-white rounded-lg border border-amber-200 text-xs space-y-1.5 text-slate-800">
+                      <div className="flex justify-between items-center pb-1.5 border-b border-slate-100">
                         <span className="text-slate-500 font-medium">Make Cheque Payable To:</span>
                         <span className="font-bold text-slate-900">Saied Mohammed</span>
                       </div>
-                      <div className="flex justify-between items-center pb-2 border-b border-slate-100">
-                        <span className="text-slate-500 font-medium">Recipient Email:</span>
-                        <span className="font-mono font-bold text-[#1E4D2B]">ms_smnm@outlook.com</span>
-                      </div>
-                      <div className="flex justify-between items-center pb-2 border-b border-slate-100">
+                      <div className="flex justify-between items-center pb-1.5 border-b border-slate-100">
                         <span className="text-slate-500 font-medium">Memo Line:</span>
-                        <span className="font-semibold text-slate-800">
-                          2026 Memorial Golf &bull; {primaryPlayer.name || 'Your Name'}
+                        <span className="font-mono font-bold text-slate-900 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                          2026 Memorial Golf
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-slate-500 font-medium">Total Cheque Amount:</span>
-                        <span className="text-base font-extrabold font-mono text-[#1E4D2B]">
+                        <span className="text-sm font-extrabold font-mono text-[#1E4D2B]">
                           ${totalAmount.toLocaleString()} CAD
                         </span>
                       </div>
                     </div>
 
-                    <div className="flex items-start gap-2 text-[11px] text-amber-900 bg-amber-100/60 p-2.5 rounded-lg border border-amber-200">
-                      <Mail className="w-4 h-4 shrink-0 text-amber-800 mt-0.5" />
+                    <div className="text-[11px] text-amber-900 flex items-start gap-1.5">
+                      <Mail className="w-3.5 h-3.5 shrink-0 text-amber-800 mt-0.5" />
                       <span>
-                        Upon completing checkout, all golfer roster details, phone numbers, handicaps, and add-on reservations will be automatically forwarded to <strong>Saied Mohammed</strong> and recorded in the database accessible by Tournament Administrator <strong>Luc Valade</strong>.
+                        All player registration information will be confirmed to the golfer and routed to tournament administrator <strong>Luc Valade (luc.valade@gmail.com)</strong>.
                       </span>
                     </div>
                   </div>
                 )}
 
-                {/* INTERAC E-TRANSFER PAYMENT OPTION */}
-                {(paymentMethod === 'etransfer' || paymentMethod === 'cash') && (
-                  <div className="p-5 bg-gradient-to-br from-emerald-50/90 via-amber-50/40 to-emerald-50/70 rounded-xl border-2 border-emerald-500/80 space-y-4 shadow-sm">
-                    <div className="flex items-start gap-3">
-                      <div className="w-9 h-9 rounded-lg bg-[#1E4D2B] text-white flex items-center justify-center shrink-0 shadow-xs">
+                {/* INTERAC E-TRANSFER DETAILS */}
+                {paymentMethod === 'etransfer' && (
+                  <div className="p-4 bg-gradient-to-br from-emerald-50/90 to-amber-50/50 rounded-xl border border-emerald-400 space-y-3 shadow-xs">
+                    <div className="flex items-start gap-2.5">
+                      <div className="w-8 h-8 rounded-lg bg-[#1E4D2B] text-white flex items-center justify-center shrink-0">
                         <Send className="w-4 h-4 text-amber-300" />
                       </div>
                       <div>
-                        <div className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-wider font-extrabold text-[#1E4D2B]">
-                          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                          <span>Interac e-Transfer &bull; Direct Routing to Saied Mohammed</span>
-                        </div>
-                        <h5 className="text-sm font-bold text-slate-900">
-                          Electronic Funds Transfer via Online / Mobile Banking
+                        <span className="text-[10px] uppercase tracking-wider font-bold text-[#1E4D2B] block">
+                          Interac e-Transfer Instructions
+                        </span>
+                        <h5 className="text-xs font-bold text-slate-900">
+                          Electronic Funds Transfer via Banking App
                         </h5>
-                        <p className="text-xs text-slate-600 mt-0.5">
-                          All registration, team roster, handicap, and add-on reservation details are routed directly to Tournament Founder{' '}
-                          <strong className="text-emerald-950 font-bold">Saied Mohammed</strong> at{' '}
-                          <a
-                            href="mailto:ms_smnm@outlook.com"
-                            className="text-[#1E4D2B] font-bold underline hover:text-emerald-700"
-                          >
-                            ms_smnm@outlook.com
-                          </a>.
-                        </p>
                       </div>
                     </div>
 
-                    <div className="p-3.5 bg-white rounded-lg border border-emerald-200 text-xs space-y-2 text-slate-800">
-                      <div className="flex justify-between items-center pb-2 border-b border-slate-100">
-                        <span className="text-slate-500 font-medium">Send e-Transfer To:</span>
-                        <span className="font-bold text-slate-900">Saied Mohammed</span>
+                    <div className="p-3 bg-white rounded-lg border border-emerald-200 text-xs space-y-1.5 text-slate-800">
+                      <div className="pb-1.5 border-b border-slate-100">
+                        <span className="text-slate-500 font-medium block mb-1">Send e-Transfer To:</span>
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono font-bold text-[#1E4D2B] bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 block w-full text-center">
+                            fragrant.breeze2023@gmail.com
+                          </span>
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText('fragrant.breeze2023@gmail.com');
+                              setCopiedDetails(true);
+                              setTimeout(() => setCopiedDetails(false), 2000);
+                            }}
+                            className={`p-1.5 rounded-lg transition cursor-pointer ${copiedDetails ? 'bg-emerald-200' : 'bg-emerald-100 hover:bg-emerald-200'}`}
+                            title="Copy email to clipboard"
+                          >
+                            <Copy className="w-4 h-4 text-[#1E4D2B]" />
+                          </button>
+                        </div>
                       </div>
-                      <div className="flex justify-between items-center pb-2 border-b border-slate-100">
-                        <span className="text-slate-500 font-medium">e-Transfer Email Address:</span>
-                        <span className="font-mono font-bold text-[#1E4D2B] bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                          ms_smnm@outlook.com
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center pb-2 border-b border-slate-100">
+                      <div className="flex justify-between items-center pb-1.5 border-b border-slate-100">
                         <span className="text-slate-500 font-medium">Memo / Transfer Note:</span>
-                        <span className="font-semibold text-slate-800">
-                          2026 Memorial Golf &bull; {primaryPlayer.name || 'Your Name'}
+                        <span className="font-mono font-bold text-slate-900 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                          2026 Memorial Golf
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-slate-500 font-medium">Total e-Transfer Due:</span>
-                        <span className="text-base font-extrabold font-mono text-[#1E4D2B]">
+                        <span className="text-slate-500 font-medium">Total Amount:</span>
+                        <span className="text-sm font-extrabold font-mono text-[#1E4D2B]">
                           ${totalAmount.toLocaleString()} CAD
                         </span>
                       </div>
                     </div>
 
-                    <div className="p-2.5 rounded-lg bg-emerald-100/70 border border-emerald-300 text-[11px] text-emerald-950 flex items-start gap-2">
-                      <Mail className="w-4 h-4 shrink-0 text-[#1E4D2B] mt-0.5" />
+                    <div className="text-[11px] text-emerald-950 flex items-start gap-1.5">
+                      <Mail className="w-3.5 h-3.5 shrink-0 text-[#1E4D2B] mt-0.5" />
                       <span>
-                        Your golfer spots and contest inventory are locked in immediately upon confirmation. A pre-formatted registration notification will open to send to <strong>Saied Mohammed</strong> (ms_smnm@outlook.com) and all records are logged in the database for Tournament Administrator <strong>Luc Valade</strong>.
+                        All player registration information will be confirmed to the golfer and routed to tournament administrator <strong>Luc Valade (luc.valade@gmail.com)</strong>.
                       </span>
                     </div>
                   </div>
                 )}
 
-                {/* CREDIT CARD PAYMENT OPTION */}
-                {paymentMethod === 'credit_card' && (
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-slate-700">Enter Card Details</span>
-                      {/* Card Brand Badges */}
-                      <div className="flex items-center gap-1.5 text-[10px] font-bold">
-                        <span
-                          className={`px-2 py-0.5 rounded border transition ${
-                            detectedBrand === 'visa'
-                              ? 'bg-blue-600 text-white border-blue-700 shadow-xs'
-                              : 'bg-slate-100 text-slate-600 border-slate-200'
-                          }`}
-                        >
-                          Visa
+                {/* CASH PAYMENT DETAILS */}
+                {paymentMethod === 'cash' && (
+                  <div className="p-4 bg-gradient-to-br from-slate-50 to-emerald-50/60 rounded-xl border border-slate-300 space-y-3 shadow-xs">
+                    <div className="flex items-start gap-2.5">
+                      <div className="w-8 h-8 rounded-lg bg-emerald-800 text-white flex items-center justify-center shrink-0">
+                        <Banknote className="w-4 h-4 text-amber-300" />
+                      </div>
+                      <div>
+                        <span className="text-[10px] uppercase tracking-wider font-bold text-emerald-900 block">
+                          Cash Payment Selected
                         </span>
-                        <span
-                          className={`px-2 py-0.5 rounded border transition ${
-                            detectedBrand === 'mastercard'
-                              ? 'bg-amber-600 text-white border-amber-700 shadow-xs'
-                              : 'bg-slate-100 text-slate-600 border-slate-200'
-                          }`}
-                        >
-                          Mastercard
+                        <h5 className="text-xs font-bold text-slate-900">
+                          Cash (Bring it to the event)
+                        </h5>
+                      </div>
+                    </div>
+
+                    <div className="p-3 bg-white rounded-lg border border-slate-200 text-xs space-y-1.5 text-slate-800">
+                      <div className="flex justify-between items-center pb-1.5 border-b border-slate-100">
+                        <span className="text-slate-500 font-medium">Payment Timing:</span>
+                        <span className="font-semibold text-slate-900">At 9:30 AM Check-In or prior to Saied</span>
+                      </div>
+                      <div className="flex justify-between items-center pb-1.5 border-b border-slate-100">
+                        <span className="text-slate-500 font-medium">Memo / Reference:</span>
+                        <span className="font-mono font-bold text-slate-900 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
+                          2026 Memorial Golf
                         </span>
-                        <span
-                          className={`px-2 py-0.5 rounded border transition ${
-                            detectedBrand === 'amex'
-                              ? 'bg-emerald-600 text-white border-emerald-700 shadow-xs'
-                              : 'bg-slate-100 text-slate-600 border-slate-200'
-                          }`}
-                        >
-                          Amex
-                        </span>
-                        <span
-                          className={`px-2 py-0.5 rounded border transition ${
-                            detectedBrand === 'discover'
-                              ? 'bg-orange-600 text-white border-orange-700 shadow-xs'
-                              : 'bg-slate-100 text-slate-600 border-slate-200'
-                          }`}
-                        >
-                          Discover
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-slate-500 font-medium">Total Amount Due:</span>
+                        <span className="text-sm font-extrabold font-mono text-[#1E4D2B]">
+                          ${totalAmount.toLocaleString()} CAD
                         </span>
                       </div>
                     </div>
 
-                    <div className="space-y-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
-                      {/* Name on card */}
-                      <div>
-                        <label className="block text-[11px] font-semibold text-slate-700 mb-1">Cardholder Name</label>
-                        <input
-                          type="text"
-                          placeholder={primaryPlayer.name || 'Name on Card'}
-                          value={cardName}
-                          onChange={(e) => setCardName(formatTitleCase(e.target.value))}
-                          className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E4D2B]"
-                        />
-                      </div>
-
-                      {/* Card Number */}
-                      <div>
-                        <div className="flex justify-between items-center mb-1">
-                          <label className="block text-[11px] font-semibold text-slate-700">Card Number *</label>
-                          <span className="text-[10px] text-slate-400">Luhn Algorithm check</span>
-                        </div>
-                        <input
-                          type="text"
-                          required
-                          placeholder="#### #### #### ####"
-                          value={cardNumber}
-                          onChange={(e) => {
-                            const formatted = formatCardNumber(e.target.value);
-                            setCardNumber(formatted);
-                            if (paymentErrors.cardNumber) {
-                              setPaymentErrors((prev) => ({ ...prev, cardNumber: '' }));
-                            }
-                          }}
-                          className={`w-full px-3 py-2 text-xs border rounded-lg font-mono focus:outline-none focus:ring-2 focus:ring-[#1E4D2B] ${
-                            paymentErrors.cardNumber ? 'border-rose-400 bg-rose-50/50' : 'border-slate-300'
-                          }`}
-                        />
-                        {paymentErrors.cardNumber && (
-                          <p className="text-[10px] text-rose-600 mt-1 flex items-center gap-1">
-                            <AlertCircle className="w-3 h-3" /> {paymentErrors.cardNumber}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Expiration and CVC */}
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <label className="block text-[11px] font-semibold text-slate-700 mb-1">
-                            Expiration (MM/YY) *
-                          </label>
-                          <input
-                            type="text"
-                            required
-                            placeholder="MM/YY (e.g. 10/26)"
-                            value={cardExp}
-                            onChange={(e) => {
-                              const formatted = formatCardExp(e.target.value);
-                              setCardExp(formatted);
-                              if (paymentErrors.cardExp) {
-                                setPaymentErrors((prev) => ({ ...prev, cardExp: '' }));
-                              }
-                            }}
-                            className={`w-full px-3 py-2 text-xs border rounded-lg font-mono focus:outline-none focus:ring-2 focus:ring-[#1E4D2B] ${
-                              paymentErrors.cardExp ? 'border-rose-400 bg-rose-50/50' : 'border-slate-300'
-                            }`}
-                          />
-                          {paymentErrors.cardExp && (
-                            <p className="text-[10px] text-rose-600 mt-1 flex items-center gap-1">
-                              <AlertCircle className="w-3 h-3" /> {paymentErrors.cardExp}
-                            </p>
-                          )}
-                        </div>
-                        <div>
-                          <label className="block text-[11px] font-semibold text-slate-700 mb-1">
-                            CVC / CVV (3 Digits) *
-                          </label>
-                          <input
-                            type="text"
-                            required
-                            placeholder={detectedBrand === 'amex' ? '4 Digits' : '3 Digits'}
-                            value={cardCvc}
-                            onChange={(e) => {
-                              const formatted = formatCardCvc(e.target.value, detectedBrand);
-                              setCardCvc(formatted);
-                              if (paymentErrors.cardCvc) {
-                                setPaymentErrors((prev) => ({ ...prev, cardCvc: '' }));
-                              }
-                            }}
-                            className={`w-full px-3 py-2 text-xs border rounded-lg font-mono focus:outline-none focus:ring-2 focus:ring-[#1E4D2B] ${
-                              paymentErrors.cardCvc ? 'border-rose-400 bg-rose-50/50' : 'border-slate-300'
-                            }`}
-                          />
-                          {paymentErrors.cardCvc && (
-                            <p className="text-[10px] text-rose-600 mt-1 flex items-center gap-1">
-                              <AlertCircle className="w-3 h-3" /> {paymentErrors.cardCvc}
-                            </p>
-                          )}
-                        </div>
-                      </div>
+                    <div className="text-[11px] text-slate-700 flex items-start gap-1.5">
+                      <Mail className="w-3.5 h-3.5 shrink-0 text-[#1E4D2B] mt-0.5" />
+                      <span>
+                        All player registration information will be confirmed to the golfer and routed to tournament administrator <strong>Luc Valade (luc.valade@gmail.com)</strong>.
+                      </span>
                     </div>
                   </div>
                 )}
 
-                <div className="text-[11px] text-slate-500 flex items-center gap-1.5">
-                  <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500 shrink-0" />
-                  <span>100% of registration net fees go directly to Juravinski Breast Cancer Research (75%) &amp; Red Cross Fire &amp; Flood (25%).</span>
-                </div>
+                {/* SPOT TO ENTER PASSWORD FOR GOOGLE WORKSPACE GMAIL SMTP - FOR ADMINS ONLY */}
+                {isAdminAuthenticated && (
+                  <div className="p-4 bg-emerald-50/90 border-2 border-[#1E4D2B] rounded-xl space-y-2.5 shadow-xs">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-lg bg-[#1E4D2B] text-white flex items-center justify-center shrink-0">
+                          <Mail className="w-4 h-4 text-amber-300" />
+                        </div>
+                        <div>
+                          <div className="text-xs font-bold text-slate-900">
+                            Google Workspace Email Delivery (smtp.gmail.com:587)
+                          </div>
+                          <div className="text-[11px] text-emerald-950 font-medium">
+                            User ID: <span className="font-mono font-bold">sales@aiopenhouseconnect.com</span>
+                          </div>
+                        </div>
+                      </div>
+                      {smtpPassword ? (
+                        <span className="text-[10px] bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                          <CheckCircle className="w-3 h-3 text-emerald-700" /> Password Set
+                        </span>
+                      ) : (
+                        <span className="text-[10px] bg-amber-100 text-amber-900 border border-amber-300 font-bold px-2 py-0.5 rounded-full">
+                          Password Needed
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="space-y-1.5 pt-1">
+                      <label className="block text-[11px] font-semibold text-slate-700">
+                        Enter Password / App Password:
+                      </label>
+                      <div className="flex gap-2">
+                        <div className="relative flex-1">
+                          <input
+                            type={showSmtpPassword ? 'text' : 'password'}
+                            value={smtpPassword}
+                            onChange={(e) => {
+                              setSmtpPassword(e.target.value);
+                              localStorage.setItem('fb_smtp_pass', e.target.value);
+                              setSmtpStatusMsg(null);
+                            }}
+                            placeholder="Enter Google Workspace password or App Password"
+                            className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E4D2B] font-mono bg-white"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowSmtpPassword(!showSmtpPassword)}
+                            className="absolute right-2 top-2 text-[10px] text-slate-500 hover:text-slate-800 font-semibold cursor-pointer"
+                          >
+                            {showSmtpPassword ? 'Hide' : 'Show'}
+                          </button>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleSaveSmtpPassword}
+                          disabled={isSavingSmtp}
+                          className="px-3.5 py-2 bg-[#1E4D2B] hover:bg-[#15381E] text-white text-xs font-bold rounded-lg transition cursor-pointer disabled:opacity-50"
+                        >
+                          {isSavingSmtp ? 'Saving...' : 'Save'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleTestSmtpConnection}
+                          disabled={isTestingSmtp}
+                          className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 text-xs font-semibold rounded-lg transition cursor-pointer disabled:opacity-50"
+                        >
+                          {isTestingSmtp ? 'Testing...' : 'Test'}
+                        </button>
+                      </div>
+
+                      {smtpStatusMsg && (
+                        <p className={`text-[11px] mt-1 font-medium ${smtpStatusMsg.isError ? 'text-rose-600' : 'text-emerald-700'}`}>
+                          {smtpStatusMsg.text}
+                        </p>
+                      )}
+
+                      <p className="text-[10px] text-slate-500 leading-tight">
+                        When pressing confirm below, the server will send the registration directly to <strong>Saied Mohammed's email</strong> from your Google Workspace account.
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
             <div className="flex justify-between pt-2 border-t border-slate-100">
               <button
                 type="button"
-                onClick={() => setStep(3)}
+                onClick={() => setStep(2)}
                 className="px-4 py-2.5 text-xs font-semibold text-slate-600 hover:text-slate-900 flex items-center gap-1 cursor-pointer"
               >
-                <ChevronLeft className="w-4 h-4" /> Back
+                <ChevronLeft className="w-4 h-4" /> Back to Player Roster
               </button>
               <button
                 type="submit"
@@ -1489,20 +1604,20 @@ Status: PENDING RECEIPT BY SAIED MOHAMMED`
                 <Sparkles className="w-4 h-4" />
                 <span>
                   {isProcessing
-                    ? 'Confirming Registration...'
+                    ? 'Confirming Registration & Sending Email...'
                     : paymentMethod === 'cheque'
                     ? `Confirm Cheque ($${totalAmount.toLocaleString()}) & Send to Saied`
-                    : paymentMethod === 'etransfer' || paymentMethod === 'cash'
-                    ? `Confirm e-Transfer ($${totalAmount.toLocaleString()}) & Send to Saied`
-                    : `Pay $${totalAmount.toLocaleString()} & Confirm`}
+                    : paymentMethod === 'cash'
+                    ? `Confirm Cash ($${totalAmount.toLocaleString()}) & Send to Saied`
+                    : `Confirm e-Transfer ($${totalAmount.toLocaleString()}) & Send to Saied`}
                 </span>
               </button>
             </div>
           </form>
         )}
 
-        {/* STEP 5: Digital Golfer Pass & Confirmation */}
-        {step === 5 && confirmedRecord && (
+        {/* STEP 4: Digital Golfer Pass & Confirmation */}
+        {step === 4 && confirmedRecord && (
           <div className="p-6 sm:p-8 space-y-6 text-center">
             <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto shadow-inner">
               <CheckCircle className="w-10 h-10" />
@@ -1513,174 +1628,199 @@ Status: PENDING RECEIPT BY SAIED MOHAMMED`
                 Registration Confirmed &bull; See You on the Green
               </span>
               <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-serif-heading mt-1">
-                Welcome to the 2026 Memorial Classic!
+                Welcome to the Fragrant Breeze Tournament!
               </h3>
               <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-md mx-auto">
-                A confirmation has been sent to <strong>{confirmedRecord.primaryContact.email}</strong>. Please present this digital golfer pass at the clubhouse check-in desk.
+                A confirmation has been recorded for <strong>{confirmedRecord.primaryContact.name}</strong> ({confirmedRecord.primaryContact.email}).
               </p>
             </div>
 
-            {/* Offline Payment Routing Notice for Saied Mohammed */}
-            {(confirmedRecord.paymentMethod === 'cheque' || confirmedRecord.paymentMethod === 'etransfer' || confirmedRecord.paymentMethod === 'cash') && (
-              <div className="max-w-md mx-auto p-4 bg-amber-50 rounded-2xl border-2 border-amber-300 text-left space-y-3">
-                <div className="flex items-start gap-2.5">
-                  <Mail className="w-5 h-5 text-amber-800 shrink-0 mt-0.5" />
+            {/* Google Workspace Backend Email Delivery Status Banner */}
+            {emailSendResult && (
+              <div className={`max-w-md mx-auto p-4 rounded-2xl border text-left space-y-1.5 ${
+                emailSendResult.success
+                  ? 'bg-emerald-50 border-emerald-300 text-emerald-900'
+                  : 'bg-amber-50 border-amber-300 text-amber-900'
+              }`}>
+                <div className="flex items-start gap-2">
+                  {emailSendResult.success ? (
+                    <CheckCircle className="w-5 h-5 text-emerald-700 shrink-0 mt-0.5" />
+                  ) : (
+                    <AlertCircle className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
+                  )}
                   <div>
-                    <div className="text-xs font-bold uppercase tracking-wider text-amber-900">
-                      Payment Routing to Saied Mohammed
+                    <div className="text-xs font-bold uppercase tracking-wider">
+                      {emailSendResult.success
+                        ? 'Email Sent via Google Workspace (sales@aiopenhouseconnect.com)'
+                        : 'Server Email Notification Notice'}
                     </div>
-                    <p className="text-xs text-slate-700 mt-0.5">
-                      All information provided for this registration has been prepared and routed to Tournament Founder{' '}
-                      <strong>Saied Mohammed</strong> at{' '}
-                      <span className="font-mono font-bold text-[#1E4D2B]">ms_smnm@outlook.com</span>.
+                    <p className="text-xs mt-0.5">
+                      {emailSendResult.message}
                     </p>
                   </div>
-                </div>
-
-                <div className="p-3 bg-white rounded-xl border border-amber-200 text-xs space-y-1.5 text-slate-700">
-                  <div className="flex justify-between">
-                    <span>Payment Method:</span>
-                    <strong className="capitalize text-slate-900">
-                      {confirmedRecord.paymentMethod === 'cheque'
-                        ? 'Cheque (Payable to Saied Mohammed)'
-                        : 'Interac e-Transfer (ms_smnm@outlook.com)'}
-                    </strong>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Payment Status:</span>
-                    <strong className="text-amber-800 uppercase font-mono">
-                      Pending Receipt by Saied Mohammed
-                    </strong>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Amount Due:</span>
-                    <strong className="text-[#1E4D2B] font-mono text-sm">
-                      ${confirmedRecord.totalAmount.toLocaleString()} CAD
-                    </strong>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Database Status:</span>
-                    <strong className="text-emerald-700">
-                      Logged for Admin Luc Valade
-                    </strong>
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-2 pt-1">
-                  <a
-                    href={`mailto:ms_smnm@outlook.com?subject=${encodeURIComponent(
-                      `[2026 Memorial Golf] ${
-                        confirmedRecord.paymentMethod === 'cheque' ? 'Cheque' : 'e-Transfer'
-                      } Registration: ${confirmedRecord.primaryContact.name} - ${confirmedRecord.confirmationCode}`
-                    )}&body=${encodeURIComponent(
-                      generateSaiedEmailText(confirmedRecord, confirmedRecord.totalAmount)
-                    )}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1 py-2 px-3 bg-[#1E4D2B] hover:bg-emerald-900 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm"
-                  >
-                    <Mail className="w-3.5 h-3.5" />
-                    <span>Open Email to Saied (ms_smnm@outlook.com)</span>
-                  </a>
-                  <button
-                    onClick={() => {
-                      const text = generateSaiedEmailText(confirmedRecord, confirmedRecord.totalAmount);
-                      navigator.clipboard.writeText(text);
-                      setCopiedDetails(true);
-                      setTimeout(() => setCopiedDetails(false), 3000);
-                    }}
-                    className="py-2 px-3 bg-white hover:bg-slate-100 text-slate-800 border border-slate-300 rounded-xl text-xs font-semibold transition flex items-center gap-1 cursor-pointer"
-                  >
-                    <Copy className="w-3.5 h-3.5 text-slate-600" />
-                    <span>{copiedDetails ? 'Copied!' : 'Copy Summary'}</span>
-                  </button>
                 </div>
               </div>
             )}
 
-            {/* Printable Digital Player/Guest Pass */}
-            <div className="max-w-md mx-auto bg-gradient-to-br from-[#1E4D2B] to-[#13301B] text-white p-6 rounded-2xl shadow-xl border border-[#D4AF37]/50 text-left relative overflow-hidden">
-              <div className="absolute top-0 right-0 px-3 py-1 bg-[#D4AF37] text-slate-950 text-[10px] font-black uppercase rounded-bl-lg">
-                {confirmedRecord.type === 'dinner_only' ? 'OFFICIAL DINNER GUEST PASS' : 'OFFICIAL PLAYER PASS'}
-              </div>
-
-              <div className="flex items-center justify-between gap-4 mb-4">
+            {/* Offline Payment Routing Notice */}
+            <div className="max-w-xl mx-auto p-4 bg-amber-50 rounded-2xl border-2 border-amber-300 text-left space-y-3">
+              <div className="flex items-start gap-2.5">
+                <Mail className="w-5 h-5 text-amber-800 shrink-0 mt-0.5" />
                 <div>
-                  <div className="text-[10px] uppercase font-bold text-amber-200">Tournament Pass</div>
-                  <div className="text-sm font-bold font-crest">SAIED OCTOBER CHARITY</div>
-                </div>
-                <div className="bg-white p-2 rounded-lg shadow-sm">
-                  <QRCodeSVG
-                    value={`SAIED-GOLF-PASS:${confirmedRecord.confirmationCode}`}
-                    size={64}
-                    level="M"
-                  />
+                  <div className="text-xs font-bold uppercase tracking-wider text-amber-900">
+                    Registration Dispatched to Tournament Administration
+                  </div>
+                  <p className="text-xs text-slate-700 mt-0.5">
+                    All player information has been prepared and routed to Tournament Administrator{' '}
+                    <strong>Luc Valade</strong> at{' '}
+                    <span className="font-mono font-bold text-[#1E4D2B]">luc.valade@gmail.com</span> (and cc'd to Founder Saied Mohammed).
+                  </p>
                 </div>
               </div>
 
-              <div className="space-y-2 border-t border-emerald-700/80 pt-3 text-xs">
+              <div className="p-3 bg-white rounded-xl border border-amber-200 text-xs space-y-1.5 text-slate-700">
                 <div className="flex justify-between">
-                  <span className="text-slate-300">
-                    {confirmedRecord.type === 'dinner_only' ? 'Guest Name:' : 'Golfer / Captain:'}
-                  </span>
-                  <span className="font-bold text-white">{confirmedRecord.primaryContact.name}</span>
-                </div>
-                {confirmedRecord.teamName && (
-                  <div className="flex justify-between">
-                    <span className="text-slate-300">Team:</span>
-                    <span className="font-bold text-amber-300">{confirmedRecord.teamName}</span>
-                  </div>
-                )}
-                {confirmedRecord.type !== 'dinner_only' ? (
-                  <>
-                    <div className="flex justify-between">
-                      <span className="text-slate-300">Starting Hole:</span>
-                      <span className="font-mono font-bold text-emerald-300">Hole #{confirmedRecord.assignedStartingHole}A (Shotgun 11:00 AM)</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-300">Cart Assignment:</span>
-                      <span className="font-mono font-bold text-white">{confirmedRecord.assignedCart}</span>
-                    </div>
-                  </>
-                ) : (
-                  <div className="flex justify-between">
-                    <span className="text-slate-300">Access Level:</span>
-                    <span className="font-mono font-bold text-amber-300">Dinner &amp; Awards Banquet</span>
-                  </div>
-                )}
-                <div className="flex justify-between">
-                  <span className="text-slate-300">Confirmation Code:</span>
-                  <span className="font-mono font-bold text-[#D4AF37] text-sm">{confirmedRecord.confirmationCode}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-300">Payment Routing:</span>
-                  <span className="font-semibold text-amber-200">
+                  <span>Payment Method:</span>
+                  <strong className="text-slate-900">
                     {confirmedRecord.paymentMethod === 'cheque'
-                      ? 'Cheque to Saied Mohammed'
-                      : confirmedRecord.paymentMethod === 'etransfer' || confirmedRecord.paymentMethod === 'cash'
-                      ? 'e-Transfer to Saied Mohammed'
-                      : 'Credit Card (Paid)'}
-                  </span>
+                      ? 'Cheque (Payable to Saied Mohammed)'
+                      : confirmedRecord.paymentMethod === 'cash'
+                      ? 'Cash (Bring to event or prior to Saied)'
+                      : 'Interac e-Transfer'}
+                  </strong>
                 </div>
+                <div className="flex justify-between">
+                  <span>Memo Line:</span>
+                  <strong className="font-mono text-slate-900">2026 Memorial Golf</strong>
+                </div>
+                <div className="flex justify-between">
+                  <span>Amount:</span>
+                  <strong className="text-[#1E4D2B] font-mono text-sm">
+                    ${confirmedRecord.totalAmount.toLocaleString()} CAD
+                  </strong>
+                </div>
+                {confirmedRecord.receiptInfo?.needed && (
+                  <div className="pt-1.5 border-t border-slate-100 flex justify-between">
+                    <span>Tax Receipt:</span>
+                    <strong className="text-emerald-700">Requested ({confirmedRecord.receiptInfo.postalCode})</strong>
+                  </div>
+                )}
               </div>
 
-              <div className="mt-4 pt-3 border-t border-emerald-700/80 flex items-center justify-between text-[11px] text-slate-300">
-                <span>Squabbit Code: <strong>{EVENT_DETAILS.squabbitCode}</strong></span>
-                <span>Monday, Oct 5, 2026</span>
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <a
+                  href={`mailto:luc.valade@gmail.com?cc=fragrant.breeze2023@gmail.com&subject=${encodeURIComponent(
+                    `[2026 Memorial Golf] ${
+                      confirmedRecord.paymentMethod === 'cheque'
+                        ? 'Cheque'
+                        : confirmedRecord.paymentMethod === 'cash'
+                        ? 'Cash'
+                        : 'e-Transfer'
+                    } Registration: ${confirmedRecord.primaryContact.name} - ${confirmedRecord.confirmationCode}`
+                  )}&body=${encodeURIComponent(
+                    generateSaiedEmailText(confirmedRecord, confirmedRecord.totalAmount)
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 py-2 px-3 bg-[#1E4D2B] hover:bg-emerald-900 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm"
+                >
+                  <Mail className="w-3.5 h-3.5" />
+                  <span>Open Email to Luc Valade (luc.valade@gmail.com)</span>
+                </a>
+                <button
+                  onClick={() => {
+                    const text = generateSaiedEmailText(confirmedRecord, confirmedRecord.totalAmount);
+                    navigator.clipboard.writeText(text);
+                    setCopiedDetails(true);
+                    setTimeout(() => setCopiedDetails(false), 3000);
+                  }}
+                  className="py-2 px-3 bg-white hover:bg-slate-100 text-slate-800 border border-slate-300 rounded-xl text-xs font-semibold transition flex items-center gap-1 cursor-pointer"
+                >
+                  <Copy className="w-3.5 h-3.5 text-slate-600" />
+                  <span>{copiedDetails ? 'Copied!' : 'Copy Admin Notice'}</span>
+                </button>
               </div>
             </div>
 
-            <div className="flex flex-wrap justify-center items-center gap-3 pt-2">
+            {/* GOLFER CONFIRMATION EMAIL RECORD CARD */}
+            {(() => {
+              const golferConfirmedData = getGolferEmailData(confirmedRecord.paymentMethod, confirmedRecord);
+              return (
+                <div className="max-w-xl mx-auto bg-slate-900 text-white rounded-2xl border border-slate-700 text-left overflow-hidden shadow-md">
+                  <div className="p-3.5 bg-gradient-to-r from-emerald-950 to-slate-900 border-b border-slate-800 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Mail className="w-4 h-4 text-[#D4AF37]" />
+                      <span className="text-xs font-bold font-serif-heading">Your Golfer Confirmation Email</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(golferConfirmedData.fullPlainText);
+                        setCopiedGolferEmail(true);
+                        setTimeout(() => setCopiedGolferEmail(false), 2500);
+                      }}
+                      className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-amber-300 rounded text-[11px] font-bold transition flex items-center gap-1 cursor-pointer"
+                    >
+                      <Copy className="w-3 h-3" />
+                      <span>{copiedGolferEmail ? 'Copied!' : 'Copy Golfer Email'}</span>
+                    </button>
+                  </div>
+                  <div className="p-4 bg-slate-950 font-mono text-[11px] text-slate-300 max-h-72 overflow-y-auto whitespace-pre-wrap leading-relaxed border-t border-slate-800">
+                    {golferConfirmedData.fullPlainText}
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Pass Card with QR */}
+            <div className="max-w-md mx-auto bg-white border-2 border-dashed border-[#1E4D2B] rounded-2xl p-5 text-left space-y-3 shadow-sm">
+              <div className="flex justify-between items-start border-b border-slate-100 pb-3">
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">
+                    {confirmedRecord.confirmationCode}
+                  </span>
+                  <h4 className="font-bold text-slate-900 text-base mt-1 font-serif-heading">
+                    {confirmedRecord.primaryContact.name}
+                  </h4>
+                  <p className="text-xs text-slate-500">
+                    {confirmedRecord.type === 'dinner_only' ? 'Dinner Guest Pass' : 'Green Fee & Cart Package'}
+                  </p>
+                </div>
+                <QRCodeSVG value={confirmedRecord.confirmationCode} size={64} level="M" />
+              </div>
+
+              {confirmedRecord.requestedTeammates && confirmedRecord.requestedTeammates.length > 0 && (
+                <div className="text-xs">
+                  <span className="text-slate-500 text-[11px] font-semibold">Requested Foursome Partners:</span>
+                  <div className="text-slate-800 font-medium mt-0.5">
+                    {confirmedRecord.requestedTeammates.join(', ')}
+                  </div>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-2 text-xs pt-1 border-t border-slate-100">
+                <div>
+                  <span className="text-slate-500 text-[10px]">Starting Hole:</span>
+                  <div className="font-mono font-bold text-slate-900">Hole #{confirmedRecord.assignedStartingHole}A</div>
+                </div>
+                <div>
+                  <span className="text-slate-500 text-[10px]">Assigned Cart:</span>
+                  <div className="font-mono font-bold text-slate-900">{confirmedRecord.assignedCart}</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-center gap-3 pt-2">
               <button
                 onClick={() => window.print()}
-                className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-xl transition flex items-center gap-1.5 cursor-pointer"
+                className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-xl transition flex items-center gap-1.5 cursor-pointer"
               >
                 <Printer className="w-4 h-4" />
-                <span>Print Golfer Pass</span>
+                <span>Print Pass</span>
               </button>
               <button
                 onClick={handleClose}
-                className="px-6 py-2.5 bg-[#1E4D2B] hover:bg-emerald-900 text-white font-bold text-xs rounded-xl shadow-md transition cursor-pointer"
+                className="px-6 py-2.5 bg-[#1E4D2B] hover:bg-emerald-900 text-white text-xs font-bold rounded-xl shadow-md transition cursor-pointer"
               >
                 Done
               </button>

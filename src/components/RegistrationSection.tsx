@@ -1,185 +1,566 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTournament } from '../context/TournamentContext';
-import { PRICING_RULES, EVENT_DETAILS } from '../data/initialData';
-import { Users, User, CheckCircle2, Sparkles, Trophy, ArrowRight, ShieldCheck, Ticket, DollarSign } from 'lucide-react';
+import { Users, User, CheckCircle2, Sparkles, Heart } from 'lucide-react';
+import { RegistrationModal } from './RegistrationModal';
+import { DonationModal } from './DonationModal';
+
+function useMobileTabletInView(threshold = 0.35) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [isInView, setIsInView] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        // Active on mobile and tablet (< 1024px)
+        if (window.innerWidth < 1024) {
+          setIsInView(entry.isIntersecting);
+        } else {
+          setIsInView(false);
+        }
+      },
+      { threshold, rootMargin: '0px 0px -40px 0px' }
+    );
+
+    observer.observe(el);
+
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setIsInView(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [threshold]);
+
+  return { ref, isInView };
+}
 
 export const RegistrationSection: React.FC = () => {
-  const { openRegistrationModal, registrations } = useTournament();
+  const {
+    openRegistrationModal,
+    openDonationModal,
+    isRegModalOpen,
+    setIsRegModalOpen,
+    isInlineDonationOpen,
+    setIsInlineDonationOpen,
+    selectedRegType
+  } = useTournament();
+  const [selectedCard, setSelectedCard] = useState<'golf' | 'dinner' | 'donation'>('golf');
+
+  const { ref: golfRef, isInView: isGolfInView } = useMobileTabletInView();
+  const { ref: dinnerRef, isInView: isDinnerInView } = useMobileTabletInView();
+  const { ref: donationRef, isInView: isDonationInView } = useMobileTabletInView();
+
+  // Keep selectedCard synchronized if external buttons call openRegistrationModal
+  useEffect(() => {
+    if (isRegModalOpen) {
+      if (selectedRegType === 'dinner_only') {
+        setSelectedCard('dinner');
+      } else {
+        setSelectedCard('golf');
+      }
+    } else if (isInlineDonationOpen) {
+      setSelectedCard('donation');
+    }
+  }, [isRegModalOpen, isInlineDonationOpen, selectedRegType]);
+
+  const handleCardClick = (type: 'golf' | 'dinner' | 'donation') => {
+    setSelectedCard(type);
+    if (type === 'golf') {
+      setIsInlineDonationOpen(false);
+      openRegistrationModal('individual', 2);
+    } else if (type === 'dinner') {
+      setIsInlineDonationOpen(false);
+      openRegistrationModal('dinner_only', 2);
+    } else if (type === 'donation') {
+      setIsRegModalOpen(false);
+      setIsInlineDonationOpen(true);
+      openDonationModal(100);
+      setTimeout(() => {
+        const el = document.getElementById('inline-donation-container');
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    }
+  };
+
+  const isGolfActive = (selectedCard === 'golf' && isRegModalOpen) || (isRegModalOpen && selectedRegType !== 'dinner_only');
+  const isDinnerActive = (selectedCard === 'dinner' && isRegModalOpen) || (isRegModalOpen && selectedRegType === 'dinner_only');
+  const isDonationActive = selectedCard === 'donation' && isInlineDonationOpen;
+
+  const isGolfHighlighted = isGolfActive || isGolfInView;
+  const isDinnerHighlighted = isDinnerActive || isDinnerInView;
+  const isDonationHighlighted = isDonationActive || isDonationInView;
 
   return (
     <section id="register" className="py-20 bg-[#FBFBFA] relative scroll-mt-20">
       <div id="golfer-registration-inventory" className="scroll-mt-24" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
+        <div className="text-center max-w-3xl mx-auto mb-14">
           <div id="golfer-registration" className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-900 text-xs font-bold uppercase tracking-widest mb-3 scroll-mt-24">
             <Users className="w-3.5 h-3.5 text-[#1E4D2B]" />
-            <span>Golfer Registration & Add-On Inventory</span>
+            <span>Golfer Registration</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 font-serif-heading tracking-tight">
-            Register for the Charity Classic
+            Golfer Registration
           </h2>
-          <p className="mt-4 text-base sm:text-lg text-slate-600 leading-relaxed">
-            All golfer registrations include 18 holes of championship golf with GPS cart, premium gift bag, gourmet continental breakfast, on-course refreshments, and full banquet luncheon entry.
+          <p className="mt-3 text-base sm:text-lg text-slate-600 leading-relaxed">
+            Every registration includes 18 holes with a GPS cart, gift bag, breakfast, on-course refreshments, and banquet luncheon.
           </p>
         </div>
 
-        {/* 2 Main Registration Cards (Green Fee & Cart, Dinner Only) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16 items-stretch max-w-4xl mx-auto">
-          {/* Individual Golfer Card - Green Fee & Cart */}
-          <div className="bg-white rounded-2xl border-2 border-[#1E4D2B] shadow-xl p-6 sm:p-7 flex flex-col justify-between hover:shadow-2xl transition relative overflow-hidden">
+        {/* 3 Registration & Donation Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch max-w-6xl mx-auto">
+          {/* Card 1: Green Fee & Cart Package */}
+          <div
+            ref={golfRef}
+            onClick={() => handleCardClick('golf')}
+            style={
+              isGolfHighlighted
+                ? { border: '2px solid #000000', backgroundColor: '#295636' }
+                : undefined
+            }
+            className={`rounded-2xl shadow-xl p-6 flex flex-col justify-between transition-all duration-300 cursor-pointer relative overflow-hidden group ${
+              isGolfHighlighted
+                ? 'bg-[#295636] border-2 border-black text-white shadow-2xl ring-2 ring-emerald-400/40'
+                : 'bg-white border-2 border-[#1E4D2B] text-slate-900 hover:bg-[#295636] hover:text-white hover:border-black hover:shadow-2xl'
+            }`}
+          >
             <div>
-              <div className="flex items-center gap-3 mb-2 pt-2">
-                <div className="w-11 h-11 rounded-xl bg-emerald-50 border border-emerald-200 text-[#1E4D2B] flex items-center justify-center">
+              <div className="flex items-center gap-3 mb-2 pt-1">
+                <div
+                  className={`w-11 h-11 rounded-xl border flex items-center justify-center shrink-0 transition-colors ${
+                    isGolfHighlighted
+                      ? 'bg-white/20 border-white/40 text-white'
+                      : 'bg-emerald-50 border-emerald-200 text-[#1E4D2B] group-hover:bg-white/20 group-hover:border-white/40 group-hover:text-white'
+                  }`}
+                >
                   <User className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-slate-900 font-serif-heading">
-                    Green Fee &amp; Cart
+                  <h3
+                    className={`font-bold leading-tight transition-colors ${
+                      isGolfHighlighted ? 'text-white' : 'text-slate-900 group-hover:text-white'
+                    }`}
+                    style={{
+                      fontFamily: '"Courier New", Courier, monospace',
+                      fontSize: '16px',
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    Green Fee &amp; Cart Package
+                    <span className="block font-bold text-xs text-amber-500 font-sans mt-0.5">- $100 Members &bull; - $120 Others</span>
                   </h3>
-                  <p className="text-xs text-slate-500 font-medium">Single Player Tournament Entry</p>
+                  <p
+                    className={`text-xs font-medium mt-0.5 transition-colors ${
+                      isGolfHighlighted ? 'text-white/90' : 'text-slate-500 group-hover:text-white/90'
+                    }`}
+                  >
+                    1 Golfer &bull; 18 Holes &bull; GPS Cart
+                  </p>
                 </div>
               </div>
 
-              <div className="my-5 pb-5 border-b border-slate-100 flex items-baseline gap-2">
-                <span className="text-3xl sm:text-4xl font-extrabold text-[#1E4D2B] font-mono">
-                  $120–$130
-                </span>
-                <span className="text-xs text-slate-500 font-medium">
-                  / Golfer
+              <div
+                className={`my-4 pb-4 border-b transition-colors ${
+                  isGolfHighlighted ? 'border-white/25' : 'border-slate-100 group-hover:border-white/25'
+                }`}
+              >
+                <div
+                  className={`font-extrabold font-mono transition-colors text-lg leading-snug ${
+                    isGolfHighlighted ? 'text-white' : 'text-[#1E4D2B] group-hover:text-white'
+                  }`}
+                >
+                  <div>- $100 Members</div>
+                  <div>- $120 Others</div>
+                </div>
+                <span
+                  className={`text-xs font-medium transition-colors block mt-1 ${
+                    isGolfHighlighted ? 'text-white/80' : 'text-slate-500 group-hover:text-white/80'
+                  }`}
+                >
+                  Per Player (18 Holes &amp; GPS Cart)
                 </span>
               </div>
 
-              <div className="space-y-2.5 mb-6 text-xs text-slate-700">
-                <div className="text-[11px] font-bold uppercase tracking-wider text-slate-800">
-                  Green Fee &amp; Cart Package Includes:
+              {/* 2-Sentence Marketing Text */}
+              <p
+                className={`text-xs mb-4 leading-relaxed transition-colors ${
+                  isGolfHighlighted ? 'text-white' : 'text-slate-600 group-hover:text-white'
+                }`}
+              >
+                Enjoy an 18-hole scramble with a GPS cart, gift bag, and on-course hospitality. Compete in contests before joining our awards luncheon.
+              </p>
+
+              <div
+                className={`space-y-2.5 mb-6 text-xs transition-colors ${
+                  isGolfHighlighted ? 'text-white' : 'text-slate-700 group-hover:text-white'
+                }`}
+              >
+                <div className="flex items-start gap-2">
+                  <CheckCircle2
+                    className={`w-4 h-4 shrink-0 mt-0.5 transition-colors ${
+                      isGolfHighlighted ? 'text-white' : 'text-emerald-600 group-hover:text-white'
+                    }`}
+                  />
+                  <span>18 holes with GPS cart &amp; live scoring</span>
                 </div>
                 <div className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>18 Holes Championship Golf with GPS Cart</span>
+                  <CheckCircle2
+                    className={`w-4 h-4 shrink-0 mt-0.5 transition-colors ${
+                      isGolfHighlighted ? 'text-white' : 'text-emerald-600 group-hover:text-white'
+                    }`}
+                  />
+                  <span>Gift bag &amp; tournament apparel</span>
                 </div>
                 <div className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Deluxe Golfer Gift Bag &amp; Tournament Apparel</span>
+                  <CheckCircle2
+                    className={`w-4 h-4 shrink-0 mt-0.5 transition-colors ${
+                      isGolfHighlighted ? 'text-white' : 'text-emerald-600 group-hover:text-white'
+                    }`}
+                  />
+                  <span>Free range balls, breakfast &amp; drinks</span>
                 </div>
                 <div className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Unlimited Range Balls, Breakfast &amp; On-Course Drinks</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Full Dinner &amp; Awards Banquet Entry</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>
-                    Live Squabbit{' '}
-                    <a
-                      href="https://app.squabbitgolf.com/w/tournament/TCaBLm4Hc?tab=leaderboard"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="underline hover:text-emerald-700 font-semibold"
-                    >
-                      Leaderboard
-                    </a>{' '}
-                    Sync &amp; Contests
-                  </span>
+                  <CheckCircle2
+                    className={`w-4 h-4 shrink-0 mt-0.5 transition-colors ${
+                      isGolfHighlighted ? 'text-white' : 'text-emerald-600 group-hover:text-white'
+                    }`}
+                  />
+                  <span>Awards banquet dinner &amp; contest entry</span>
                 </div>
               </div>
             </div>
 
-            <button
-              onClick={() => openRegistrationModal('individual')}
-              className="w-full py-3.5 bg-[#EA580C] hover:bg-[#C2410C] text-white font-bold text-sm rounded-xl shadow-lg shadow-orange-900/20 transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2 cursor-pointer"
+            <div
+              className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold text-center transition flex items-center justify-center gap-1.5 ${
+                isGolfActive
+                  ? 'bg-white text-[#295636] border-2 border-black font-extrabold shadow-sm'
+                  : isGolfInView
+                  ? 'bg-white text-[#295636] border-2 border-black font-extrabold shadow-sm'
+                  : 'bg-emerald-50 text-[#1E4D2B] border border-emerald-200 group-hover:bg-white group-hover:text-[#295636] group-hover:border-black group-hover:shadow-sm'
+              }`}
             >
-              <span>Register Golfer</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
+              {isGolfActive ? (
+                <>
+                  <CheckCircle2 className="w-4 h-4 text-[#295636]" />
+                  <span>Form Open Below</span>
+                </>
+              ) : (
+                <span>Click to Select Package</span>
+              )}
+            </div>
           </div>
 
-          {/* Dinner Only Card */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-md p-6 sm:p-7 flex flex-col justify-between hover:shadow-lg transition">
+          {/* Card 2: Dinner Guest Pass */}
+          <div
+            ref={dinnerRef}
+            onClick={() => handleCardClick('dinner')}
+            style={
+              isDinnerHighlighted
+                ? { border: '2px solid #000000', backgroundColor: '#295636' }
+                : undefined
+            }
+            className={`rounded-2xl shadow-md p-6 flex flex-col justify-between transition-all duration-300 cursor-pointer relative overflow-hidden group ${
+              isDinnerHighlighted
+                ? 'bg-[#295636] border-2 border-black text-white shadow-2xl ring-2 ring-emerald-400/40'
+                : 'bg-white border border-slate-200 text-slate-900 hover:bg-[#295636] hover:text-white hover:border-black hover:shadow-2xl'
+            }`}
+          >
             <div>
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-11 h-11 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 flex items-center justify-center">
+              <div className="flex items-center gap-3 mb-2 pt-1">
+                <div
+                  className={`w-11 h-11 rounded-xl border flex items-center justify-center shrink-0 transition-colors ${
+                    isDinnerHighlighted
+                      ? 'bg-white/20 border-white/40 text-white'
+                      : 'bg-amber-50 border-amber-200 text-amber-800 group-hover:bg-white/20 group-hover:border-white/40 group-hover:text-white'
+                  }`}
+                >
                   <Sparkles className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-slate-900 font-serif-heading">
-                    Dinner
+                  <h3
+                    className={`font-bold leading-tight transition-colors ${
+                      isDinnerHighlighted ? 'text-white' : 'text-slate-900 group-hover:text-white'
+                    }`}
+                    style={{
+                      fontFamily: '"Courier New", Courier, monospace',
+                      fontSize: '16px',
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    Dinner Guest Pass
+                    <span className="block font-bold">($60)</span>
                   </h3>
-                  <p className="text-xs text-slate-500 font-medium">Supporter • Dinner &amp; Awards Banquet</p>
+                  <p
+                    className={`text-xs font-medium mt-0.5 transition-colors ${
+                      isDinnerHighlighted ? 'text-white/90' : 'text-slate-500 group-hover:text-white/90'
+                    }`}
+                  >
+                    Supporter &bull; Dinner &amp; Awards Banquet
+                  </p>
                 </div>
               </div>
 
-              <div className="my-5 pb-5 border-b border-slate-100 flex items-baseline gap-2">
-                <span className="text-3xl font-extrabold text-slate-900 font-mono">
-                  $50–$60
+              <div
+                className={`my-4 pb-4 border-b flex items-baseline gap-2 transition-colors ${
+                  isDinnerHighlighted ? 'border-white/25' : 'border-slate-100 group-hover:border-white/25'
+                }`}
+              >
+                <span
+                  className={`font-extrabold font-mono transition-colors ${
+                    isDinnerHighlighted ? 'text-white' : 'text-slate-900 group-hover:text-white'
+                  }`}
+                  style={{ fontSize: '27px', lineHeight: '1.2' }}
+                >
+                  $60
                 </span>
-                <span className="text-xs text-slate-500 font-medium">
-                  (to be finalized) Per Guest
+                <span
+                  className={`text-xs font-medium transition-colors ${
+                    isDinnerHighlighted ? 'text-white/80' : 'text-slate-500 group-hover:text-white/80'
+                  }`}
+                >
+                  Per Guest
                 </span>
               </div>
 
-              <div className="space-y-2.5 mb-6 text-xs text-slate-700">
-                <div className="text-[11px] font-bold uppercase tracking-wider text-slate-800">
-                  Dinner Guest Pass Includes:
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Access to Dinner &amp; Awards Banquet</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>FABULOUS Turkey Dinner</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Silent Auction &amp; Charity Mega Raffle Participation</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Naseem Mohammed Memorial Tribute Ceremony</span>
-                </div>
-              </div>
-            </div>
-
-            <button
-              onClick={() => openRegistrationModal('dinner_only')}
-              className="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm rounded-xl shadow-md transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <span>Register for Dinner</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-
-        {/* Add-on Inventory Showcase Banner */}
-        <div className="bg-gradient-to-r from-emerald-900 to-[#1E4D2B] rounded-2xl p-8 text-white shadow-xl max-w-5xl mx-auto border border-[#D4AF37]/30">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="space-y-2 text-center md:text-left">
-              <div className="text-xs font-bold uppercase tracking-wider text-amber-300 flex items-center justify-center md:justify-start gap-1.5">
-                <Ticket className="w-4 h-4" />
-                Tournament Day Add-Ons Available at Checkout
-              </div>
-              <h3 className="text-xl sm:text-2xl font-bold font-serif-heading text-white">
-                Mulligans, Mega Raffle Packs &amp; Skill Shootouts
-              </h3>
-              <p className="text-xs sm:text-sm text-slate-200 max-w-xl">
-                Boost your score and support cancer patient relief: Mulligans (3 for $50), Mega Raffle Tickets ($25/$50 packs), Putting Shootout ($20), and Tiger Drive on Hole #11 ($25).
+              {/* 2-Sentence Marketing Text */}
+              <p
+                className={`text-xs mb-4 leading-relaxed transition-colors ${
+                  isDinnerHighlighted ? 'text-white' : 'text-slate-600 group-hover:text-white'
+                }`}
+              >
+                Join us for an inspiring evening celebrating Naseem Mohammed's legacy with an exceptional banquet dinner. Enjoy the awards presentations, charity auction, and meaningful community fellowship.
               </p>
+
+              <div
+                className={`space-y-2.5 mb-6 text-xs transition-colors ${
+                  isDinnerHighlighted ? 'text-white' : 'text-slate-700 group-hover:text-white'
+                }`}
+              >
+                <div className="flex items-start gap-2">
+                  <CheckCircle2
+                    className={`w-4 h-4 shrink-0 mt-0.5 transition-colors ${
+                      isDinnerHighlighted ? 'text-white' : 'text-emerald-600 group-hover:text-white'
+                    }`}
+                  />
+                  <span>Turkey dinner &amp; awards banquet access</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2
+                    className={`w-4 h-4 shrink-0 mt-0.5 transition-colors ${
+                      isDinnerHighlighted ? 'text-white' : 'text-emerald-600 group-hover:text-white'
+                    }`}
+                  />
+                  <span>Silent auction &amp; charity raffle</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2
+                    className={`w-4 h-4 shrink-0 mt-0.5 transition-colors ${
+                      isDinnerHighlighted ? 'text-white' : 'text-emerald-600 group-hover:text-white'
+                    }`}
+                  />
+                  <span>Naseem Mohammed memorial tribute</span>
+                </div>
+              </div>
             </div>
 
-            <button
-              onClick={() => openRegistrationModal('individual')}
-              className="px-6 py-3.5 bg-[#D4AF37] hover:bg-[#b89528] text-slate-950 font-bold text-sm rounded-xl shadow-md transition transform hover:-translate-y-0.5 shrink-0 flex items-center gap-2 cursor-pointer"
+            <div
+              className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold text-center transition flex items-center justify-center gap-1.5 ${
+                isDinnerActive
+                  ? 'bg-white text-[#295636] border-2 border-black font-extrabold shadow-sm'
+                  : isDinnerInView
+                  ? 'bg-white text-[#295636] border-2 border-black font-extrabold shadow-sm'
+                  : 'bg-slate-100 text-slate-800 border border-slate-300 group-hover:bg-white group-hover:text-[#295636] group-hover:border-black group-hover:shadow-sm'
+              }`}
             >
-              <Sparkles className="w-4 h-4 fill-slate-950" />
-              <span>Customize Registration</span>
-            </button>
+              {isDinnerActive ? (
+                <>
+                  <CheckCircle2 className="w-4 h-4 text-[#295636]" />
+                  <span>Form Open Below</span>
+                </>
+              ) : (
+                <span>Click to Select Package</span>
+              )}
+            </div>
+          </div>
+
+          {/* Card 3: Donations Card */}
+          <div
+            ref={donationRef}
+            onClick={() => handleCardClick('donation')}
+            style={
+              isDonationHighlighted
+                ? { border: '2px solid #000000', backgroundColor: '#295636' }
+                : undefined
+            }
+            className={`rounded-2xl shadow-xl p-6 flex flex-col justify-between transition-all duration-300 cursor-pointer relative overflow-hidden group ${
+              isDonationHighlighted
+                ? 'bg-[#295636] border-2 border-black text-white shadow-2xl ring-2 ring-emerald-400/40'
+                : 'bg-white border-2 border-rose-300 text-slate-900 hover:bg-[#295636] hover:text-white hover:border-black hover:shadow-2xl'
+            }`}
+          >
+            <div>
+              <div className="flex items-center gap-3 mb-2 pt-1">
+                <div
+                  className={`w-11 h-11 rounded-xl border flex items-center justify-center shrink-0 transition-colors ${
+                    isDonationHighlighted
+                      ? 'bg-white/20 border-white/40 text-white'
+                      : 'bg-rose-50 border-rose-200 text-rose-600 group-hover:bg-white/20 group-hover:border-white/40 group-hover:text-white'
+                  }`}
+                >
+                  <Heart
+                    className={`w-5 h-5 transition-colors ${
+                      isDonationHighlighted
+                        ? 'fill-white text-white'
+                        : 'fill-rose-600 text-rose-600 group-hover:fill-white group-hover:text-white'
+                    }`}
+                  />
+                </div>
+                <div>
+                  <h3
+                    className={`font-bold leading-tight transition-colors ${
+                      isDonationHighlighted ? 'text-white' : 'text-slate-900 group-hover:text-white'
+                    }`}
+                    style={{
+                      fontFamily: '"Courier New", Courier, monospace',
+                      fontSize: '16px',
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    Donations
+                  </h3>
+                  <p
+                    className={`text-xs font-semibold mt-0.5 transition-colors ${
+                      isDonationHighlighted ? 'text-white/90' : 'text-rose-700 group-hover:text-white/90'
+                    }`}
+                  >
+                    Be Generous &bull; It’s for great causes
+                  </p>
+                </div>
+              </div>
+
+              <div
+                className={`my-4 pb-4 border-b flex items-baseline gap-2 transition-colors ${
+                  isDonationHighlighted ? 'border-white/25' : 'border-slate-100 group-hover:border-white/25'
+                }`}
+              >
+                <span
+                  className={`font-extrabold font-serif-heading transition-colors ${
+                    isDonationHighlighted ? 'text-white' : 'text-rose-600 group-hover:text-white'
+                  }`}
+                  style={{ fontSize: '27px', lineHeight: '1.2' }}
+                >
+                  Be Generous
+                </span>
+                <span
+                  className={`text-xs font-medium transition-colors ${
+                    isDonationHighlighted ? 'text-white/80' : 'text-slate-500 group-hover:text-white/80'
+                  }`}
+                >
+                  Tax-Deductible
+                </span>
+              </div>
+
+              {/* Exact Text Requested */}
+              <p
+                className={`text-xs mb-4 leading-relaxed transition-colors ${
+                  isDonationHighlighted ? 'text-white' : 'text-slate-600 group-hover:text-white'
+                }`}
+              >
+                Support cancer research and humanitarian relief for Naseem Mohammed. 100% of contributions fund patient care and family support.
+              </p>
+
+              <div
+                className={`space-y-2.5 mb-6 text-xs transition-colors ${
+                  isDonationHighlighted ? 'text-white' : 'text-slate-700 group-hover:text-white'
+                }`}
+              >
+                <div className="flex items-start gap-2">
+                  <CheckCircle2
+                    className={`w-4 h-4 shrink-0 mt-0.5 transition-colors ${
+                      isDonationHighlighted ? 'text-white' : 'text-rose-500 group-hover:text-white'
+                    }`}
+                  />
+                  <span>100% of proceeds fund oncology care &amp; relief</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2
+                    className={`w-4 h-4 shrink-0 mt-0.5 transition-colors ${
+                      isDonationHighlighted ? 'text-white' : 'text-rose-500 group-hover:text-white'
+                    }`}
+                  />
+                  <span>Honoring the memory of Naseem Mohammed</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2
+                    className={`w-4 h-4 shrink-0 mt-0.5 transition-colors ${
+                      isDonationHighlighted ? 'text-white' : 'text-rose-500 group-hover:text-white'
+                    }`}
+                  />
+                  <span>Official charitable tax receipt issued promptly</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2
+                    className={`w-4 h-4 shrink-0 mt-0.5 transition-colors ${
+                      isDonationHighlighted ? 'text-white' : 'text-rose-500 group-hover:text-white'
+                    }`}
+                  />
+                  <span>Non-golfers and supporters warmly welcome</span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold text-center transition flex items-center justify-center gap-1.5 ${
+                isDonationActive
+                  ? 'bg-white text-[#295636] border-2 border-black font-extrabold shadow-sm'
+                  : isDonationInView
+                  ? 'bg-white text-[#295636] border-2 border-black font-extrabold shadow-sm'
+                  : 'bg-rose-50 text-rose-800 border border-rose-200 group-hover:bg-white group-hover:text-[#295636] group-hover:border-black group-hover:shadow-sm'
+              }`}
+            >
+              {isDonationActive ? (
+                <>
+                  <CheckCircle2 className="w-4 h-4 text-[#295636]" />
+                  <span>Form Open Below</span>
+                </>
+              ) : (
+                <span>Click to Select Package</span>
+              )}
+            </div>
           </div>
         </div>
+
+        {/* Inline Expanded Registration / Donation Container at 75% of Screen */}
+        {isRegModalOpen && (
+          <div className="mt-8 animate-in fade-in slide-in-from-top-4 duration-300">
+            <RegistrationModal
+              inline={true}
+              onClose={() => setIsRegModalOpen(false)}
+            />
+          </div>
+        )}
+
+        {isInlineDonationOpen && (
+          <div className="mt-8 animate-in fade-in slide-in-from-top-4 duration-300">
+            <DonationModal
+              inline={true}
+              onClose={() => setIsInlineDonationOpen(false)}
+            />
+          </div>
+        )}
       </div>
     </section>
   );
 };
+

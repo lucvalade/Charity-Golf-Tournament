@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { TOURNAMENT_SCHEDULE, EVENT_DETAILS } from '../data/initialData';
 import { useTournament } from '../context/TournamentContext';
-import { Calendar, Clock, MapPin, Coffee, Heart, Flag, Trophy, Compass, CloudSun, ShieldCheck, ChevronRight, CheckCircle2, CalendarDays, ExternalLink } from 'lucide-react';
+import { printTournamentSchedulePdf } from '../utils/formatters';
+import { ItineraryPdfModal } from './ItineraryPdfModal';
+import { Calendar, Clock, MapPin, Coffee, Heart, Flag, Trophy, Compass, CloudSun, ShieldCheck, ChevronRight, CheckCircle2, CalendarDays, ExternalLink, Printer, User } from 'lucide-react';
 
 export const EventDetails: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'schedule' | 'course' | 'rules'>('schedule');
-  const { openAgendaModal } = useTournament();
+  const [isPrintPdfOpen, setIsPrintPdfOpen] = useState(false);
+  const { openAgendaModal, openRegistrationModal } = useTournament();
 
   const getIcon = (iconName: string) => {
     switch (iconName) {
@@ -41,22 +44,43 @@ export const EventDetails: React.FC = () => {
       <div id="logistics" className="-top-24 relative" />
       <div id="itinerary" className="-top-24 relative" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-14">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-100 border border-slate-300 text-slate-800 text-xs font-bold uppercase tracking-widest mb-3">
-            <Calendar className="w-3.5 h-3.5 text-[#1E4D2B]" />
-            <span>Event Logistics & Itinerary</span>
+        {/* Section Header / Event Logistics & Schedule Card */}
+        <div className="bg-[#1a4426] text-white rounded-3xl p-6 sm:p-10 mb-12 shadow-xl border border-emerald-700/60 relative overflow-hidden text-center max-w-5xl mx-auto">
+          {/* Subtle gold decorative pattern */}
+          <div className="absolute inset-0 bg-[radial-gradient(#D4AF37_1px,transparent_1px)] [background-size:24px_24px] opacity-10 pointer-events-none" />
+
+          <div className="relative z-10">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-950/80 border border-emerald-600 text-white text-xs font-bold uppercase tracking-widest mb-4 shadow-xs">
+              <Calendar className="w-3.5 h-3.5 text-[#D4AF37]" />
+              <span>Event Logistics &amp; Schedule</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white font-serif-heading tracking-tight">
+              Itinerary &amp; Championship Course
+            </h2>
+            <div className="mt-3 text-base text-emerald-100 flex flex-col sm:flex-row items-center justify-center sm:gap-1.5 font-medium">
+              <span className="font-semibold text-white">Monday, October 5, 2026</span>
+              <span className="hidden sm:inline text-emerald-300">&bull;</span>
+              <span>Burford Golf Links Course</span>
+            </div>
+            <div className="mt-4 pt-4 border-t border-emerald-800/80 flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-xs sm:text-sm text-emerald-200">
+              <div className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-amber-400"></span>
+                <span>Registration &amp; Warmup: <strong className="text-white font-mono">9:30 AM</strong></span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-amber-400"></span>
+                <span>Shotgun Tee-off: <strong className="text-white font-mono">11:00 AM</strong></span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-amber-400"></span>
+                <span>Turkey Dinner &amp; Awards: <strong className="text-white font-mono">4:00 PM</strong></span>
+              </div>
+            </div>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 font-serif-heading tracking-tight">
-            Schedule of Events & Championship Course
-          </h2>
-          <p className="mt-2 text-base text-slate-600">
-            {EVENT_DETAILS.dateString} &bull; {EVENT_DETAILS.venue.name}
-          </p>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="flex justify-center mb-10 px-2">
+        {/* Tab Navigation & Actions */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-10 px-2">
           <div className="flex flex-wrap sm:flex-nowrap justify-center p-1 rounded-xl bg-slate-100 border border-slate-200 text-xs sm:text-sm font-semibold gap-1 sm:gap-0 max-w-full">
             <button
               onClick={() => setActiveTab('schedule')}
@@ -89,6 +113,27 @@ export const EventDetails: React.FC = () => {
               Scramble Rules &amp; Prizes
             </button>
           </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              id="btn-register-golfer-itinerary"
+              onClick={() => openRegistrationModal('individual', 1)}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#EA580C] hover:bg-[#C2410C] text-white font-bold text-xs sm:text-sm shadow-xs transition transform hover:-translate-y-0.5 cursor-pointer"
+              title="Register Golfer • Choose Registration Format"
+            >
+              <User className="w-4 h-4" />
+              <span>Register Golfer</span>
+            </button>
+            <button
+              id="btn-print-pdf"
+              onClick={() => setIsPrintPdfOpen(true)}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-[#1E4D2B] hover:text-emerald-900 font-bold text-xs sm:text-sm shadow-xs border-2 border-slate-300 hover:border-[#1E4D2B] transition cursor-pointer"
+              title="Print PDF (8.5 x 11 Itinerary flyer)"
+            >
+              <Printer className="w-4 h-4 text-[#1E4D2B]" />
+              <span>Print PDF</span>
+            </button>
+          </div>
         </div>
 
         {/* TAB 1: Schedule Timeline */}
@@ -97,54 +142,31 @@ export const EventDetails: React.FC = () => {
             {TOURNAMENT_SCHEDULE.map((item, idx) => (
               <div
                 key={idx}
-                className="bg-slate-50 rounded-2xl p-6 sm:p-7 border border-slate-200/90 shadow-sm hover:shadow-md transition flex flex-col sm:flex-row items-start gap-5"
+                className="bg-slate-50 rounded-2xl p-6 sm:p-7 border border-slate-200/90 shadow-sm hover:bg-[#1a4426] hover:text-white hover:border-emerald-600 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 flex flex-col sm:flex-row items-start gap-5 group cursor-pointer"
               >
-                <div className="w-12 h-12 rounded-xl bg-white border border-slate-200 flex items-center justify-center shrink-0 shadow-xs">
+                <div className="w-12 h-12 rounded-xl bg-white border border-slate-200 text-[#1E4D2B] group-hover:bg-white/15 group-hover:border-white/20 group-hover:text-[#D4AF37] flex items-center justify-center shrink-0 shadow-xs transition-all duration-300">
                   {getIcon(item.iconName)}
                 </div>
 
                 <div className="flex-1">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-1">
-                    <span className="text-xs font-bold font-mono text-[#1E4D2B] bg-emerald-100 px-2.5 py-0.5 rounded-full self-start">
+                    <span className="text-xs font-bold font-mono text-[#1a4426] bg-emerald-100 group-hover:bg-emerald-950 group-hover:text-white group-hover:border group-hover:border-[#D4AF37] hover:bg-[#1a4426] hover:text-white px-3 py-1 rounded-full self-start transition-all duration-300 shadow-2xs">
                       {item.time}
                     </span>
-                    <span className="text-xs font-medium text-slate-500 flex items-center gap-1">
-                      <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                      {item.location}
+                    <span className="text-xs font-medium text-slate-600 group-hover:text-emerald-200 flex items-center gap-1 transition-colors duration-300">
+                      <MapPin className="w-3.5 h-3.5 text-emerald-700 group-hover:text-[#D4AF37] shrink-0 transition-colors duration-300" />
+                      <span>{item.location}</span>
                     </span>
                   </div>
 
-                  <h3 className="text-lg font-bold text-slate-900 mt-2 font-serif-heading">
+                  <h3 className="text-lg font-bold text-slate-900 group-hover:text-white mt-2 font-serif-heading transition-colors duration-300">
                     {item.title}
                   </h3>
-                  <p className="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed">
+                  <p className="text-xs sm:text-sm text-slate-600 group-hover:text-emerald-100 mt-1.5 leading-relaxed transition-colors duration-300">
                     {item.time.includes('11:00') ? (
-                      <>
-                        Simultaneous shotgun launch across 18 holes. Played in the dynamic 6-6-6 format (Swapping Partners version, details to follow) with live{' '}
-                        <a
-                          href="https://squabbitgolf.com"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-emerald-700 underline hover:text-emerald-900 font-semibold"
-                        >
-                          Squabbit scoring app
-                        </a>
-                        .
-                      </>
+                      'Simultaneous shotgun launch across 18 holes. Played in the dynamic 6-6-6 format (Swapping Partners version, details to follow).'
                     ) : item.time.includes('4:00') ? (
-                      <>
-                        Dinner &amp; Donation option ($50-$60 to be finalized) [LIMITED #,book early]. Post-round celebration featuring a fabulous turkey dinner,{' '}
-                        <a
-                          href="https://app.squabbitgolf.com/w/tournament/TCaBLm4Hc?tab=leaderboard"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-emerald-700 underline hover:text-emerald-900 font-semibold inline-flex items-center gap-1"
-                        >
-                          <span>Squabbit live leaderboard</span>
-                          <ExternalLink className="w-3 h-3 inline" />
-                        </a>{' '}
-                        reveal, trophy presentations, raffle draws, and memorial fundraising recap.
-                      </>
+                      'Dinner & Donation option ($60) [LIMITED #,book early]. Post-round celebration featuring a fabulous turkey dinner, prizes and trophy presentations, and memorial fundraising recap.'
                     ) : (
                       item.description
                     )}
@@ -153,12 +175,28 @@ export const EventDetails: React.FC = () => {
               </div>
             ))}
 
-            <div className="text-center pt-4">
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-4">
+              <button
+                onClick={() => openRegistrationModal('individual', 1)}
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#EA580C] hover:bg-[#C2410C] text-white font-bold text-sm shadow-md transition transform hover:-translate-y-0.5 cursor-pointer"
+              >
+                <User className="w-4 h-4" />
+                <span>Register Golfer</span>
+              </button>
+              <button
+                id="btn-print-pdf-bottom"
+                onClick={() => setIsPrintPdfOpen(true)}
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#1E4D2B] hover:bg-emerald-800 text-amber-200 hover:text-white font-bold text-sm shadow-md transition transform hover:-translate-y-0.5 cursor-pointer border border-[#D4AF37]/50"
+                title="Print PDF (8.5 x 11 Itinerary)"
+              >
+                <Printer className="w-4 h-4 text-[#D4AF37]" />
+                <span>Print PDF</span>
+              </button>
               <button
                 onClick={openAgendaModal}
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#1E4D2B] hover:bg-emerald-800 text-amber-200 hover:text-white font-bold text-sm shadow-md transition transform hover:-translate-y-0.5 cursor-pointer border border-[#D4AF37]/50"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white hover:bg-slate-50 text-slate-800 font-bold text-sm shadow-md transition transform hover:-translate-y-0.5 cursor-pointer border-2 border-slate-300 hover:border-[#1E4D2B]"
               >
-                <CalendarDays className="w-4 h-4 text-[#D4AF37]" />
+                <CalendarDays className="w-4 h-4 text-[#1E4D2B]" />
                 <span>Open Game Day Agenda Overview</span>
               </button>
             </div>
@@ -174,26 +212,16 @@ export const EventDetails: React.FC = () => {
                   href={EVENT_DETAILS.venue.websiteUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs font-bold uppercase tracking-widest text-[#D4AF37] hover:text-amber-200 mb-2 inline-flex items-center gap-1.5 transition"
+                  className="group inline-flex items-center gap-2 mb-2"
                   title="Visit Burford Golf Links Official Website"
                 >
-                  <Compass className="w-4 h-4" />
-                  <span>Championship Golf Facility</span>
-                  <ExternalLink className="w-3 h-3 text-amber-300" />
+                  <h3 className="text-2xl font-bold font-serif-heading text-white group-hover:text-amber-200 transition underline-offset-2 group-hover:underline flex items-center gap-2">
+                    <Compass className="w-5 h-5 text-[#D4AF37]" />
+                    <span>Championship Facility: Burford Golf Links</span>
+                    <ExternalLink className="w-4 h-4 text-emerald-300 group-hover:text-amber-200 shrink-0" />
+                  </h3>
                 </a>
                 <div className="space-y-1.5">
-                  <a
-                    href={EVENT_DETAILS.venue.websiteUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group inline-flex items-center gap-2"
-                    title="Visit Burford Golf Links Official Website"
-                  >
-                    <h3 className="text-2xl font-bold font-serif-heading text-white group-hover:text-amber-200 transition underline-offset-2 group-hover:underline">
-                      {EVENT_DETAILS.venue.name}
-                    </h3>
-                    <ExternalLink className="w-4 h-4 text-emerald-300 group-hover:text-amber-200 shrink-0" />
-                  </a>
                   <a
                     href={EVENT_DETAILS.venue.mapsUrl}
                     target="_blank"
@@ -201,22 +229,22 @@ export const EventDetails: React.FC = () => {
                     className="block group"
                     title="Open venue location in Google Maps"
                   >
-                    <p className="text-xs text-amber-200 flex items-center gap-1.5 group-hover:text-amber-100 transition">
-                      <MapPin className="w-3.5 h-3.5 text-amber-300" />
-                      <span>{EVENT_DETAILS.venue.address}</span>
-                      <span className="text-[10px] text-emerald-200 ml-1 underline font-semibold">(View on Google Maps ↗)</span>
+                    <p className="text-sm text-amber-200 flex items-center gap-1.5 group-hover:text-amber-100 transition">
+                      <MapPin className="w-4 h-4 text-amber-300" />
+                      <span>120 Golf Links Rd., Burford, ON</span>
+                      <span className="text-xs text-emerald-200 underline font-semibold">(Map ↗)</span>
                     </p>
                   </a>
                 </div>
 
-                <div className="mt-6 pt-6 border-t border-emerald-800/80 grid grid-cols-2 gap-4 text-xs">
+                <div className="mt-6 pt-6 border-t border-emerald-800/80 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                   <div>
-                    <span className="text-slate-300">Course Rating / Slope:</span>
-                    <div className="font-bold text-white font-mono mt-0.5">{EVENT_DETAILS.venue.courseRating}</div>
+                    <span className="text-slate-300">Rating / Slope:</span>
+                    <div className="font-bold text-white font-mono mt-0.5 text-sm">71.8 / 126 (18-Hole Layout)</div>
                   </div>
                   <div>
-                    <span className="text-slate-300">Greens & Fairways:</span>
-                    <div className="font-bold text-white mt-0.5">Bentgrass Greens • Bermuda Fairways</div>
+                    <span className="text-slate-300">Turf:</span>
+                    <div className="font-bold text-white mt-0.5 text-sm">Bentgrass Greens • Bermuda Fairways</div>
                   </div>
                 </div>
               </div>
@@ -247,24 +275,24 @@ export const EventDetails: React.FC = () => {
 
             <div className="lg:col-span-5 bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-4">
               <h4 className="font-bold text-slate-900 text-sm uppercase tracking-wider">
-                Facility Amenities Included:
+                Included Amenities
               </h4>
               <ul className="space-y-2.5 text-xs text-slate-700">
                 <li className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>Complimentary Driving Range & Putting Green Balls</span>
+                  <span>Free range &amp; putting balls</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>GPS Interactive Fleet Golf Carts with USB Chargers</span>
+                  <span>GPS carts with USB chargers</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>Full Locker Room & Shower Amenities Access</span>
+                  <span>Full locker room access</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>Clubhouse Pro Shop 20% Player Discount Day of Event</span>
+                  <span>20% pro shop player discount</span>
                 </li>
               </ul>
             </div>
@@ -293,6 +321,12 @@ export const EventDetails: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Itinerary 8.5" x 11" PDF Print & Preview Modal */}
+      <ItineraryPdfModal
+        isOpen={isPrintPdfOpen}
+        onClose={() => setIsPrintPdfOpen(false)}
+      />
     </section>
   );
 };

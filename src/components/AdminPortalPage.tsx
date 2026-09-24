@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTournament } from '../context/TournamentContext';
 import { EVENT_DETAILS, SPONSORSHIP_PACKAGES } from '../data/initialData';
+import { PlayerInfo, RegistrationRecord, SponsorRecord, DonationRecord } from '../types';
 import {
   Shield,
   Users,
@@ -36,9 +37,28 @@ import {
   Calendar,
   MapPin,
   Sparkles,
-  Key
+  Key,
+  X,
+  Edit2,
+  Trash2,
+  Plus,
+  BarChart3,
+  HelpCircle,
+  BookOpen
 } from 'lucide-react';
 import { ApiKeySettingsModal } from './ApiKeySettingsModal';
+import { EmailSettingsModal } from './EmailSettingsModal';
+import { OutreachDashboard } from './outreach/OutreachDashboard';
+import { AnalyticsDashboard } from './outreach/AnalyticsDashboard';
+import { EditGolferModal } from './admin/EditGolferModal';
+import { EditRegistrationModal } from './admin/EditRegistrationModal';
+import { EditSponsorModal } from './admin/EditSponsorModal';
+import { EditDonationModal } from './admin/EditDonationModal';
+import { ConfirmDeleteModal } from './admin/ConfirmDeleteModal';
+import { AdminManualModal } from './admin/AdminManualModal';
+import { SheetRosterAuditModal } from './admin/SheetRosterAuditModal';
+import { SponsorModal } from './SponsorModal';
+import { DonationModal } from './DonationModal';
 
 interface AdminPortalPageProps {
   onBackToSite?: () => void;
@@ -58,15 +78,62 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({ onBackToSite }
     goalAmount,
     checkInPlayer,
     updatePaymentStatus,
+    updateRegistration,
+    deleteRegistration,
+    updateGolfer,
+    deleteGolfer,
+    updateSponsor,
+    deleteSponsor,
+    updateDonation,
+    deleteDonation,
+    openSponsorModal,
+    openDonationModal,
     resetToDefaults,
-    addToast
+    addToast,
+    triggerSplash,
+    outreachLeads
   } = useTournament();
 
-  const [activeTab, setActiveTab] = useState<'checkin' | 'golfers' | 'sponsors' | 'donations' | 'apikeys'>('golfers');
+  // If this is rendered as part of a modal/popup context, we might want a close button
+  // For now, let's keep the existing handleBack logic and add a close button
+  const CloseButton = () => (
+    <button
+      onClick={() => setIsAdminOpen(false)}
+      className="absolute top-4 right-4 p-2 bg-slate-200 hover:bg-slate-300 rounded-full text-slate-800 transition z-50"
+      aria-label="Close"
+    >
+      <X className="w-6 h-6" />
+    </button>
+  );
+
+  const [activeTab, setActiveTab] = useState<'checkin' | 'golfers' | 'sponsors' | 'donations' | 'outreach' | 'analytics' | 'apikeys' | 'email'>('golfers');
   const [searchQuery, setSearchQuery] = useState('');
   const [paymentFilter, setPaymentFilter] = useState<'all' | 'cheque' | 'etransfer' | 'cash' | 'credit_card'>('all');
   const [statusFilter, setStatusFilter] = useState<'all' | 'paid' | 'pending'>('all');
   const [expandedRegId, setExpandedRegId] = useState<string | null>(null);
+
+  // Edit Modals State
+  const [editingGolfer, setEditingGolfer] = useState<{
+    regId: string;
+    playerIndex: number;
+    player: PlayerInfo;
+  } | null>(null);
+  const [editingRegistration, setEditingRegistration] = useState<RegistrationRecord | null>(null);
+  const [editingSponsor, setEditingSponsor] = useState<SponsorRecord | null>(null);
+  const [editingDonation, setEditingDonation] = useState<DonationRecord | null>(null);
+
+  // Deletion Confirmation Modal State
+  const [deleteConfirmation, setDeleteConfirmation] = useState<{
+    isOpen: boolean;
+    title: string;
+    itemName: string;
+    message?: string;
+    onConfirm: () => void;
+  } | null>(null);
+
+  // User Manual & Sheet Audit Modal States
+  const [isManualModalOpen, setIsManualModalOpen] = useState(false);
+  const [isSheetAuditModalOpen, setIsSheetAuditModalOpen] = useState(false);
 
   // Lock Screen States
   const [passcode, setPasscode] = useState('');
@@ -375,6 +442,8 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({ onBackToSite }
 
   // Filtered registrations list
   const filteredRegistrations = registrations.filter((r) => {
+    if (r.confirmationCode === 'SAIED-6240' || r.id === 'SAIED-6240') return false;
+
     const matchesSearch =
       r.primaryContact.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       r.primaryContact.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -434,6 +503,15 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({ onBackToSite }
           {/* Right: Quick Actions */}
           <div className="flex items-center gap-2">
             <button
+              onClick={triggerSplash}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-900/90 hover:bg-emerald-800 text-amber-200 hover:text-white rounded-lg text-xs font-semibold border border-emerald-700/60 transition cursor-pointer shadow-xs"
+              title="Preview 5-second launch splash screen"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
+              <span className="hidden sm:inline">Preview Splash (5s)</span>
+            </button>
+
+            <button
               onClick={() => setActiveTab('apikeys')}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition cursor-pointer shadow-xs ${
                 activeTab === 'apikeys'
@@ -484,9 +562,31 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({ onBackToSite }
         {/* Page Title & Status Banner */}
         <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[#1E4D2B] uppercase tracking-wider mb-1">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              <span>Official Tournament Director Dashboard</span>
+            <div className="flex flex-wrap items-center gap-2 mb-1">
+              <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[#1E4D2B] uppercase tracking-wider">
+                <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                <span>Official Tournament Director Dashboard</span>
+              </div>
+              <span className="text-slate-300 hidden sm:inline">&bull;</span>
+              <button
+                type="button"
+                onClick={() => setIsManualModalOpen(true)}
+                className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-emerald-50 hover:bg-emerald-100 text-[#1E4D2B] border border-emerald-300 rounded-full text-xs font-bold transition cursor-pointer shadow-2xs hover:shadow-xs group"
+                title="Open Admin Panel User Guide & Operations Manual"
+              >
+                <HelpCircle className="w-3.5 h-3.5 text-emerald-700 shrink-0 group-hover:scale-110 transition-transform" />
+                <span>HOW TO use the admin panel</span>
+              </button>
+              <span className="text-slate-300 hidden sm:inline">&bull;</span>
+              <button
+                type="button"
+                onClick={() => setIsSheetAuditModalOpen(true)}
+                className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-[#D4AF37]/20 hover:bg-[#D4AF37]/30 text-[#1E4D2B] border border-[#D4AF37] rounded-full text-xs font-bold transition cursor-pointer shadow-2xs hover:shadow-xs group"
+                title="Audit Google Sheet 33 Player Roster, Target Tiers & Payment Methods"
+              >
+                <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-800 shrink-0 group-hover:scale-110 transition-transform" />
+                <span>Google Sheet Roster Audit (33 Players)</span>
+              </button>
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold font-serif text-slate-900">
               Golfer Database &amp; Operations Oversight
@@ -624,6 +724,45 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({ onBackToSite }
           >
             <Heart className="w-4 h-4" />
             <span>Memorial Donations ({donations.length})</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('outreach')}
+            className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-bold flex items-center gap-2 transition cursor-pointer ${
+              activeTab === 'outreach'
+                ? 'bg-[#1E4D2B] text-white shadow-xs'
+                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+            }`}
+          >
+            <Send className="w-4 h-4 text-[#D4AF37]" />
+            <span>Solicitation Letters &amp; CRM ({outreachLeads.length})</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('analytics')}
+            className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-bold flex items-center gap-2 transition cursor-pointer ${
+              activeTab === 'analytics'
+                ? 'bg-[#1E4D2B] text-white shadow-xs'
+                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+            }`}
+          >
+            <BarChart3 className="w-4 h-4 text-sky-400" />
+            <span className="flex items-center gap-1.5">
+              <span>Email Analytics</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            </span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('email')}
+            className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-bold flex items-center gap-2 transition cursor-pointer ${
+              activeTab === 'email'
+                ? 'bg-[#1E4D2B] text-white shadow-xs'
+                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+            }`}
+          >
+            <Mail className="w-4 h-4 text-emerald-400" />
+            <span>Email Delivery</span>
           </button>
 
           <button
@@ -816,6 +955,38 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({ onBackToSite }
                             <CheckCircle2 className="w-3.5 h-3.5" />
                             <span>{reg.checkedIn ? 'Arrived' : 'Check In'}</span>
                           </button>
+
+                          {/* Edit Registration Button */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setEditingRegistration(reg);
+                            }}
+                            className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition cursor-pointer border border-slate-200"
+                            title="Edit Registration & Payment Details"
+                          >
+                            <Edit2 className="w-3.5 h-3.5" />
+                          </button>
+
+                          {/* Delete Registration Button */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setDeleteConfirmation({
+                                isOpen: true,
+                                title: 'Delete Registration',
+                                itemName: `Registration #${reg.confirmationCode} — ${reg.primaryContact.name} (${reg.type})`,
+                                message: 'Are you sure you really want to delete this registration? All golfer spots, add-on inventory, and cart assignments for this team will be permanently deleted.',
+                                onConfirm: () => {
+                                  deleteRegistration(reg.id);
+                                }
+                              });
+                            }}
+                            className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition cursor-pointer border border-slate-200"
+                            title="Delete Registration"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
                         </div>
                       </div>
 
@@ -858,10 +1029,41 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({ onBackToSite }
                               {/* Player 1 / Captain */}
                               <div className="p-3 bg-white rounded-lg border border-slate-200 space-y-1">
                                 <div className="flex justify-between items-center font-bold text-slate-900 pb-1 border-b border-slate-100">
-                                  <span>Player #1 (Primary Contact / Captain)</span>
-                                  <span className="text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-bold">
-                                    Captain
-                                  </span>
+                                  <div className="flex items-center gap-1.5">
+                                    <span>Player #1 (Primary Contact / Captain)</span>
+                                    <span className="text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-bold">
+                                      Captain
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <button
+                                      type="button"
+                                      onClick={() => setEditingGolfer({ regId: reg.id, playerIndex: 0, player: reg.primaryContact })}
+                                      className="px-2 py-0.5 text-[10px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded flex items-center gap-1 cursor-pointer transition"
+                                      title="Edit Golfer Details"
+                                    >
+                                      <Edit2 className="w-3 h-3" />
+                                      <span>Edit</span>
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setDeleteConfirmation({
+                                          isOpen: true,
+                                          title: 'Remove Golfer',
+                                          itemName: `Captain: ${reg.primaryContact.name} (Registration #${reg.confirmationCode})`,
+                                          message: 'Are you sure you really want to remove this golfer from the tournament roster?',
+                                          onConfirm: () => {
+                                            deleteGolfer(reg.id, 0);
+                                          }
+                                        });
+                                      }}
+                                      className="p-1 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded cursor-pointer transition"
+                                      title="Delete Golfer"
+                                    >
+                                      <Trash2 className="w-3 h-3" />
+                                    </button>
+                                  </div>
                                 </div>
                                 <div className="grid grid-cols-2 gap-1 text-[11px] pt-1">
                                   <div>Name: <strong>{reg.primaryContact.name}</strong></div>
@@ -878,8 +1080,39 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({ onBackToSite }
                                 reg.additionalPlayers.map((player, idx) => (
                                   <div key={idx} className="p-3 bg-white rounded-lg border border-slate-200 space-y-1">
                                     <div className="flex justify-between items-center font-bold text-slate-900 pb-1 border-b border-slate-100">
-                                      <span>Player #{idx + 2}</span>
-                                      <span className="text-[10px] text-slate-500">Roster Member</span>
+                                      <div className="flex items-center gap-1.5">
+                                        <span>Player #{idx + 2}</span>
+                                        <span className="text-[10px] text-slate-500 font-medium">Roster Member</span>
+                                      </div>
+                                      <div className="flex items-center gap-1">
+                                        <button
+                                          type="button"
+                                          onClick={() => setEditingGolfer({ regId: reg.id, playerIndex: idx + 1, player })}
+                                          className="px-2 py-0.5 text-[10px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded flex items-center gap-1 cursor-pointer transition"
+                                          title="Edit Golfer Details"
+                                        >
+                                          <Edit2 className="w-3 h-3" />
+                                          <span>Edit</span>
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            setDeleteConfirmation({
+                                              isOpen: true,
+                                              title: 'Remove Golfer',
+                                              itemName: `Player #${idx + 2}: ${player.name || 'Unassigned'} (Registration #${reg.confirmationCode})`,
+                                              message: 'Are you sure you really want to remove this golfer from the team roster?',
+                                              onConfirm: () => {
+                                                deleteGolfer(reg.id, idx + 1);
+                                              }
+                                            });
+                                          }}
+                                          className="p-1 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded cursor-pointer transition"
+                                          title="Delete Golfer"
+                                        >
+                                          <Trash2 className="w-3 h-3" />
+                                        </button>
+                                      </div>
                                     </div>
                                     <div className="grid grid-cols-2 gap-1 text-[11px] pt-1">
                                       <div>Name: <strong>{player.name || 'TBD'}</strong></div>
@@ -1039,16 +1272,42 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({ onBackToSite }
                       </td>
 
                       <td className="py-3 px-3 text-right">
-                        <button
-                          onClick={() => checkInPlayer(reg.id)}
-                          className={`px-3 py-1.5 rounded-lg font-bold text-xs transition cursor-pointer ${
-                            reg.checkedIn
-                              ? 'bg-slate-200 text-slate-700 hover:bg-slate-300'
-                              : 'bg-[#1E4D2B] text-white hover:bg-emerald-900 shadow-sm'
-                          }`}
-                        >
-                          {reg.checkedIn ? 'Undo Check-in' : 'Mark Checked In'}
-                        </button>
+                        <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            onClick={() => checkInPlayer(reg.id)}
+                            className={`px-3 py-1.5 rounded-lg font-bold text-xs transition cursor-pointer ${
+                              reg.checkedIn
+                                ? 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+                                : 'bg-[#1E4D2B] text-white hover:bg-emerald-900 shadow-sm'
+                            }`}
+                          >
+                            {reg.checkedIn ? 'Undo Check-in' : 'Mark Checked In'}
+                          </button>
+                          <button
+                            onClick={() => setEditingRegistration(reg)}
+                            className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-white bg-slate-50 rounded-lg transition cursor-pointer border border-slate-200"
+                            title="Edit Registration & Payment Details"
+                          >
+                            <Edit2 className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => {
+                              setDeleteConfirmation({
+                                isOpen: true,
+                                title: 'Delete Registration',
+                                itemName: `Registration #${reg.confirmationCode} — ${reg.primaryContact.name} (${reg.type})`,
+                                message: 'Are you sure you really want to delete this registration? All golfer spots and cart assignments for this team will be permanently deleted.',
+                                onConfirm: () => {
+                                  deleteRegistration(reg.id);
+                                }
+                              });
+                            }}
+                            className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition cursor-pointer border border-transparent hover:border-rose-200"
+                            title="Delete Registration"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -1061,14 +1320,23 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({ onBackToSite }
         {/* Tab 3: CORPORATE SPONSORS */}
         {activeTab === 'sponsors' && (
           <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden p-5 sm:p-6 space-y-4">
-            <div>
-              <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                <Award className="w-5 h-5 text-amber-600" />
-                <span>Corporate Sponsors &amp; Community Partners</span>
-              </h3>
-              <p className="text-xs text-slate-500">
-                Partner commitments supporting the 2026 Memorial Charity Golf Classic.
-              </p>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                  <Award className="w-5 h-5 text-amber-600" />
+                  <span>Corporate Sponsors &amp; Community Partners</span>
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Partner commitments supporting the 2026 Memorial Charity Golf Classic.
+                </p>
+              </div>
+              <button
+                onClick={() => openSponsorModal()}
+                className="px-3.5 py-2 bg-[#1E4D2B] hover:bg-emerald-800 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs self-start sm:self-auto transition"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Add Sponsor</span>
+              </button>
             </div>
 
             <div className="overflow-x-auto border border-slate-200 rounded-xl">
@@ -1080,6 +1348,7 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({ onBackToSite }
                     <th className="py-2.5 px-3">Key Contact</th>
                     <th className="py-2.5 px-3">Commitment Amount</th>
                     <th className="py-2.5 px-3">Status</th>
+                    <th className="py-2.5 px-3 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -1107,6 +1376,35 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({ onBackToSite }
                             <CheckCircle2 className="w-3.5 h-3.5" /> Confirmed
                           </span>
                         </td>
+                        <td className="py-3 px-3 text-right">
+                          <div className="flex items-center justify-end gap-1.5">
+                            <button
+                              onClick={() => setEditingSponsor(sp)}
+                              className="px-2.5 py-1 text-[11px] font-bold text-slate-700 bg-white hover:bg-slate-100 border border-slate-300 rounded-lg flex items-center gap-1 cursor-pointer transition shadow-2xs"
+                              title="Edit Sponsor Details"
+                            >
+                              <Edit2 className="w-3 h-3 text-slate-500" />
+                              <span>Edit</span>
+                            </button>
+                            <button
+                              onClick={() => {
+                                setDeleteConfirmation({
+                                  isOpen: true,
+                                  title: 'Delete Corporate Sponsor',
+                                  itemName: `${sp.companyName} (${sp.tier})`,
+                                  message: 'Are you sure you really want to delete this corporate partner record? Their logo, sponsorship perks, and complimentary golfer spots will be removed.',
+                                  onConfirm: () => {
+                                    deleteSponsor(sp.id);
+                                  }
+                                });
+                              }}
+                              className="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition cursor-pointer border border-transparent hover:border-rose-200"
+                              title="Delete Sponsor"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </td>
                       </tr>
                     );
                   })}
@@ -1119,14 +1417,23 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({ onBackToSite }
         {/* Tab 4: MEMORIAL DONATIONS & TRIBUTES */}
         {activeTab === 'donations' && (
           <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden p-5 sm:p-6 space-y-4">
-            <div>
-              <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                <Heart className="w-5 h-5 text-rose-600" />
-                <span>Memorial Gifts &amp; Community Tributes</span>
-              </h3>
-              <p className="text-xs text-slate-500">
-                Direct charitable gifts pledged in loving memory of {EVENT_DETAILS.memorialHonoree}.
-              </p>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                  <Heart className="w-5 h-5 text-rose-600" />
+                  <span>Memorial Gifts &amp; Community Tributes</span>
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Direct charitable gifts pledged in loving memory of {EVENT_DETAILS.memorialHonoree}.
+                </p>
+              </div>
+              <button
+                onClick={() => openDonationModal()}
+                className="px-3.5 py-2 bg-rose-700 hover:bg-rose-800 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs self-start sm:self-auto transition"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Add Memorial Gift</span>
+              </button>
             </div>
 
             <div className="overflow-x-auto border border-slate-200 rounded-xl">
@@ -1136,8 +1443,10 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({ onBackToSite }
                     <th className="py-2.5 px-3">Donor</th>
                     <th className="py-2.5 px-3">Tribute Honoree</th>
                     <th className="py-2.5 px-3">Gift Amount</th>
+                    <th className="py-2.5 px-3">Payment Method</th>
                     <th className="py-2.5 px-3">Tribute Note</th>
                     <th className="py-2.5 px-3">Date</th>
+                    <th className="py-2.5 px-3 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -1152,11 +1461,45 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({ onBackToSite }
                       <td className="py-3 px-3 font-mono font-bold text-[#1E4D2B]">
                         ${don.amount.toLocaleString()} CAD
                       </td>
+                      <td className="py-3 px-3">
+                        <span className="inline-block px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                          {don.paymentMethod || 'e-transfer'}
+                        </span>
+                      </td>
                       <td className="py-3 px-3 text-slate-600 italic max-w-xs truncate">
                         {don.message || '—'}
                       </td>
                       <td className="py-3 px-3 text-slate-400">
                         {new Date(don.donatedAt).toLocaleDateString()}
+                      </td>
+                      <td className="py-3 px-3 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            onClick={() => setEditingDonation(don)}
+                            className="px-2.5 py-1 text-[11px] font-bold text-slate-700 bg-white hover:bg-slate-100 border border-slate-300 rounded-lg flex items-center gap-1 cursor-pointer transition shadow-2xs"
+                            title="Edit Memorial Donation"
+                          >
+                            <Edit2 className="w-3 h-3 text-slate-500" />
+                            <span>Edit</span>
+                          </button>
+                          <button
+                            onClick={() => {
+                              setDeleteConfirmation({
+                                isOpen: true,
+                                title: 'Delete Memorial Gift',
+                                itemName: `$${don.amount.toLocaleString()} CAD gift from ${don.donorName}`,
+                                message: 'Are you sure you really want to delete this memorial donation record?',
+                                onConfirm: () => {
+                                  deleteDonation(don.id);
+                                }
+                              });
+                            }}
+                            className="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition cursor-pointer border border-transparent hover:border-rose-200"
+                            title="Delete Donation"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -1166,7 +1509,25 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({ onBackToSite }
           </div>
         )}
 
-        {/* Tab 5: API KEYS & INTEGRATIONS */}
+        {/* Tab 5: SOLICITATION LETTERS & OUTREACH CRM */}
+        {activeTab === 'outreach' && (
+          <OutreachDashboard />
+        )}
+
+        {/* Tab 5b: KLIPFOLIO-INSPIRED SPONSOR OUTREACH & EMAIL ANALYTICS DASHBOARD */}
+        {activeTab === 'analytics' && (
+          <AnalyticsDashboard
+            leads={outreachLeads}
+            onNavigateToCRM={(_filter) => setActiveTab('outreach')}
+          />
+        )}
+
+        {/* Tab 6: EMAIL DELIVERY & GOOGLE WORKSPACE SMTP */}
+        {activeTab === 'email' && (
+          <EmailSettingsModal isInlineScreen={true} />
+        )}
+
+        {/* Tab 6: API KEYS & INTEGRATIONS */}
         {activeTab === 'apikeys' && (
           <ApiKeySettingsModal isInlineScreen={true} />
         )}
@@ -1194,6 +1555,82 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({ onBackToSite }
           </div>
         </div>
       </main>
+
+      {/* Edit Modals */}
+      <EditGolferModal
+        isOpen={Boolean(editingGolfer)}
+        onClose={() => setEditingGolfer(null)}
+        regId={editingGolfer?.regId || ''}
+        playerIndex={editingGolfer?.playerIndex ?? 0}
+        player={editingGolfer?.player || null}
+        onSave={(regId, playerIndex, updates) => {
+          updateGolfer(regId, playerIndex, updates);
+        }}
+      />
+
+      <EditRegistrationModal
+        isOpen={Boolean(editingRegistration)}
+        onClose={() => setEditingRegistration(null)}
+        registration={editingRegistration}
+        onSave={(regId, updates) => {
+          updateRegistration(regId, updates);
+        }}
+      />
+
+      <EditSponsorModal
+        isOpen={Boolean(editingSponsor)}
+        onClose={() => setEditingSponsor(null)}
+        sponsor={editingSponsor}
+        onSave={(sponsorId, updates) => {
+          updateSponsor(sponsorId, updates);
+        }}
+      />
+
+      <EditDonationModal
+        isOpen={Boolean(editingDonation)}
+        onClose={() => setEditingDonation(null)}
+        donation={editingDonation}
+        onSave={(donationId, updates) => {
+          updateDonation(donationId, updates);
+        }}
+      />
+
+      {/* Public / Admin Add Sponsor and Add Memorial Gift Modals */}
+      <SponsorModal />
+      <DonationModal />
+
+      {/* User Manual & Sheet Audit Modals */}
+      <AdminManualModal
+        isOpen={isManualModalOpen}
+        onClose={() => setIsManualModalOpen(false)}
+      />
+
+      <SheetRosterAuditModal
+        isOpen={isSheetAuditModalOpen}
+        onClose={() => setIsSheetAuditModalOpen(false)}
+      />
+
+      {/* Delete Confirmation Modal (Yes/No) */}
+      <ConfirmDeleteModal
+        isOpen={Boolean(deleteConfirmation?.isOpen)}
+        onClose={() => setDeleteConfirmation(null)}
+        title={deleteConfirmation?.title}
+        itemName={deleteConfirmation?.itemName}
+        message={deleteConfirmation?.message}
+        confirmButtonText="Yes, Delete"
+        cancelButtonText="No, Cancel"
+        onConfirm={() => {
+          if (deleteConfirmation?.onConfirm) {
+            deleteConfirmation.onConfirm();
+          }
+        }}
+      />
+
+      {/* Admin Panel User Manual Modal */}
+      <AdminManualModal
+        isOpen={isManualModalOpen}
+        onClose={() => setIsManualModalOpen(false)}
+      />
     </div>
   );
 };

@@ -2,7 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useTournament } from '../context/TournamentContext';
 import { SPONSORSHIP_PACKAGES, EVENT_DETAILS } from '../data/initialData';
 import { SponsorTier } from '../types';
-import { X, Award, CheckCircle, Building2, User, Mail, Phone, Globe, FileText, Sparkles } from 'lucide-react';
+import { X, Award, CheckCircle, Building2, User, Mail, Phone, Globe, FileText, Sparkles, AlertCircle } from 'lucide-react';
+import {
+  capitalizeWords,
+  formatPhoneNumber,
+  isValidPhone,
+  isValidEmail,
+  formatWebsiteUrl,
+  isValidWebsiteUrl
+} from '../utils/textFormatting';
 import confetti from 'canvas-confetti';
 
 export const SponsorModal: React.FC = () => {
@@ -18,6 +26,11 @@ export const SponsorModal: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
+  // Validation errors
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [phoneError, setPhoneError] = useState<string | null>(null);
+  const [urlError, setUrlError] = useState<string | null>(null);
+
   useEffect(() => {
     if (selectedSponsorTier) {
       setTier(selectedSponsorTier);
@@ -28,21 +41,89 @@ export const SponsorModal: React.FC = () => {
 
   const currentPkg = SPONSORSHIP_PACKAGES.find(p => p.id === tier) || SPONSORSHIP_PACKAGES[0];
 
+  const handleCompanyNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCompanyName(capitalizeWords(e.target.value));
+  };
+
+  const handleContactNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setContactName(capitalizeWords(e.target.value));
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatPhoneNumber(e.target.value);
+    setPhone(formatted);
+    if (formatted && !isValidPhone(formatted)) {
+      setPhoneError('Must be formatted as (###) ###-####');
+    } else {
+      setPhoneError(null);
+    }
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setEmail(val);
+    if (val && !isValidEmail(val)) {
+      setEmailError('Format must match name@domain.com');
+    } else {
+      setEmailError(null);
+    }
+  };
+
+  const handleWebsiteBlur = () => {
+    if (websiteUrl.trim()) {
+      const formatted = formatWebsiteUrl(websiteUrl);
+      setWebsiteUrl(formatted);
+      if (!isValidWebsiteUrl(formatted)) {
+        setUrlError('Must be formatted like https://sierravalley.example.com');
+      } else {
+        setUrlError(null);
+      }
+    } else {
+      setUrlError(null);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!companyName.trim() || !contactName.trim() || !email.trim()) {
       return;
     }
 
+    let hasError = false;
+
+    if (!isValidEmail(email)) {
+      setEmailError('Format must match name@domain.com');
+      hasError = true;
+    } else {
+      setEmailError(null);
+    }
+
+    if (phone.trim() && !isValidPhone(phone)) {
+      setPhoneError('Must be formatted as (###) ###-####');
+      hasError = true;
+    } else {
+      setPhoneError(null);
+    }
+
+    const formattedUrl = websiteUrl.trim() ? formatWebsiteUrl(websiteUrl) : '';
+    if (formattedUrl && !isValidWebsiteUrl(formattedUrl)) {
+      setUrlError('Must be formatted like https://sierravalley.example.com');
+      hasError = true;
+    } else {
+      setUrlError(null);
+    }
+
+    if (hasError) return;
+
     setIsSubmitting(true);
     setTimeout(() => {
       addSponsorship({
-        companyName,
-        contactName,
-        email,
-        phone: phone || '(555) 000-0000',
+        companyName: capitalizeWords(companyName.trim()),
+        contactName: capitalizeWords(contactName.trim()),
+        email: email.trim(),
+        phone: phone.trim() || '(555) 000-0000',
         tier,
-        websiteUrl,
+        websiteUrl: formattedUrl,
         customNote
       });
 
@@ -65,6 +146,9 @@ export const SponsorModal: React.FC = () => {
     setPhone('');
     setWebsiteUrl('');
     setCustomNote('');
+    setEmailError(null);
+    setPhoneError(null);
+    setUrlError(null);
   };
 
   return (
@@ -178,7 +262,7 @@ export const SponsorModal: React.FC = () => {
                     required
                     placeholder="e.g. Apex Biotech Group"
                     value={companyName}
-                    onChange={(e) => setCompanyName(e.target.value)}
+                    onChange={handleCompanyNameChange}
                     className="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E4D2B]"
                   />
                 </div>
@@ -195,7 +279,7 @@ export const SponsorModal: React.FC = () => {
                     required
                     placeholder="e.g. Sarah Jenkins"
                     value={contactName}
-                    onChange={(e) => setContactName(e.target.value)}
+                    onChange={handleContactNameChange}
                     className="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E4D2B]"
                   />
                 </div>
@@ -209,13 +293,24 @@ export const SponsorModal: React.FC = () => {
                   <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
                   <input
                     type="email"
+                    id="sponsor-email"
+                    name="email"
                     required
-                    placeholder="sjenkins@apexbiotech.com"
+                    autoComplete="email"
+                    inputMode="email"
+                    placeholder="name@example.com"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E4D2B]"
+                    onChange={handleEmailChange}
+                    className={`w-full pl-9 pr-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E4D2B] ${
+                      emailError ? 'border-rose-400 bg-rose-50/50' : 'border-slate-300'
+                    }`}
                   />
                 </div>
+                {emailError && (
+                  <p className="text-[11px] text-rose-600 mt-1 flex items-center gap-1 font-medium">
+                    <AlertCircle className="w-3.5 h-3.5" /> {emailError}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -228,10 +323,17 @@ export const SponsorModal: React.FC = () => {
                     type="tel"
                     placeholder="(555) 000-0000"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E4D2B]"
+                    onChange={handlePhoneChange}
+                    className={`w-full pl-9 pr-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E4D2B] ${
+                      phoneError ? 'border-rose-400 bg-rose-50/50' : 'border-slate-300'
+                    }`}
                   />
                 </div>
+                {phoneError && (
+                  <p className="text-[11px] text-rose-600 mt-1 flex items-center gap-1 font-medium">
+                    <AlertCircle className="w-3.5 h-3.5" /> {phoneError}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -243,12 +345,20 @@ export const SponsorModal: React.FC = () => {
                 <Globe className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
                 <input
                   type="url"
-                  placeholder="https://yourcompany.com"
+                  placeholder="https://sierravalley.example.com"
                   value={websiteUrl}
                   onChange={(e) => setWebsiteUrl(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E4D2B]"
+                  onBlur={handleWebsiteBlur}
+                  className={`w-full pl-9 pr-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E4D2B] ${
+                    urlError ? 'border-rose-400 bg-rose-50/50' : 'border-slate-300'
+                  }`}
                 />
               </div>
+              {urlError && (
+                <p className="text-[11px] text-rose-600 mt-1 flex items-center gap-1 font-medium">
+                  <AlertCircle className="w-3.5 h-3.5" /> {urlError}
+                </p>
+              )}
             </div>
 
             <div>

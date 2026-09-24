@@ -1,20 +1,277 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { IMPACT_DATA, EVENT_DETAILS } from '../data/initialData';
 import { Heart, ShieldCheck, TrendingUp, HandHeart, Building, Activity, Sparkles, ArrowUpRight } from 'lucide-react';
 import { useTournament } from '../context/TournamentContext';
 
-export const ImpactSection: React.FC = () => {
-  const { totalRaised = 0, goalAmount = 20000, goalPercentage = 0, openDonationModal } = useTournament();
-  const targetGoal = goalAmount || 20000;
-  const percentage = goalPercentage || Math.min(100, Math.round(((totalRaised || 0) / targetGoal) * 100));
+// Helper component for Memorial Progress Metric Cards with mouseover and mobile in-view #1e4d2b background & white text
+interface MetricCardProps {
+  metric: {
+    value: string;
+    label: string;
+    sub: string;
+  };
+  idx: number;
+}
+
+const MetricCard: React.FC<MetricCardProps> = ({ metric, idx }) => {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [isInView, setIsInView] = useState(false);
+
+  useEffect(() => {
+    const el = cardRef.current;
+    if (!el) return;
+
+    // Detect when in view on mobile devices
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        // Trigger when at least 30% of card is in viewport on mobile
+        if (window.innerWidth < 768) {
+          setIsInView(entry.isIntersecting);
+        } else {
+          setIsInView(false);
+        }
+      },
+      { threshold: 0.35, rootMargin: '0px 0px -40px 0px' }
+    );
+
+    observer.observe(el);
+
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setIsInView(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  return (
+    <div
+      ref={cardRef}
+      className={`p-6 rounded-2xl border transition-all duration-300 text-center group cursor-pointer shadow-xs ${
+        isInView
+          ? 'bg-[#1E4D2B] text-white border-emerald-700 shadow-md transform -translate-y-1'
+          : 'bg-white text-slate-900 border-slate-200 hover:bg-[#1E4D2B] hover:text-white hover:border-emerald-700 hover:shadow-lg hover:-translate-y-1'
+      }`}
+    >
+      <div
+        className={`w-12 h-12 rounded-2xl border flex items-center justify-center mx-auto mb-4 transition duration-300 ${
+          isInView
+            ? 'bg-white/15 border-white/20 text-[#D4AF37] scale-110'
+            : 'bg-emerald-50 border-emerald-100 text-[#1E4D2B] group-hover:bg-white/15 group-hover:border-white/20 group-hover:text-[#D4AF37] group-hover:scale-110'
+        }`}
+      >
+        <TrendingUp className="w-6 h-6" />
+      </div>
+      <div
+        className={`text-3xl font-extrabold font-mono tracking-tight transition-colors duration-300 ${
+          isInView ? 'text-white' : 'text-slate-900 group-hover:text-white'
+        }`}
+      >
+        {metric.value}
+      </div>
+      <div
+        className={`text-sm font-bold mt-1 font-serif-heading transition-colors duration-300 ${
+          isInView ? 'text-amber-300' : 'text-[#1E4D2B] group-hover:text-amber-300'
+        }`}
+      >
+        {metric.label}
+      </div>
+      <p
+        className={`text-xs mt-2 leading-relaxed transition-colors duration-300 ${
+          isInView ? 'text-emerald-100' : 'text-slate-500 group-hover:text-emerald-100'
+        }`}
+      >
+        {metric.sub}
+      </p>
+    </div>
+  );
+};
+
+// Helper component for Memorial Allocation Cards with mouseover and mobile in-view #1e4d2b background & white text
+interface AllocationCardProps {
+  init: (typeof IMPACT_DATA.allocation)[0];
+  idx: number;
+  totalRaised: number;
+  targetGoal: number;
+}
+
+const AllocationCard: React.FC<AllocationCardProps> = ({ init, idx, totalRaised, targetGoal }) => {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [isInView, setIsInView] = useState(false);
+
+  useEffect(() => {
+    const el = cardRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (window.innerWidth < 768) {
+          setIsInView(entry.isIntersecting);
+        } else {
+          setIsInView(false);
+        }
+      },
+      { threshold: 0.35, rootMargin: '0px 0px -40px 0px' }
+    );
+
+    observer.observe(el);
+
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setIsInView(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  const allocatedAmount = (totalRaised * init.percent) / 100;
+  const targetAmount = (targetGoal * init.percent) / 100;
+  const allocPct = Math.min(100, Math.round((allocatedAmount / targetAmount) * 100));
 
   const getInitiativeIcon = (index: number) => {
     switch (index) {
-      case 0: return <Activity className="w-5 h-5 text-emerald-600" />;
-      case 1: return <ShieldCheck className="w-5 h-5 text-rose-600" />;
-      default: return <Heart className="w-5 h-5 text-emerald-600" />;
+      case 0:
+        return <Activity className="w-5 h-5" />;
+      case 1:
+        return <ShieldCheck className="w-5 h-5" />;
+      default:
+        return <Heart className="w-5 h-5" />;
     }
   };
+
+  return (
+    <div
+      ref={cardRef}
+      className={`p-6 rounded-2xl border transition-all duration-300 space-y-4 group cursor-pointer ${
+        isInView
+          ? 'bg-[#1E4D2B] text-white border-emerald-600 shadow-lg'
+          : `bg-slate-50 hover:bg-[#1E4D2B] hover:text-white hover:border-emerald-600 hover:shadow-lg ${
+              init.percent === 75 ? 'border-emerald-200' : 'border-rose-200'
+            }`
+      }`}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div
+            className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-xs transition-colors duration-300 ${
+              isInView
+                ? 'bg-white/15 border border-white/20 text-[#D4AF37]'
+                : 'bg-white border border-slate-200 text-[#1E4D2B] group-hover:bg-white/15 group-hover:border-white/20 group-hover:text-[#D4AF37]'
+            }`}
+          >
+            {getInitiativeIcon(idx)}
+          </div>
+          <div>
+            <h4
+              className={`font-bold text-lg font-serif-heading transition-colors duration-300 ${
+                isInView ? 'text-white' : 'text-slate-900 group-hover:text-white'
+              }`}
+            >
+              {init.title} ({init.percent}%)
+            </h4>
+            <span
+              className={`text-xs font-bold transition-colors duration-300 ${
+                isInView
+                  ? 'text-amber-300'
+                  : init.percent === 75
+                  ? 'text-emerald-700 group-hover:text-amber-300'
+                  : 'text-rose-700 group-hover:text-amber-300'
+              }`}
+            >
+              {init.percent}% of Tournament Net Funds
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <p
+        className={`text-xs sm:text-sm leading-relaxed transition-colors duration-300 ${
+          isInView ? 'text-emerald-100' : 'text-slate-600 group-hover:text-emerald-100'
+        }`}
+      >
+        {init.description}
+      </p>
+
+      {/* Dynamic split financial breakdown */}
+      <div
+        className={`pt-2 border-t space-y-2 transition-colors duration-300 ${
+          isInView ? 'border-emerald-700/60' : 'border-slate-200/80 group-hover:border-emerald-700/60'
+        }`}
+      >
+        <div className="flex justify-between items-baseline text-xs">
+          <span
+            className={`font-semibold transition-colors duration-300 ${
+              isInView ? 'text-emerald-200' : 'text-slate-600 group-hover:text-emerald-200'
+            }`}
+          >
+            Dynamic Live Allocation:
+          </span>
+          <span
+            className={`font-mono font-bold text-sm transition-colors duration-300 ${
+              isInView ? 'text-white' : 'text-slate-900 group-hover:text-white'
+            }`}
+          >
+            ${Math.round(allocatedAmount).toLocaleString()}
+            <span
+              className={`text-xs font-normal transition-colors duration-300 ${
+                isInView ? 'text-emerald-200' : 'text-slate-500 group-hover:text-emerald-200'
+              }`}
+            >
+              {' '}
+              / ${Math.round(targetAmount).toLocaleString()} target
+            </span>
+          </span>
+        </div>
+
+        <div
+          className={`w-full rounded-full h-2.5 overflow-hidden transition-colors duration-300 ${
+            isInView ? 'bg-emerald-950/60' : 'bg-slate-200 group-hover:bg-emerald-950/60'
+          }`}
+        >
+          <div
+            className={`h-full rounded-full transition-all duration-700 ${
+              isInView
+                ? 'bg-amber-400'
+                : init.percent === 75
+                ? 'bg-emerald-600 group-hover:bg-amber-400'
+                : 'bg-rose-600 group-hover:bg-amber-400'
+            }`}
+            style={{ width: `${allocPct}%` }}
+          />
+        </div>
+        <div
+          className={`flex justify-between text-[11px] transition-colors duration-300 ${
+            isInView ? 'text-emerald-200' : 'text-slate-500 group-hover:text-emerald-200'
+          }`}
+        >
+          <span>{allocPct}% of partner allocation target funded</span>
+          <span
+            className={`font-semibold transition-colors duration-300 ${
+              isInView ? 'text-amber-300' : 'text-slate-700 group-hover:text-amber-300'
+            }`}
+          >
+            {init.percent}% of Total Raised
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export const ImpactSection: React.FC = () => {
+  const { totalRaised = 0, goalAmount = 2000, goalPercentage = 0, openDonationModal } = useTournament();
+  const targetGoal = goalAmount || 2000;
+  const percentage = goalPercentage || Math.min(100, Math.round(((totalRaised || 0) / targetGoal) * 100));
 
   return (
     <section id="impact" className="py-20 bg-gradient-to-b from-white to-slate-50 border-t border-slate-200 relative overflow-hidden">
@@ -44,7 +301,7 @@ export const ImpactSection: React.FC = () => {
                 ${(totalRaised || 0).toLocaleString()} Raised Toward Our ${targetGoal.toLocaleString()} Goal
               </h3>
               <p className="text-xs sm:text-sm text-emerald-100/90 leading-relaxed">
-                Together, our community has achieved {percentage}% of our $20,000 goal, split between Juravinski Breast Cancer Research (75%) and Canadian Red Cross - Fire &amp; Flood (25%).
+                Together, our community has achieved {percentage}% of our ${targetGoal.toLocaleString()} goal, split between Juravinski Breast Cancer Research (75%) and Canadian Red Cross - Fire &amp; Flood (25%).
               </p>
 
               {/* Progress track */}
@@ -85,23 +342,7 @@ export const ImpactSection: React.FC = () => {
         {/* 4 Pillars of Impact Metrics */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
           {IMPACT_DATA.metrics.map((metric, idx) => (
-            <div
-              key={idx}
-              className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs hover:shadow-md transition text-center group"
-            >
-              <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center mx-auto text-[#1E4D2B] mb-4 group-hover:scale-110 transition duration-200">
-                <TrendingUp className="w-6 h-6 text-[#1E4D2B]" />
-              </div>
-              <div className="text-3xl font-extrabold text-slate-900 font-mono tracking-tight">
-                {metric.value}
-              </div>
-              <div className="text-sm font-bold text-[#1E4D2B] mt-1 font-serif-heading">
-                {metric.label}
-              </div>
-              <p className="text-xs text-slate-500 mt-2 leading-relaxed">
-                {metric.sub}
-              </p>
-            </div>
+            <MetricCard key={idx} metric={metric} idx={idx} />
           ))}
         </div>
 
@@ -113,7 +354,7 @@ export const ImpactSection: React.FC = () => {
                 Transparent Stewardship
               </span>
               <h3 className="text-xl sm:text-2xl font-bold text-slate-900 font-serif-heading">
-                How Your Support is Allocated &amp; 2026 Memorial Fundraising Goal
+                How Your Support is Allocated &amp; 2026 Memorial Goal
               </h3>
               <p className="text-xs text-slate-500 mt-1">
                 As money is raised, 100% of net proceeds are automatically allocated between our two vital charitable partners:
@@ -126,66 +367,15 @@ export const ImpactSection: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-            {IMPACT_DATA.allocation.map((init, idx) => {
-              const allocatedAmount = (totalRaised * init.percent) / 100;
-              const targetAmount = (targetGoal * init.percent) / 100;
-              const allocPct = Math.min(100, Math.round((allocatedAmount / targetAmount) * 100));
-
-              return (
-                <div
-                  key={idx}
-                  className={`p-6 rounded-2xl bg-slate-50 border transition space-y-4 ${
-                    init.percent === 75
-                      ? 'border-emerald-200 hover:border-emerald-300'
-                      : 'border-rose-200 hover:border-rose-300'
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-11 h-11 rounded-xl bg-white border border-slate-200 flex items-center justify-center shrink-0 shadow-xs">
-                        {getInitiativeIcon(idx)}
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-slate-900 text-lg">
-                          {init.title} ({init.percent}%)
-                        </h4>
-                        <span className={`text-xs font-bold ${init.percent === 75 ? 'text-emerald-700' : 'text-rose-700'}`}>
-                          {init.percent}% of Tournament Net Funds
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                    {init.description}
-                  </p>
-
-                  {/* Dynamic split financial breakdown */}
-                  <div className="pt-2 border-t border-slate-200/80 space-y-2">
-                    <div className="flex justify-between items-baseline text-xs">
-                      <span className="font-semibold text-slate-600">Dynamic Live Allocation:</span>
-                      <span className="font-mono font-bold text-slate-900 text-sm">
-                        ${Math.round(allocatedAmount).toLocaleString()}
-                        <span className="text-xs text-slate-500 font-normal"> / ${Math.round(targetAmount).toLocaleString()} target</span>
-                      </span>
-                    </div>
-
-                    <div className="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all duration-700 ${
-                          init.percent === 75 ? 'bg-emerald-600' : 'bg-rose-600'
-                        }`}
-                        style={{ width: `${allocPct}%` }}
-                      />
-                    </div>
-                    <div className="flex justify-between text-[11px] text-slate-500">
-                      <span>{allocPct}% of partner allocation target funded</span>
-                      <span className="font-semibold text-slate-700">{init.percent}% of Total Raised</span>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            {IMPACT_DATA.allocation.map((init, idx) => (
+              <AllocationCard
+                key={idx}
+                init={init}
+                idx={idx}
+                totalRaised={totalRaised}
+                targetGoal={targetGoal}
+              />
+            ))}
           </div>
         </div>
       </div>

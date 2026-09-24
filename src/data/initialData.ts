@@ -1,7 +1,7 @@
 import { SponsorPackage, SponsorRecord, RegistrationRecord, DonationRecord, LeaderboardTeam, EventScheduleItem } from '../types';
 
 export const EVENT_DETAILS = {
-  name: "Saied October Charity Golf Tournament",
+  name: "Fragrant Breeze Golf Tournament",
   year: "October 2026",
   dateString: "Monday, October 5, 2026",
   isoDate: "2026-10-05T09:30:00",
@@ -13,7 +13,7 @@ export const EVENT_DETAILS = {
     mapQuery: "Burford+Golf+Links",
     mapsUrl: "https://www.google.com/maps/place/Burford+Golf+Links/@43.1372601,-80.4660569,17z/data=!3m1!4b1!4m6!3m5!1s0x882c14c8d1531a5f:0x69ddaaae88c6605d!8m2!3d43.1372562!4d-80.4634766!16s%2Fg%2F1tfv15qz?entry=ttu&g_ep=EgoyMDI2MDgzMC4wIKXMDSoASAFQAw%3D%3D",
   },
-  goalAmount: 20000,
+  goalAmount: 25000,
   founder: "Saied Mohammed",
   email: "ms_smnm@outlook.com",
   phone: "(905) 818-2005",
@@ -37,7 +37,7 @@ export const SPONSORSHIP_PACKAGES: SponsorPackage[] = [
     benefits: [
       'Two (2) Complimentary Tournament Foursomes (8 Golfers total)',
       '"Presented by [Your Company]" on all marketing, website & signage',
-      'Exclusive Logo on official Squabbit Tournament Leaderboard header',
+      'Exclusive Logo on official Tournament Leaderboard header',
       'Speaking & Award presentation slot during the Awards Banquet',
       'Custom Clubhouse Banner + 2 Exclusive Hole Pin Flags',
       'Featured Company Spotlight in Memorial Program book',
@@ -115,77 +115,202 @@ export const SPONSORSHIP_PACKAGES: SponsorPackage[] = [
 export const INITIAL_SPONSORS: SponsorRecord[] = [
   {
     id: 'sp-1',
-    companyName: 'Pacific Rim Capital Management',
-    contactName: 'David Sterling',
-    email: 'dsterling@pacificrimcap.com',
-    phone: '(555) 382-9011',
-    tier: 'eagle',
-    websiteUrl: 'https://pacificrimcap.example.com',
-    pledgedAt: '2026-06-15T10:00:00Z',
-    status: 'confirmed',
-    customNote: 'Proud to stand alongside Saied in memory of Naseem.'
-  },
-  {
-    id: 'sp-2',
-    companyName: 'Apex Health Systems & BioTech',
-    contactName: 'Elena Rostova',
-    email: 'elena.rostova@apexhealth.example.com',
-    phone: '(555) 774-2900',
-    tier: 'birdie',
-    websiteUrl: 'https://apexhealth.example.com',
-    pledgedAt: '2026-07-02T14:30:00Z',
-    status: 'confirmed',
-    customNote: 'Dedicated to supporting oncological care.'
-  },
-  {
-    id: 'sp-3',
-    companyName: 'Falcon Crest Golf Apparel',
-    contactName: 'Marcus Vance',
-    email: 'mvance@falconcrest.example.com',
-    phone: '(555) 891-4432',
-    tier: 'hole',
-    pledgedAt: '2026-07-10T09:15:00Z',
-    status: 'confirmed',
-  },
-  {
-    id: 'sp-4',
     companyName: 'Sierra Valley Wealth Advisory',
     contactName: 'Karen Miller',
     email: 'karen@sierravalley.example.com',
     phone: '(555) 431-8899',
     tier: 'contest',
+    websiteUrl: 'https://sierravalley.example.com',
     pledgedAt: '2026-07-22T11:00:00Z',
     status: 'confirmed',
+    customNote: 'Proud to sponsor the skill contest green in memory of Naseem.'
   }
 ];
 
 export const INITIAL_REGISTRATIONS: RegistrationRecord[] = [
   {
-    id: 'reg-101',
+    id: 'reg-100',
     type: 'foursome',
-    teamName: 'The Fairway Eagles',
+    teamName: 'Team Dummies',
+    targetTier: 'Corporate Foursome ($1,600)',
     primaryContact: {
-      id: 'p-1',
-      name: 'Saied Mohammed',
-      email: 'saied.m@charitygolf.org',
-      phone: '(555) 123-4567',
-      handicap: '10.2',
+      id: 'p-luc-1',
+      name: 'Luc Valade',
+      email: 'luc.valade@gmail.com',
+      phone: '(555) 987-6543',
+      handicap: '12.0',
       shirtSize: 'L',
       dietaryRestrictions: 'None'
     },
     additionalPlayers: [
-      { id: 'p-2', name: 'Tariq Mohammed', email: 'tariq@example.com', phone: '(555) 123-4568', handicap: '8.5', shirtSize: 'L' },
-      { id: 'p-3', name: 'Zayn Al-Mansoor', email: 'zayn@example.com', phone: '(555) 123-4569', handicap: '14.0', shirtSize: 'XL' },
-      { id: 'p-4', name: 'Kareem Vance', email: 'kareem@example.com', phone: '(555) 123-4570', handicap: '11.8', shirtSize: 'M' }
+      { id: 'p-luc-2', name: 'Marc Valade', email: 'marc.valade@example.com', phone: '(555) 987-6544', handicap: '14.5', shirtSize: 'L' },
+      { id: 'p-luc-3', name: 'Alain Dugas', email: 'alain.dugas@example.com', phone: '(555) 987-6545', handicap: '16.2', shirtSize: 'XL' },
+      { id: 'p-luc-4', name: 'Eric Tremblay', email: 'eric.tremblay@example.com', phone: '(555) 987-6546', handicap: '18.0', shirtSize: 'M' }
     ],
-    addons: {
-      mulligansCount: 6,
-      rafflePacks10: 2,
-      rafflePacks25: 1,
-      puttingContestCount: 4,
-      tigerDriveCount: 2
-    },
-    totalAmount: 1210,
+    requestedTeammates: ['Marc Valade', 'Alain Dugas', 'Eric Tremblay'],
+    addons: { mulligansCount: 0, rafflePacks10: 0, rafflePacks25: 0, puttingContestCount: 0, tigerDriveCount: 0 },
+    totalAmount: 1600,
+    paymentStatus: 'paid',
+    paymentMethod: 'credit_card',
+    confirmationCode: 'LUC-1001',
+    registeredAt: '2026-06-01T10:00:00Z',
+    checkedIn: true,
+    assignedCart: 'Cart #1C & #1D',
+    assignedStartingHole: 1,
+    notes: 'Tournament Administrator & Co-Host Team (Team Dummies)'
+  },
+  {
+    id: 'reg-team-1',
+    type: 'foursome',
+    teamName: 'Team 1 (Saad)',
+    targetTier: 'Corporate Foursome ($1,600)',
+    primaryContact: { id: 'p-t1-1', name: 'Tony Saad', email: 'tony.saad@example.com', phone: '(555) 234-5601', handicap: '11.0', shirtSize: 'L' },
+    additionalPlayers: [
+      { id: 'p-t1-2', name: 'Aundria Saad', email: 'aundria.saad@example.com', phone: '(555) 234-5602', handicap: '16.0', shirtSize: 'M' },
+      { id: 'p-t1-3', name: 'Frank Bauder', email: 'frank.bauder@example.com', phone: '(555) 234-5603', handicap: '14.0', shirtSize: 'XL' },
+      { id: 'p-t1-4', name: 'Jane Bauder', email: 'jane.bauder@example.com', phone: '(555) 234-5604', handicap: '18.5', shirtSize: 'S' }
+    ],
+    requestedTeammates: ['Aundria Saad', 'Frank Bauder', 'Jane Bauder'],
+    addons: { mulligansCount: 3, rafflePacks10: 1, rafflePacks25: 0, puttingContestCount: 4, tigerDriveCount: 2 },
+    totalAmount: 1600,
+    paymentStatus: 'paid',
+    paymentMethod: 'cheque',
+    confirmationCode: 'TSAAD-8801',
+    registeredAt: '2026-07-10T11:00:00Z',
+    checkedIn: true,
+    assignedCart: 'Cart #1E & #1F',
+    assignedStartingHole: 1,
+    notes: 'Payment via Cheque #1042. Sourced from Google Sheet Team #1'
+  },
+  {
+    id: 'reg-team-2',
+    type: 'foursome',
+    teamName: 'Team 2 (Faucher)',
+    targetTier: 'Corporate Foursome ($1,600)',
+    primaryContact: { id: 'p-t2-1', name: 'Claude Faucher', email: 'claude.faucher@example.com', phone: '(555) 345-6701', handicap: '9.5', shirtSize: 'L' },
+    additionalPlayers: [
+      { id: 'p-t2-2', name: 'Peter Bakker', email: 'peter.bakker@example.com', phone: '(555) 345-6702', handicap: '12.0', shirtSize: 'L' },
+      { id: 'p-t2-3', name: 'Garry Furgerson', email: 'garry.furgerson@example.com', phone: '(555) 345-6703', handicap: '15.5', shirtSize: 'XL' },
+      { id: 'p-t2-4', name: 'Allan Ellis', email: 'allan.ellis@example.com', phone: '(555) 345-6704', handicap: '17.0', shirtSize: 'L' }
+    ],
+    requestedTeammates: ['Peter Bakker', 'Garry Furgerson', 'Allan Ellis'],
+    addons: { mulligansCount: 0, rafflePacks10: 2, rafflePacks25: 1, puttingContestCount: 2, tigerDriveCount: 0 },
+    totalAmount: 1600,
+    paymentStatus: 'paid',
+    paymentMethod: 'etransfer',
+    confirmationCode: 'CFAUCH-2026',
+    registeredAt: '2026-07-14T14:30:00Z',
+    checkedIn: true,
+    assignedCart: 'Cart #1G & #1H',
+    assignedStartingHole: 1,
+    notes: 'Payment via Interac e-Transfer. Sourced from Google Sheet Team #2'
+  },
+  {
+    id: 'reg-team-3',
+    type: 'foursome',
+    teamName: 'Team 3 (Kennedy)',
+    targetTier: 'Corporate Foursome ($1,600)',
+    primaryContact: { id: 'p-t3-1', name: 'Ron Kennedy', email: 'ron.kennedy@example.com', phone: '(555) 456-7801', handicap: '13.0', shirtSize: 'XL' },
+    additionalPlayers: [
+      { id: 'p-t3-2', name: 'Sandy', email: 'sandy@example.com', phone: '(555) 456-7802', handicap: '20.0', shirtSize: 'M' },
+      { id: 'p-t3-3', name: 'Warren Hyde', email: 'warren.hyde@example.com', phone: '(555) 456-7803', handicap: '10.5', shirtSize: 'L' },
+      { id: 'p-t3-4', name: 'Sue-Anne', email: 'sueanne@example.com', phone: '(555) 456-7804', handicap: '22.0', shirtSize: 'S' }
+    ],
+    requestedTeammates: ['Sandy', 'Warren Hyde', 'Sue-Anne'],
+    addons: { mulligansCount: 0, rafflePacks10: 0, rafflePacks25: 0, puttingContestCount: 0, tigerDriveCount: 0 },
+    totalAmount: 1600,
+    paymentStatus: 'paid',
+    paymentMethod: 'cash',
+    confirmationCode: 'RKENN-3003',
+    registeredAt: '2026-07-20T09:15:00Z',
+    checkedIn: false,
+    assignedCart: 'Cart #2A & #2B',
+    assignedStartingHole: 2,
+    notes: 'Payment received via Cash at registration desk. Sourced from Google Sheet Team #3'
+  },
+  {
+    id: 'reg-team-4',
+    type: 'foursome',
+    teamName: 'Team 4 (Solomon)',
+    targetTier: 'Corporate Foursome ($1,600)',
+    primaryContact: { id: 'p-t4-1', name: 'Betty Solomon', email: 'betty.solomon@example.com', phone: '(555) 567-8901', handicap: '18.0', shirtSize: 'M' },
+    additionalPlayers: [
+      { id: 'p-t4-2', name: 'John', email: 'john.solomon@example.com', phone: '(555) 567-8902', handicap: '15.0', shirtSize: 'L' },
+      { id: 'p-t4-3', name: 'Cheryl Kelly', email: 'cheryl.kelly@example.com', phone: '(555) 567-8903', handicap: '21.0', shirtSize: 'M' },
+      { id: 'p-t4-4', name: 'Bill Trainer', email: 'bill.trainer@example.com', phone: '(555) 567-8904', handicap: '14.2', shirtSize: 'XL' }
+    ],
+    requestedTeammates: ['John', 'Cheryl Kelly', 'Bill Trainer'],
+    addons: { mulligansCount: 0, rafflePacks10: 1, rafflePacks25: 0, puttingContestCount: 1, tigerDriveCount: 0 },
+    totalAmount: 1600,
+    paymentStatus: 'pending',
+    paymentMethod: 'cheque',
+    confirmationCode: 'BSOL-4004',
+    registeredAt: '2026-07-25T16:00:00Z',
+    checkedIn: false,
+    assignedCart: 'Cart #3A & #3B',
+    assignedStartingHole: 3,
+    notes: 'Payment via Cheque pending mail arrival. Sourced from Google Sheet Team #4'
+  },
+  {
+    id: 'reg-team-5',
+    type: 'foursome',
+    teamName: 'Team 5 (Saunders)',
+    targetTier: 'Corporate Foursome ($1,600)',
+    primaryContact: { id: 'p-t5-1', name: 'Jeff Saunders', email: 'jeff.saunders@example.com', phone: '(555) 678-9001', handicap: '8.0', shirtSize: 'L' },
+    additionalPlayers: [
+      { id: 'p-t5-2', name: 'Carl McKenney', email: 'carl.mckenney@example.com', phone: '(555) 678-9002', handicap: '11.5', shirtSize: 'XL' },
+      { id: 'p-t5-3', name: 'Bob Hehenkamp', email: 'bob.hehenkamp@example.com', phone: '(555) 678-9003', handicap: '16.0', shirtSize: '2XL' },
+      { id: 'p-t5-4', name: 'Rene Deschamps', email: 'rene.deschamps@example.com', phone: '(555) 678-9004', handicap: '13.8', shirtSize: 'L' }
+    ],
+    requestedTeammates: ['Carl McKenney', 'Bob Hehenkamp', 'Rene Deschamps'],
+    addons: { mulligansCount: 3, rafflePacks10: 0, rafflePacks25: 1, puttingContestCount: 4, tigerDriveCount: 4 },
+    totalAmount: 1600,
+    paymentStatus: 'paid',
+    paymentMethod: 'etransfer',
+    confirmationCode: 'JSAUN-5005',
+    registeredAt: '2026-08-02T10:45:00Z',
+    checkedIn: true,
+    assignedCart: 'Cart #4A & #4B',
+    assignedStartingHole: 4,
+    notes: 'Payment verified via Interac e-Transfer. Sourced from Google Sheet Team #5'
+  },
+  {
+    id: 'reg-team-6',
+    type: 'foursome',
+    teamName: 'Team 6 (Horne)',
+    targetTier: 'Corporate Foursome ($1,600)',
+    primaryContact: { id: 'p-t6-1', name: 'Evan Horne', email: 'evan.horne@example.com', phone: '(555) 789-0101', handicap: '14.0', shirtSize: 'M' },
+    additionalPlayers: [
+      { id: 'p-t6-2', name: 'Joey Palino', email: 'joey.palino@example.com', phone: '(555) 789-0102', handicap: '19.0', shirtSize: 'L' },
+      { id: 'p-t6-3', name: 'Mike Horne', email: 'mike.horne@example.com', phone: '(555) 789-0103', handicap: '12.5', shirtSize: 'L' },
+      { id: 'p-t6-4', name: 'Evan Horne Jr', email: 'evan.jr@example.com', phone: '(555) 789-0104', handicap: '18.0', shirtSize: 'M' }
+    ],
+    requestedTeammates: ['Joey Palino', 'Mike Horne', 'Evan Horne'],
+    addons: { mulligansCount: 0, rafflePacks10: 2, rafflePacks25: 0, puttingContestCount: 0, tigerDriveCount: 0 },
+    totalAmount: 1600,
+    paymentStatus: 'paid',
+    paymentMethod: 'cash',
+    confirmationCode: 'EHORN-6006',
+    registeredAt: '2026-08-10T13:20:00Z',
+    checkedIn: false,
+    assignedCart: 'Cart #5A & #5B',
+    assignedStartingHole: 5,
+    notes: 'Payment via Cash. Sourced from Google Sheet Team #6'
+  },
+  {
+    id: 'reg-team-7',
+    type: 'foursome',
+    teamName: 'Team 7 (Mohammed / The Fairway Eagles)',
+    targetTier: 'Presenting Title Sponsor ($5,000)',
+    primaryContact: { id: 'p-t7-1', name: 'Saied Mohammed', email: 'saied.m@charitygolf.org', phone: '(555) 123-4567', handicap: '10.2', shirtSize: 'L' },
+    additionalPlayers: [
+      { id: 'p-t7-2', name: 'Ross Clarke', email: 'ross.clarke@example.com', phone: '(555) 123-4588', handicap: '12.0', shirtSize: 'L' },
+      { id: 'p-t7-3', name: 'Peggy', email: 'peggy@example.com', phone: '(555) 123-4589', handicap: '16.5', shirtSize: 'M' },
+      { id: 'p-t7-4', name: 'Barry Kelly', email: 'barry.kelly@example.com', phone: '(555) 123-4590', handicap: '14.0', shirtSize: 'XL' }
+    ],
+    requestedTeammates: ['Ross Clarke', 'Peggy', 'Barry Kelly'],
+    addons: { mulligansCount: 3, rafflePacks10: 2, rafflePacks25: 2, puttingContestCount: 4, tigerDriveCount: 4 },
+    totalAmount: 5000,
     paymentStatus: 'paid',
     paymentMethod: 'credit_card',
     confirmationCode: 'SAIED-9042',
@@ -193,168 +318,236 @@ export const INITIAL_REGISTRATIONS: RegistrationRecord[] = [
     checkedIn: true,
     assignedCart: 'Cart #1A & #1B',
     assignedStartingHole: 1,
-    notes: 'Tournament Founder & Memorial Host Team'
+    notes: 'Tournament Founder & Memorial Host Team. Sourced from Google Sheet Team #7'
   },
   {
-    id: 'reg-102',
+    id: 'reg-team-8',
     type: 'foursome',
-    teamName: 'Pacific Rim Ballers',
-    primaryContact: {
-      id: 'p-5',
-      name: 'David Sterling',
-      email: 'dsterling@pacificrimcap.com',
-      phone: '(555) 382-9011',
-      handicap: '6.4',
-      shirtSize: 'XL'
-    },
+    teamName: 'Team 8 (Harrison)',
+    targetTier: 'Corporate Foursome ($1,600)',
+    primaryContact: { id: 'p-t8-1', name: 'John Harrison', email: 'john.harrison@example.com', phone: '(555) 890-1201', handicap: '11.2', shirtSize: 'L' },
     additionalPlayers: [
-      { id: 'p-6', name: 'Robert Callahan', email: 'rcallahan@example.com', phone: '(555) 382-9012', handicap: '12.0', shirtSize: 'L' },
-      { id: 'p-7', name: 'James Morrison', email: 'jmorrison@example.com', phone: '(555) 382-9013', handicap: '9.2', shirtSize: 'L' },
-      { id: 'p-8', name: 'Brian O\'Connor', email: 'boconnor@example.com', phone: '(555) 382-9014', handicap: '15.5', shirtSize: '2XL' }
+      { id: 'p-t8-2', name: 'Lyle Beaudoin', email: 'lyle.beaudoin@example.com', phone: '(555) 890-1202', handicap: '15.0', shirtSize: 'XL' },
+      { id: 'p-t8-3', name: 'Mobeen Husain', email: 'mobeen.husain@example.com', phone: '(555) 890-1203', handicap: '13.5', shirtSize: 'L' },
+      { id: 'p-t8-4', name: 'Neil McKinnel', email: 'neil.mckinnel@example.com', phone: '(555) 890-1204', handicap: '17.8', shirtSize: '2XL' }
     ],
-    addons: {
-      mulligansCount: 8,
-      rafflePacks10: 0,
-      rafflePacks25: 2,
-      puttingContestCount: 4,
-      tigerDriveCount: 4
-    },
-    totalAmount: 1290,
-    paymentStatus: 'paid',
-    paymentMethod: 'credit_card',
-    confirmationCode: 'SAIED-8813',
-    registeredAt: '2026-06-16T11:00:00Z',
-    checkedIn: true,
-    assignedCart: 'Cart #2A & #2B',
-    assignedStartingHole: 2
-  },
-  {
-    id: 'reg-103',
-    type: 'foursome',
-    teamName: 'Birdie Brigade',
-    primaryContact: {
-      id: 'p-9',
-      name: 'Dr. Michael Hayes',
-      email: 'dr.hayes@valleyhealth.org',
-      phone: '(555) 902-1144',
-      handicap: '14.2',
-      shirtSize: 'M'
-    },
-    additionalPlayers: [
-      { id: 'p-10', name: 'Dr. Kenneth Cole', email: 'kcole@example.com', phone: '(555) 902-1145', handicap: '16.0', shirtSize: 'L' },
-      { id: 'p-11', name: 'Dr. Patricia Wu', email: 'pwu@example.com', phone: '(555) 902-1146', handicap: '18.4', shirtSize: 'S' },
-      { id: 'p-12', name: 'Dr. Amanda Scott', email: 'ascott@example.com', phone: '(555) 902-1147', handicap: '13.0', shirtSize: 'M' }
-    ],
-    addons: {
-      mulligansCount: 6,
-      rafflePacks10: 2,
-      rafflePacks25: 1,
-      puttingContestCount: 4,
-      tigerDriveCount: 0
-    },
-    totalAmount: 1150,
-    paymentStatus: 'paid',
-    paymentMethod: 'credit_card',
-    confirmationCode: 'SAIED-7301',
-    registeredAt: '2026-07-05T09:30:00Z',
-    checkedIn: false,
-    assignedCart: 'Cart #3A & #3B',
-    assignedStartingHole: 3
-  },
-  {
-    id: 'reg-104',
-    type: 'individual',
-    primaryContact: {
-      id: 'p-13',
-      name: 'Samantha Reed',
-      email: 'samantha.reed@example.com',
-      phone: '(555) 441-2099',
-      handicap: '11.0',
-      shirtSize: 'M',
-      dietaryRestrictions: 'Vegetarian'
-    },
-    additionalPlayers: [],
-    addons: {
-      mulligansCount: 3,
-      rafflePacks10: 1,
-      rafflePacks25: 0,
-      puttingContestCount: 1,
-      tigerDriveCount: 1
-    },
-    totalAmount: 370,
-    paymentStatus: 'paid',
-    paymentMethod: 'credit_card',
-    confirmationCode: 'SAIED-5520',
-    registeredAt: '2026-07-18T16:40:00Z',
-    checkedIn: false,
-    assignedCart: 'Cart #4A',
-    assignedStartingHole: 4
-  },
-  {
-    id: 'reg-105',
-    type: 'foursome',
-    teamName: 'Hamilton Links Crew',
-    primaryContact: {
-      id: 'p-14',
-      name: 'Robert Jenkins',
-      email: 'rjenkins@hamiltonlinks.ca',
-      phone: '(905) 555-0144',
-      handicap: '15.4',
-      shirtSize: 'XL',
-      dietaryRestrictions: 'Gluten-Free'
-    },
-    additionalPlayers: [
-      { id: 'p-15', name: 'Mark Evans', email: 'mevans@hamiltonlinks.ca', phone: '(905) 555-0145', handicap: '18.0', shirtSize: 'L' },
-      { id: 'p-16', name: 'Gary Peterson', email: 'gpeterson@hamiltonlinks.ca', phone: '(905) 555-0146', handicap: '12.6', shirtSize: '2XL' },
-      { id: 'p-17', name: 'Paul MacIntyre', email: 'pmacintyre@hamiltonlinks.ca', phone: '(905) 555-0147', handicap: '20.1', shirtSize: 'L' }
-    ],
-    addons: {
-      mulligansCount: 6,
-      rafflePacks10: 2,
-      rafflePacks25: 0,
-      puttingContestCount: 4,
-      tigerDriveCount: 0
-    },
-    totalAmount: 1130,
-    paymentStatus: 'pending',
-    paymentMethod: 'cheque',
-    routedToEmail: 'ms_smnm@outlook.com',
-    confirmationCode: 'SAIED-4482',
-    registeredAt: '2026-08-01T10:15:00Z',
-    checkedIn: false,
-    assignedCart: 'Cart #5A & #5B',
-    assignedStartingHole: 5,
-    notes: 'Cheque payable to Saied Mohammed ($1,130) pending receipt at check-in'
-  },
-  {
-    id: 'reg-106',
-    type: 'individual',
-    primaryContact: {
-      id: 'p-18',
-      name: 'Julian Tremblay',
-      email: 'julian.tremblay@golfmail.ca',
-      phone: '(416) 555-0819',
-      handicap: '10.2',
-      shirtSize: 'L'
-    },
-    additionalPlayers: [],
-    addons: {
-      mulligansCount: 4,
-      rafflePacks10: 1,
-      rafflePacks25: 1,
-      puttingContestCount: 2,
-      tigerDriveCount: 1
-    },
-    totalAmount: 430,
+    requestedTeammates: ['Lyle Beaudoin', 'Mobeen Husain', 'Neil McKinnel'],
+    addons: { mulligansCount: 0, rafflePacks10: 1, rafflePacks25: 0, puttingContestCount: 2, tigerDriveCount: 0 },
+    totalAmount: 1600,
     paymentStatus: 'paid',
     paymentMethod: 'etransfer',
-    routedToEmail: 'ms_smnm@outlook.com',
-    confirmationCode: 'SAIED-9204',
-    registeredAt: '2026-08-10T14:22:00Z',
+    confirmationCode: 'JHARR-8008',
+    registeredAt: '2026-08-18T15:10:00Z',
+    checkedIn: true,
+    assignedCart: 'Cart #6A & #6B',
+    assignedStartingHole: 8,
+    notes: 'Payment verified via Interac e-Transfer. Sourced from Google Sheet Team #8'
+  },
+  {
+    id: 'reg-team-9',
+    type: 'foursome',
+    teamName: 'Team 9 (Khan)',
+    targetTier: 'Hole & Tee Box Sponsor ($1,000)',
+    primaryContact: { id: 'p-t9-1', name: 'Amir Khan', email: 'amir.khan@example.com', phone: '(555) 901-2301', handicap: '9.0', shirtSize: 'M' },
+    additionalPlayers: [
+      { id: 'p-t9-2', name: 'Wayne Childerley', email: 'wayne.childerley@example.com', phone: '(555) 901-2302', handicap: '14.0', shirtSize: 'L' },
+      { id: 'p-t9-3', name: 'Hugh James', email: 'hugh.james@example.com', phone: '(555) 901-2303', handicap: '16.5', shirtSize: 'XL' }
+    ],
+    requestedTeammates: ['Wayne Childerley', 'Hugh James'],
+    addons: { mulligansCount: 0, rafflePacks10: 0, rafflePacks25: 1, puttingContestCount: 3, tigerDriveCount: 0 },
+    totalAmount: 1000,
+    paymentStatus: 'pending',
+    paymentMethod: 'cash',
+    confirmationCode: 'AKHAN-9009',
+    registeredAt: '2026-08-25T11:00:00Z',
     checkedIn: false,
-    assignedCart: 'Cart #6A',
-    assignedStartingHole: 6,
-    notes: 'Interac e-Transfer received by Saied Mohammed (ms_smnm@outlook.com)'
+    assignedCart: 'Cart #7A & #7B',
+    assignedStartingHole: 9,
+    notes: 'Hole sponsor & 3-player team. Cash payment at morning check-in. Sourced from Google Sheet Team #9'
+  },
+  {
+    id: 'reg-team-10',
+    type: 'foursome',
+    teamName: 'Team 10 (Martin / Saunders)',
+    targetTier: 'Corporate Foursome ($1,600)',
+    primaryContact: { id: 'p-t10-1', name: 'Deb Martin', email: 'deb.martin@example.com', phone: '(555) 211-1001', handicap: '18.0', shirtSize: 'M' },
+    additionalPlayers: [
+      { id: 'p-t10-2', name: 'Robert Martin', email: 'robert.martin@example.com', phone: '(555) 211-1002', handicap: '14.5', shirtSize: 'L' },
+      { id: 'p-t10-3', name: 'Maureen Saunders', email: 'maureen.saunders@example.com', phone: '(555) 211-1003', handicap: '20.0', shirtSize: 'M' },
+      { id: 'p-t10-4', name: 'Dave McDowell', email: 'dave.mcdowell@example.com', phone: '(555) 211-1004', handicap: '12.0', shirtSize: 'XL' }
+    ],
+    requestedTeammates: ['Robert Martin', 'Maureen Saunders', 'Dave McDowell'],
+    addons: { mulligansCount: 0, rafflePacks10: 1, rafflePacks25: 0, puttingContestCount: 2, tigerDriveCount: 0 },
+    totalAmount: 1600,
+    paymentStatus: 'paid',
+    paymentMethod: 'cheque',
+    confirmationCode: 'DMART-1010',
+    registeredAt: '2026-08-28T10:00:00Z',
+    checkedIn: true,
+    assignedCart: 'Cart #8A & #8B',
+    assignedStartingHole: 10,
+    notes: 'Registered via Admin Roster Request. Payment via Cheque.'
+  },
+  {
+    id: 'reg-team-11',
+    type: 'foursome',
+    teamName: 'Team 11 (Furgerson / Stubbings)',
+    targetTier: 'Corporate Foursome ($1,600)',
+    primaryContact: { id: 'p-t11-1', name: 'Paul Furgerson', email: 'paul.furgerson@example.com', phone: '(555) 322-1101', handicap: '11.0', shirtSize: 'L' },
+    additionalPlayers: [
+      { id: 'p-t11-2', name: 'Bill Stubbings', email: 'bill.stubbings@example.com', phone: '(555) 322-1102', handicap: '15.2', shirtSize: 'XL' },
+      { id: 'p-t11-3', name: 'Amir Han', email: 'amir.han@example.com', phone: '(555) 322-1103', handicap: '10.0', shirtSize: 'M' },
+      { id: 'p-t11-4', name: 'Bill Traynor', email: 'bill.traynor@example.com', phone: '(555) 322-1104', handicap: '16.0', shirtSize: 'L' }
+    ],
+    requestedTeammates: ['Bill Stubbings', 'Amir Han', 'Bill Traynor'],
+    addons: { mulligansCount: 3, rafflePacks10: 0, rafflePacks25: 1, puttingContestCount: 4, tigerDriveCount: 2 },
+    totalAmount: 1600,
+    paymentStatus: 'paid',
+    paymentMethod: 'etransfer',
+    confirmationCode: 'PFURG-1111',
+    registeredAt: '2026-08-29T11:30:00Z',
+    checkedIn: true,
+    assignedCart: 'Cart #9A & #9B',
+    assignedStartingHole: 11,
+    notes: 'Registered via Admin Roster Request. Payment via e-Transfer.'
+  },
+  {
+    id: 'reg-team-12',
+    type: 'foursome',
+    teamName: 'Team 12 (Hyde / McKenney)',
+    targetTier: 'Corporate Foursome ($1,600)',
+    primaryContact: { id: 'p-t12-1', name: 'Barry Hyde', email: 'barry.hyde@example.com', phone: '(555) 433-1201', handicap: '13.5', shirtSize: 'L' },
+    additionalPlayers: [
+      { id: 'p-t12-2', name: 'Mary Hyde', email: 'mary.hyde@example.com', phone: '(555) 433-1202', handicap: '19.0', shirtSize: 'S' },
+      { id: 'p-t12-3', name: 'Janice McKenney', email: 'janice.mckenney@example.com', phone: '(555) 433-1203', handicap: '22.0', shirtSize: 'M' },
+      { id: 'p-t12-4', name: 'Michelle Bertothy', email: 'michelle.b@example.com', phone: '(555) 433-1204', handicap: '17.5', shirtSize: 'M' }
+    ],
+    requestedTeammates: ['Mary Hyde', 'Janice McKenney', 'Michelle Bertothy'],
+    addons: { mulligansCount: 0, rafflePacks10: 2, rafflePacks25: 0, puttingContestCount: 0, tigerDriveCount: 0 },
+    totalAmount: 1600,
+    paymentStatus: 'paid',
+    paymentMethod: 'cash',
+    confirmationCode: 'BHYDE-1212',
+    registeredAt: '2026-08-30T14:15:00Z',
+    checkedIn: true,
+    assignedCart: 'Cart #10A & #10B',
+    assignedStartingHole: 12,
+    notes: 'Registered via Admin Roster Request. Payment via Cash.'
+  },
+  {
+    id: 'reg-team-13',
+    type: 'foursome',
+    teamName: 'Team 13 (Sheriff / Mohammed)',
+    targetTier: 'Corporate Foursome ($1,600)',
+    primaryContact: { id: 'p-t13-1', name: 'Khalil Sheriff', email: 'khalil.sheriff@example.com', phone: '(555) 544-1301', handicap: '9.5', shirtSize: 'L' },
+    additionalPlayers: [
+      { id: 'p-t13-2', name: 'Ian Mohammed', email: 'ian.mohammed@example.com', phone: '(555) 544-1302', handicap: '12.0', shirtSize: 'XL' },
+      { id: 'p-t13-3', name: 'Jeff Sheriff', email: 'jeff.sheriff@example.com', phone: '(555) 544-1303', handicap: '14.0', shirtSize: 'L' },
+      { id: 'p-t13-4', name: 'Naeem Mohammed', email: 'naeem.mohammed@example.com', phone: '(555) 544-1304', handicap: '10.8', shirtSize: 'L' }
+    ],
+    requestedTeammates: ['Ian Mohammed', 'Jeff Sheriff', 'Naeem Mohammed'],
+    addons: { mulligansCount: 3, rafflePacks10: 1, rafflePacks25: 1, puttingContestCount: 4, tigerDriveCount: 4 },
+    totalAmount: 1600,
+    paymentStatus: 'paid',
+    paymentMethod: 'credit_card',
+    confirmationCode: 'KSHER-1313',
+    registeredAt: '2026-09-01T09:00:00Z',
+    checkedIn: true,
+    assignedCart: 'Cart #11A & #11B',
+    assignedStartingHole: 13,
+    notes: 'Registered via Admin Roster Request. Payment via Credit Card.'
+  },
+  {
+    id: 'reg-team-14',
+    type: 'foursome',
+    teamName: 'Team 14 (Britton / White / Coyn)',
+    targetTier: 'Corporate Foursome ($1,600)',
+    primaryContact: { id: 'p-t14-1', name: 'Mitch Britton', email: 'mitch.britton@example.com', phone: '(555) 655-1401', handicap: '12.5', shirtSize: 'XL' },
+    additionalPlayers: [
+      { id: 'p-t14-2', name: 'Nitch #2', email: 'nitch2@example.com', phone: '(555) 655-1402', handicap: '16.0', shirtSize: 'L' },
+      { id: 'p-t14-3', name: 'Bill White', email: 'bill.white@example.com', phone: '(555) 655-1403', handicap: '14.0', shirtSize: '2XL' },
+      { id: 'p-t14-4', name: 'Bob Coyn', email: 'bob.coyn@example.com', phone: '(555) 655-1404', handicap: '18.0', shirtSize: 'L' }
+    ],
+    requestedTeammates: ['Nitch #2', 'Bill White', 'Bob Coyn'],
+    addons: { mulligansCount: 0, rafflePacks10: 1, rafflePacks25: 0, puttingContestCount: 2, tigerDriveCount: 0 },
+    totalAmount: 1600,
+    paymentStatus: 'paid',
+    paymentMethod: 'etransfer',
+    confirmationCode: 'MBRIT-1414',
+    registeredAt: '2026-09-03T15:20:00Z',
+    checkedIn: true,
+    assignedCart: 'Cart #12A & #12B',
+    assignedStartingHole: 14,
+    notes: 'Registered via Admin Roster Request. Payment via e-Transfer.'
+  },
+  {
+    id: 'reg-team-15',
+    type: 'foursome',
+    teamName: 'Team 15 (Powell / Groot / Zancola)',
+    targetTier: 'Corporate Foursome ($1,600)',
+    primaryContact: { id: 'p-t15-1', name: 'Bill Powell', email: 'bill.powell@example.com', phone: '(555) 766-1501', handicap: '15.0', shirtSize: 'L' },
+    additionalPlayers: [
+      { id: 'p-t15-2', name: 'Ruth-Ann Powell', email: 'ruthann.powell@example.com', phone: '(555) 766-1502', handicap: '21.0', shirtSize: 'S' },
+      { id: 'p-t15-3', name: 'George Groot', email: 'george.groot@example.com', phone: '(555) 766-1503', handicap: '13.0', shirtSize: 'XL' },
+      { id: 'p-t15-4', name: 'Joe Zancola', email: 'joe.zancola@example.com', phone: '(555) 766-1504', handicap: '16.5', shirtSize: 'L' }
+    ],
+    requestedTeammates: ['Ruth-Ann Powell', 'George Groot', 'Joe Zancola'],
+    addons: { mulligansCount: 0, rafflePacks10: 0, rafflePacks25: 1, puttingContestCount: 1, tigerDriveCount: 0 },
+    totalAmount: 1600,
+    paymentStatus: 'paid',
+    paymentMethod: 'cheque',
+    confirmationCode: 'BPOW-1515',
+    registeredAt: '2026-09-05T10:40:00Z',
+    checkedIn: true,
+    assignedCart: 'Cart #13A & #13B',
+    assignedStartingHole: 15,
+    notes: 'Registered via Admin Roster Request. Payment via Cheque.'
+  },
+  {
+    id: 'reg-team-16',
+    type: 'foursome',
+    teamName: 'Team 16 (Mannering / Knox)',
+    targetTier: 'Corporate Foursome ($1,600)',
+    primaryContact: { id: 'p-t16-1', name: 'Matt Manering', email: 'matt.manering@example.com', phone: '(555) 877-1601', handicap: '10.5', shirtSize: 'L' },
+    additionalPlayers: [
+      { id: 'p-t16-2', name: 'Janice Mannering', email: 'janice.mannering@example.com', phone: '(555) 877-1602', handicap: '18.5', shirtSize: 'M' },
+      { id: 'p-t16-3', name: 'Nancy Knox', email: 'nancy.knox@example.com', phone: '(555) 877-1603', handicap: '20.0', shirtSize: 'M' },
+      { id: 'p-t16-4', name: 'Gary Knox', email: 'gary.knox@example.com', phone: '(555) 877-1604', handicap: '12.0', shirtSize: 'XL' }
+    ],
+    requestedTeammates: ['Janice Mannering', 'Nancy Knox', 'Gary Knox'],
+    addons: { mulligansCount: 2, rafflePacks10: 1, rafflePacks25: 0, puttingContestCount: 2, tigerDriveCount: 2 },
+    totalAmount: 1600,
+    paymentStatus: 'paid',
+    paymentMethod: 'cash',
+    confirmationCode: 'MMAN-1616',
+    registeredAt: '2026-09-08T16:00:00Z',
+    checkedIn: true,
+    assignedCart: 'Cart #14A & #14B',
+    assignedStartingHole: 16,
+    notes: 'Registered via Admin Roster Request. Payment via Cash.'
+  },
+  {
+    id: 'reg-team-17',
+    type: 'foursome',
+    teamName: 'Team 17 (Kitowski / Mohammed)',
+    targetTier: 'Corporate Foursome ($1,600)',
+    primaryContact: { id: 'p-t17-1', name: 'Ray Kitowski', email: 'ray.kitowski@example.com', phone: '(555) 988-1701', handicap: '14.0', shirtSize: 'L' },
+    additionalPlayers: [
+      { id: 'p-t17-2', name: 'Terry Kitowski', email: 'terry.kitowski@example.com', phone: '(555) 988-1702', handicap: '17.0', shirtSize: 'M' },
+      { id: 'p-t17-3', name: 'Ninaa Mohammed', email: 'ninaa.mohammed@example.com', phone: '(555) 988-1703', handicap: '19.5', shirtSize: 'S' },
+      { id: 'p-t17-4', name: 'Joob', email: 'joob@example.com', phone: '(555) 988-1704', handicap: '15.0', shirtSize: 'L' }
+    ],
+    requestedTeammates: ['Terry Kitowski', 'Ninaa Mohammed', 'Joob'],
+    addons: { mulligansCount: 0, rafflePacks10: 2, rafflePacks25: 0, puttingContestCount: 1, tigerDriveCount: 0 },
+    totalAmount: 1600,
+    paymentStatus: 'paid',
+    paymentMethod: 'etransfer',
+    confirmationCode: 'RKIT-1717',
+    registeredAt: '2026-09-10T12:00:00Z',
+    checkedIn: true,
+    assignedCart: 'Cart #15A & #15B',
+    assignedStartingHole: 17,
+    notes: 'Registered via Admin Roster Request. Payment via e-Transfer.'
   }
 ];
 
@@ -363,7 +556,7 @@ export const INITIAL_DONATIONS: DonationRecord[] = [
     id: 'don-1',
     donorName: 'Saied & Family',
     donorEmail: 'saied@family.org',
-    amount: 2500,
+    amount: 200,
     isAnonymous: false,
     tributeType: 'in_memory_of',
     tributeName: 'Naseem Mohammed',
@@ -372,53 +565,23 @@ export const INITIAL_DONATIONS: DonationRecord[] = [
   },
   {
     id: 'don-2',
-    donorName: 'The Sterling Charitable Trust',
-    donorEmail: 'sterlingtrust@example.com',
-    amount: 1000,
-    isAnonymous: false,
-    tributeType: 'in_memory_of',
-    tributeName: 'Naseem Mohammed',
-    message: 'In loving memory of a phenomenal woman who touched so many lives with unconditional kindness.',
-    donatedAt: '2026-06-15T12:00:00Z'
-  },
-  {
-    id: 'don-3',
     donorName: 'Oakridge Community Circle',
-    amount: 500,
+    amount: 100,
     isAnonymous: false,
     tributeType: 'in_memory_of',
     tributeName: 'Naseem Mohammed',
-    message: 'Naseem was the heart of our community volunteer drives. Honored to keep her legacy shining bright.',
+    message: 'Honoring Naseem’s compassionate heart and tireless dedication to oncology patient support.',
     donatedAt: '2026-07-12T15:20:00Z'
   },
   {
-    id: 'don-4',
+    id: 'don-3',
     donorName: 'Anonymous Supporter',
-    amount: 250,
+    amount: 50,
     isAnonymous: true,
     tributeType: 'in_memory_of',
     tributeName: 'Naseem',
-    message: 'With deepest respect for Saied and family. Keep hitting fairways for hope!',
+    message: 'With deepest love and heartfelt remembrance. Keep hitting fairways for hope!',
     donatedAt: '2026-07-28T19:40:00Z'
-  },
-  {
-    id: 'don-5',
-    donorName: 'Rahim & Yasmin Kassam',
-    amount: 150,
-    isAnonymous: false,
-    tributeType: 'in_memory_of',
-    tributeName: 'Naseem Mohammed',
-    message: 'Always remembered for her bright smile and generous spirit.',
-    donatedAt: '2026-08-05T10:15:00Z'
-  },
-  {
-    id: 'don-6',
-    donorName: 'Marcus & Jessica Rivera',
-    amount: 100,
-    isAnonymous: false,
-    tributeType: 'general',
-    message: 'Thrilled to support such an incredible cause! Have a great round everyone.',
-    donatedAt: '2026-08-18T14:10:00Z'
   }
 ];
 
@@ -495,37 +658,32 @@ export const TOURNAMENT_SCHEDULE: EventScheduleItem[] = [
   {
     time: '9:30 AM',
     title: 'Registration, Chipping and Putting Competition',
-    location: 'Championship Practice Green & Chipping Area',
-    description: 'Check-in, gift bag pickup, unlimited driving range access, and official registration, chipping and putting competition warm-up shootout.',
+    location: 'New Restaurant in the Upper Level • Championship Practice Green & Chipping Area',
+    description: 'Check-in, snacks will be provided, and official registration in Pro shop, chipping and putting competition (warm-up before the game).',
     iconName: 'Coffee'
   },
   {
     time: '11:00 AM',
     title: 'Tee off (Shotgun Start)',
-    location: 'All 18 Championship Holes',
-    description: 'Simultaneous shotgun launch across 18 holes. Played in the dynamic 6-6-6 format (Swapping Partners version, details to follow) with live Squabbit scoring app.',
+    location: 'All 18 Holes',
+    description: 'Simultaneous shotgun launch across 18 holes. Played in the dynamic 6-6-6 format (Swapping Partners version, details to follow).',
     iconName: 'Flag'
   },
   {
     time: '4:00 PM',
     title: 'FABULOUS Turkey Dinner',
-    location: 'Grand Ballroom & Clubhouse Terrace',
-    description: 'Dinner & Donation option ($50-$60 to be finalized) [LIMITED #,book early]. Post-round celebration featuring a fabulous turkey dinner, Squabbit live leaderboard reveal, trophy presentations, raffle draws, and memorial fundraising recap.',
+    location: 'Restaurant in the Upper Level',
+    description: 'Dinner & Donation option ($60) [LIMITED #,book early]. Post-round celebration featuring a fabulous turkey dinner, prizes and trophy presentations, and memorial fundraising recap.',
     iconName: 'Trophy'
-  },
-  {
-    time: '6:00 PM',
-    title: 'Adjournment & Celebration',
-    location: 'Main Clubhouse',
-    description: 'Official conclusion, final tribute dedication to Naseem Mohammed, and heartfelt thank you to all donors and sponsors.',
-    iconName: 'Heart'
   }
 ];
 
 export const PRICING_RULES = {
-  individualGolfer: 125, // Green Fee & Cart $120-$130
-  foursomeTeam: 500, // 4 Players with Green Fee & Cart
-  dinnerOnly: 55, // $50-$60 Dinner to be finalized
+  memberGolfer: 100, // Member Green Fee & Cart $100
+  otherGolfer: 120, // Other / Guest Green Fee & Cart $120
+  individualGolfer: 120, // Green Fee & Cart standard rate
+  foursomeTeam: 480, // 4 Players with Green Fee & Cart
+  dinnerOnly: 60, // Dinner Guest Pass $60
   mulliganSingle: 20,
   mulliganPack3: 50, // saves $10
   rafflePack10: 25,
@@ -546,7 +704,7 @@ export const FAQ_DATA: FaqItem[] = [
     id: 'faq-weather',
     category: 'weather',
     question: 'What is the tournament weather policy in case of rain?',
-    answer: 'The tournament is scheduled as a rain-or-shine charity event. Burford Golf Links features excellent drainage and weather-covered golf carts with protective enclosures. In the rare event of severe lightning or course unplayability, play will be paused, and if suspended, the Welcome Luncheon, Silent Auction, and Awards Banquet will proceed as scheduled indoors with prizes awarded via Squabbit scorecard handicap projections.'
+    answer: 'The tournament is scheduled as a rain-or-shine charity event. Burford Golf Links features excellent drainage and weather-covered golf carts with protective enclosures. In the rare event of severe lightning or course unplayability, play will be paused, and if suspended, the Welcome Luncheon, Silent Auction, and Awards Banquet will proceed as scheduled indoors with prizes awarded via scorecard projections.'
   },
   {
     id: 'faq-dress',
@@ -563,14 +721,14 @@ export const FAQ_DATA: FaqItem[] = [
   {
     id: 'faq-format',
     category: 'format',
-    question: 'How does the 4-Person Scramble format and Squabbit scoring work?',
-    answer: 'In our 4-person scramble, each golfer hits a tee shot. The team selects the best ball, marks the position, and all four players hit their next shots from within one club length (no closer to the hole, in the same cut of turf). This process repeats until the ball is holed out. One person in each group records gross scores live into the free Squabbit app (tournament code: SAIED-2026), generating instant leaderboard updates.'
+    question: 'How does the 6-6-6 format (Swapping Partners) work?',
+    answer: 'Played in the dynamic 6-6-6 format where partners rotate every 6 holes to maximize camaraderie, strategic play, and friendly competition. Detailed scoring rules and pairings cards will be distributed at the morning check-in.'
   },
   {
     id: 'faq-dinner',
     category: 'format',
     question: 'Can non-golfing spouses, family members, or colleagues attend just the Awards Dinner?',
-    answer: 'Yes! We offer a dedicated "Dinner Only" pass ($100) which grants full access to the 5:00 PM Cocktail Hour, Silent Auction, gourmet banquet dinner, and the memorial tribute presentation.'
+    answer: 'Yes! We offer a dedicated "Dinner Only" pass ($60) which grants full access to the 5:00 PM Cocktail Hour, Silent Auction, gourmet banquet dinner, and the memorial tribute presentation.'
   }
 ];
 

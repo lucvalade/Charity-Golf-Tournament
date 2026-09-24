@@ -1,0 +1,74 @@
+[
+  {
+    "id": "log-1789405201980-wfymp",
+    "timestamp": "2026-09-14T17:00:01.980Z",
+    "recipient": "luc.valade@gmail.com",
+    "recipientType": "test",
+    "subject": "[TEST EMAIL] Google Workspace SMTP Delivery Verification",
+    "status": "sent",
+    "messageId": "<d260bc1a-5c92-4c08-6fc1-3ec72ed6c90f@gmail.com>"
+  },
+  {
+    "id": "log-1789405187399-fvllr",
+    "timestamp": "2026-09-14T16:59:47.399Z",
+    "recipient": "luc.valade@gmail.com",
+    "recipientType": "test",
+    "subject": "SMTP Handshake Verification",
+    "status": "sent",
+    "messageId": "verify-1789405187399"
+  },
+  {
+    "id": "log-1789405018358-cwcwj",
+    "timestamp": "2026-09-14T16:56:58.358Z",
+    "recipient": "sales@aiopenhouseconnect.com",
+    "recipientType": "test",
+    "subject": "SMTP Handshake Verification",
+    "status": "failed",
+    "error": "Google Workspace rejected the login (Error 535: Bad Credentials). Google no longer accepts account passwords for SMTP. Please generate a 16-character App Password at https://myaccount.google.com/apppasswords."
+  },
+  {
+    "id": "log-1789404890223-e68tg",
+    "timestamp": "2026-09-14T16:54:50.223Z",
+    "recipient": "sales@aiopenhouseconnect.com",
+    "recipientType": "test",
+    "subject": "SMTP Handshake Verification",
+    "status": "failed",
+    "error": "Google Workspace rejected the login (Error 535: Bad Credentials). Google no longer accepts account passwords for SMTP. Please generate a 16-character App Password at https://myaccount.google.com/apppasswords."
+  },
+  {
+    "id": "log-1789404886608-fwld6",
+    "timestamp": "2026-09-14T16:54:46.608Z",
+    "recipient": "sales@aiopenhouseconnect.com",
+    "recipientType": "test",
+    "subject": "SMTP Handshake Verification",
+    "status": "failed",
+    "error": "Google Workspace rejected the login (Error 535: Bad Credentials). Google no longer accepts account passwords for SMTP. Please generate a 16-character App Password at https://myaccount.google.com/apppasswords."
+  },
+  {
+    "id": "log-1789225430161-s6ezy",
+    "timestamp": "2026-09-12T15:03:50.161Z",
+    "recipient": "sales@aiopenhouseconnect.com",
+    "recipientType": "test",
+    "subject": "SMTP Handshake Verification",
+    "status": "failed",
+    "error": "Google Workspace rejected the login (Error 535: Bad Credentials). Google no longer accepts account passwords for SMTP. Please generate a 16-character App Password at https://myaccount.google.com/apppasswords."
+  },
+  {
+    "id": "log-1789225062447-ayi78",
+    "timestamp": "2026-09-12T14:57:42.447Z",
+    "recipient": "sales@aiopenhouseconnect.com",
+    "recipientType": "test",
+    "subject": "SMTP Handshake Verification",
+    "status": "failed",
+    "error": "Invalid login: 535-5.7.8 Username and Password not accepted. For more information, go to\n535 5.7.8  https://support.google.com/mail/?p=BadCredentials 98e67ed59e1d1-39d951d1056sm10563079a91.7 - gsmtp"
+  },
+  {
+    "id": "log-1789223647993-i7dmn",
+    "timestamp": "2026-09-12T14:34:07.993Z",
+    "recipient": "sales@aiopenhouseconnect.com",
+    "recipientType": "test",
+    "subject": "SMTP Handshake Verification",
+    "status": "failed",
+    "error": "Invalid login: 534-5.7.9 Application-specific password required. For more information, go to\n534 5.7.9  https://support.google.com/mail/?p=InvalidSecondFactor 41be03b00d2f7-cc4c6550e06sm2582377a12.14 - gsmtp"
+  }
+]

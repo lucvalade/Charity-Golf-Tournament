@@ -1,6 +1,6 @@
 {
-  "name": "Saied October Charity Golf Tournament",
-  "description": "Annual memorial charity golf classic honoring the founder's late wife, featuring player registration, corporate sponsorships, donations, and live Squabbit leaderboard scoring.",
+  "name": "Fragrant Breeze Golf Tournament",
+  "description": "Fragrant Breeze Golf Tournament at Burford Golf Links Course on Monday October 5, 2026. Memorial charity golf tournament featuring online registration, itinerary, tournament schedule, turkey dinner, and live Squabbit scoring.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
