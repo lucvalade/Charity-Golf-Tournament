@@ -11,9 +11,13 @@ import {
   Search,
   Filter,
   Check,
-  Award
+  Award,
+  Edit3,
+  Trash2
 } from 'lucide-react';
 import { useTournament } from '../../context/TournamentContext';
+import { LineupDataEntryModal } from '../LineupDataEntryModal';
+import { RegistrationRecord } from '../../types';
 
 interface SheetRosterAuditModalProps {
   isOpen: boolean;
@@ -73,9 +77,11 @@ export const SheetRosterAuditModal: React.FC<SheetRosterAuditModalProps> = ({
   isOpen,
   onClose
 }) => {
-  const { registrations } = useTournament();
+  const { registrations, deleteRegistration, addToast } = useTournament();
   const [searchTerm, setSearchTerm] = useState('');
   const [paymentFilter, setPaymentFilter] = useState<'all' | 'cash' | 'cheque' | 'etransfer' | 'credit_card'>('all');
+  const [isDataEntryOpen, setIsDataEntryOpen] = useState(false);
+  const [editingTeamRecord, setEditingTeamRecord] = useState<RegistrationRecord | null>(null);
 
   if (!isOpen) return null;
 
@@ -242,6 +248,7 @@ export const SheetRosterAuditModal: React.FC<SheetRosterAuditModalProps> = ({
                 <th className="py-2.5 px-3">Selected Target Tier</th>
                 <th className="py-2.5 px-3">I Would Like to Play With (Requested Teammates)</th>
                 <th className="py-2.5 px-3">Payment Method Selected</th>
+                <th className="py-2.5 px-3 text-center">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200">
@@ -348,6 +355,47 @@ export const SheetRosterAuditModal: React.FC<SheetRosterAuditModalProps> = ({
                           <span>{methodLabel}</span>
                         </span>
                       </td>
+
+                      <td className="py-2.5 px-3 text-center shrink-0">
+                        <div className="flex items-center justify-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (dbMatch) {
+                                const regRec = registrations.find((r) => r.id === dbMatch.regId);
+                                setEditingTeamRecord(regRec || null);
+                              } else {
+                                setEditingTeamRecord(null);
+                              }
+                              setIsDataEntryOpen(true);
+                            }}
+                            className="px-2 py-1 bg-slate-100 hover:bg-[#1E4D2B] hover:text-white text-slate-700 font-bold text-[10px] rounded-lg transition flex items-center gap-1 border border-slate-300 cursor-pointer shadow-2xs"
+                            title="Edit player/team lineup or payment method"
+                          >
+                            <Edit3 className="w-3 h-3" />
+                            <span>Edit</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (dbMatch) {
+                                if (window.confirm(`Are you sure you want to delete ${formattedName} (Team #${team.teamNum}) from the database?`)) {
+                                  deleteRegistration(dbMatch.regId);
+                                  addToast('info', 'Record Deleted', `Removed ${formattedName} from database.`);
+                                }
+                              } else {
+                                addToast('info', 'Not in Database', `${formattedName} is not registered in the database yet.`);
+                              }
+                            }}
+                            className="px-2 py-1 bg-rose-50 hover:bg-rose-600 hover:text-white text-rose-700 font-bold text-[10px] rounded-lg transition flex items-center gap-1 border border-rose-200 cursor-pointer shadow-2xs"
+                            title="Delete record from database"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                            <span>Delete</span>
+                          </button>
+                        </div>
+                      </td>
                     </tr>
                   );
                 });
@@ -375,6 +423,12 @@ export const SheetRosterAuditModal: React.FC<SheetRosterAuditModalProps> = ({
           </button>
         </div>
       </div>
+
+      <LineupDataEntryModal
+        isOpen={isDataEntryOpen}
+        onClose={() => setIsDataEntryOpen(false)}
+        editingTeam={editingTeamRecord}
+      />
     </div>
   );
 };

@@ -13,8 +13,6 @@ import { MemorialStory } from './components/MemorialStory';
 import { EventDetails } from './components/EventDetails';
 import { RegistrationSection } from './components/RegistrationSection';
 import { SponsorshipsSection } from './components/SponsorshipsSection';
-import { ImpactSection } from './components/ImpactSection';
-import { DonationSection } from './components/DonationSection';
 import { TributesWall } from './components/TributesWall';
 import { FaqSection } from './components/FaqSection';
 import { ContactSection } from './components/ContactSection';
@@ -31,6 +29,7 @@ import { AddMemorialNoteModal } from './components/AddMemorialNoteModal';
 import { GameDayAgendaModal } from './components/GameDayAgendaModal';
 import { ApiKeySettingsModal } from './components/ApiKeySettingsModal';
 import { SplashScreen } from './components/SplashScreen';
+import { BrandedQrCodeGeneratorModal } from './components/BrandedQrCodeGeneratorModal';
 
 function TournamentAppContent() {
   const {
@@ -39,82 +38,112 @@ function TournamentAppContent() {
     isApiKeyModalOpen,
     setIsApiKeyModalOpen,
     isSplashVisible,
-    closeSplash
+    closeSplash,
+    isQrModalOpen,
+    setIsQrModalOpen,
+    addToast
   } = useTournament();
 
-  // If in Admin Mode (/admin), render as a regular standalone page, NOT a popup
-  if (isAdminOpen) {
-    return (
-      <div className="min-h-screen bg-slate-100 text-slate-900 flex flex-col font-sans">
-        {/* Launch Splash Screen (5 seconds) */}
-        {isSplashVisible && <SplashScreen duration={5000} onComplete={closeSplash} />}
-        <AdminPortalPage onBackToSite={() => setIsAdminOpen(false)} />
-        <ApiKeySettingsModal isOpen={isApiKeyModalOpen} onClose={() => setIsApiKeyModalOpen(false)} />
-        <ToastContainer />
-      </div>
-    );
-  }
+  // Automatic hash navigation handler for scanned QR code URLs (#register, #donate, #sponsorships, #schedule)
+  React.useEffect(() => {
+    const handleHashScroll = () => {
+      const hash = window.location.hash.toLowerCase().replace('#', '').trim();
+      if (!hash || hash === 'admin' || hash === '/admin') return;
 
-  // Otherwise, render the public tournament application
+      let targetId = hash;
+      if (hash === 'sponsors' || hash === 'sponsor') targetId = 'sponsorships';
+      if (hash === 'itinerary' || hash === 'agenda' || hash === 'schedule') targetId = 'schedule';
+      if (hash === 'registration') targetId = 'register';
+      if (hash === 'donation') targetId = 'donate';
+
+      const scrollDelays = [100, 350, 700, 1200];
+      scrollDelays.forEach((delay) => {
+        setTimeout(() => {
+          const element = document.getElementById(targetId);
+          if (element) {
+            const yOffset = -80;
+            const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+            window.scrollTo({ top: y, behavior: 'smooth' });
+          }
+        }, delay);
+      });
+    };
+
+    handleHashScroll();
+    window.addEventListener('hashchange', handleHashScroll);
+    window.addEventListener('popstate', handleHashScroll);
+    return () => {
+      window.removeEventListener('hashchange', handleHashScroll);
+      window.removeEventListener('popstate', handleHashScroll);
+    };
+  }, []);
+
+  // Main Application Render (Single Splash Screen rendered at top level)
   return (
-    <div className="min-h-screen bg-[#FBFBFA] text-slate-900 flex flex-col font-sans selection:bg-[#D4AF37]/30 selection:text-[#1E4D2B]">
-      {/* Launch Splash Screen (5 seconds) */}
-      {isSplashVisible && <SplashScreen duration={5000} onComplete={closeSplash} />}
+    <>
+      {/* Launch Splash Screen: Rendered ONCE at app root to prevent multiple mounts on route checks */}
+      {isSplashVisible && <SplashScreen duration={2000} onComplete={closeSplash} />}
 
-      {/* Navigation Bar */}
-      <Navbar />
+      {isAdminOpen ? (
+        <div className="min-h-screen bg-slate-100 text-slate-900 flex flex-col font-sans">
+          <AdminPortalPage onBackToSite={() => setIsAdminOpen(false)} />
+          <ApiKeySettingsModal isOpen={isApiKeyModalOpen} onClose={() => setIsApiKeyModalOpen(false)} />
+          <BrandedQrCodeGeneratorModal isOpen={isQrModalOpen} onClose={() => setIsQrModalOpen(false)} addToast={addToast} />
+          <ToastContainer />
+        </div>
+      ) : (
+        <div className="min-h-screen bg-[#FBFBFA] text-slate-900 flex flex-col font-sans selection:bg-[#D4AF37]/30 selection:text-[#1E4D2B]">
+          {/* Navigation Bar */}
+          <Navbar />
 
-      {/* Main Content Sections */}
-      <main className="flex-grow">
-        {/* 1. Hero Section with Countdown Timer & Quick CTAs */}
-        <Hero />
+          {/* Main Content Sections */}
+          <main className="flex-grow">
+            {/* 1. Hero Section with Countdown Timer & Quick CTAs */}
+            <Hero />
 
-        {/* 2. Live Fundraising Tracker & Impact Progress Bar */}
-        <FundraisingTracker />
+            {/* 2. Live Fundraising Tracker & Impact Progress Bar */}
+            <FundraisingTracker />
 
-        {/* 3. About Us: Memorial Story, Late Wife Tribute & Founder's Letter */}
-        <MemorialStory />
+            {/* 3. About Us: Memorial Story, Late Wife Tribute & Founder's Letter */}
+            <MemorialStory />
 
-        {/* 4. Tournament Details: 18-Hole Scramble, Official Schedule & Course Map */}
-        <EventDetails />
+            {/* 4. Tournament Details: 18-Hole Scramble, Official Schedule & Course Map */}
+            <EventDetails />
 
-        {/* 5. Register: Digital Registration Card (Foursomes, Individual, Dinner Only, Add-ons) */}
-        <RegistrationSection />
+            {/* 5. Register: Digital Registration Card (Foursomes, Individual, Dinner Only, Add-ons) */}
+            <RegistrationSection />
 
-        {/* 6. Sponsorships: Tiered Corporate Packages & Showcase */}
-        <SponsorshipsSection />
+            {/* 6. Sponsorships: Tiered Corporate Packages & Showcase */}
+            <SponsorshipsSection />
 
-        {/* 7. Live Scoring: Hub, Pairing Matrix, Direct App Links & Rules */}
+            {/* 7. Live Scoring: Hub, Pairing Matrix, Direct App Links & Rules */}
 
-        {/* 8. Our Cause / Impact: Metric counters & Fund Allocation Breakdown */}
-        <ImpactSection />
+            {/* 10. Community Messages & Memorial Tribute Book */}
+            <TributesWall />
 
-        {/* 9. Open Memorial Donation Engine & Tax-Deductible Gifting */}
-        <DonationSection />
+            {/* 11. FAQ: Weather, Dress Code, Rentals & Scoring Format */}
+            <FaqSection />
 
-        {/* 10. Community Messages & Memorial Tribute Book */}
-        <TributesWall />
+            {/* 12. Contact: Organizer details & On-Course Volunteer Sign-Up */}
+            <ContactSection />
+          </main>
 
-        {/* 11. FAQ: Weather, Dress Code, Rentals & Scoring Format */}
-        <FaqSection />
+          {/* Footer */}
+          <Footer />
 
-        {/* 12. Contact: Organizer details & On-Course Volunteer Sign-Up */}
-        <ContactSection />
-      </main>
+          {/* Interactive Public Modals */}
+          <SponsorModal />
+          <DonationModal />
+          <AddMemorialNoteModal />
+          <GameDayAgendaModal />
+          <ApiKeySettingsModal isOpen={isApiKeyModalOpen} onClose={() => setIsApiKeyModalOpen(false)} />
+          <BrandedQrCodeGeneratorModal isOpen={isQrModalOpen} onClose={() => setIsQrModalOpen(false)} addToast={addToast} />
 
-      {/* Footer */}
-      <Footer />
-
-      {/* Interactive Public Modals */}
-      <SponsorModal />
-      <DonationModal />
-      <AddMemorialNoteModal />
-      <GameDayAgendaModal />
-      <ApiKeySettingsModal isOpen={isApiKeyModalOpen} onClose={() => setIsApiKeyModalOpen(false)} />
-
-      {/* Global Notification Toast Container */}
-      <ToastContainer />
-    </div>
+          {/* Global Notification Toast Container */}
+          <ToastContainer />
+        </div>
+      )}
+    </>
   );
 }
 

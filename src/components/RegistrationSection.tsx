@@ -3,6 +3,7 @@ import { useTournament } from '../context/TournamentContext';
 import { Users, User, CheckCircle2, Sparkles, Heart } from 'lucide-react';
 import { RegistrationModal } from './RegistrationModal';
 import { DonationModal } from './DonationModal';
+import { FoursomesRosterCard } from './FoursomesRosterCard';
 
 function useMobileTabletInView(threshold = 0.35) {
   const ref = useRef<HTMLDivElement>(null);
@@ -114,7 +115,7 @@ export const RegistrationSection: React.FC = () => {
             Golfer Registration
           </h2>
           <p className="mt-3 text-base sm:text-lg text-slate-600 leading-relaxed">
-            Every registration includes 18 holes with a GPS cart, gift bag, breakfast, on-course refreshments, and banquet luncheon.
+            Every registration includes course green fee, golf cart, on-course refreshments, and awards dinner.
           </p>
         </div>
 
@@ -126,13 +127,13 @@ export const RegistrationSection: React.FC = () => {
             onClick={() => handleCardClick('golf')}
             style={
               isGolfHighlighted
-                ? { border: '2px solid #000000', backgroundColor: '#295636' }
+                ? { border: '2px solid #000000', backgroundColor: '#1e4d2b' }
                 : undefined
             }
             className={`rounded-2xl shadow-xl p-6 flex flex-col justify-between transition-all duration-300 cursor-pointer relative overflow-hidden group ${
               isGolfHighlighted
-                ? 'bg-[#295636] border-2 border-black text-white shadow-2xl ring-2 ring-emerald-400/40'
-                : 'bg-white border-2 border-[#1E4D2B] text-slate-900 hover:bg-[#295636] hover:text-white hover:border-black hover:shadow-2xl'
+                ? 'bg-[#1e4d2b] border-2 border-black text-white shadow-2xl ring-2 ring-emerald-400/40'
+                : 'bg-white border-2 border-[#1E4D2B] text-slate-900 hover:bg-[#1e4d2b] hover:text-white hover:border-black hover:shadow-2xl'
             }`}
           >
             <div>
@@ -165,7 +166,7 @@ export const RegistrationSection: React.FC = () => {
                       isGolfHighlighted ? 'text-white/90' : 'text-slate-500 group-hover:text-white/90'
                     }`}
                   >
-                    1 Golfer &bull; 18 Holes &bull; GPS Cart
+                    1 Golfer &bull; Green Fee &amp; Cart
                   </p>
                 </div>
               </div>
@@ -188,7 +189,7 @@ export const RegistrationSection: React.FC = () => {
                     isGolfHighlighted ? 'text-white/80' : 'text-slate-500 group-hover:text-white/80'
                   }`}
                 >
-                  Per Player (18 Holes &amp; GPS Cart)
+                  Per Player (Green Fee &amp; Cart)
                 </span>
               </div>
 
@@ -198,7 +199,7 @@ export const RegistrationSection: React.FC = () => {
                   isGolfHighlighted ? 'text-white' : 'text-slate-600 group-hover:text-white'
                 }`}
               >
-                Enjoy an 18-hole scramble with a GPS cart, gift bag, and on-course hospitality. Compete in contests before joining our awards luncheon.
+                Enjoy an 18-hole scramble with course green fee and golf cart included. Compete in contests before joining our awards dinner.
               </p>
 
               <div
@@ -212,7 +213,7 @@ export const RegistrationSection: React.FC = () => {
                       isGolfHighlighted ? 'text-white' : 'text-emerald-600 group-hover:text-white'
                     }`}
                   />
-                  <span>18 holes with GPS cart &amp; live scoring</span>
+                  <span>18-Hole Green Fee &amp; Cart Included</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2
@@ -220,7 +221,7 @@ export const RegistrationSection: React.FC = () => {
                       isGolfHighlighted ? 'text-white' : 'text-emerald-600 group-hover:text-white'
                     }`}
                   />
-                  <span>Gift bag &amp; tournament apparel</span>
+                  <span>Full On-Course Contest Eligibility &amp; Prizes</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2
@@ -228,15 +229,7 @@ export const RegistrationSection: React.FC = () => {
                       isGolfHighlighted ? 'text-white' : 'text-emerald-600 group-hover:text-white'
                     }`}
                   />
-                  <span>Free range balls, breakfast &amp; drinks</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle2
-                    className={`w-4 h-4 shrink-0 mt-0.5 transition-colors ${
-                      isGolfHighlighted ? 'text-white' : 'text-emerald-600 group-hover:text-white'
-                    }`}
-                  />
-                  <span>Awards banquet dinner &amp; contest entry</span>
+                  <span>Turkey Dinner &amp; Awards Evening Admission</span>
                 </div>
               </div>
             </div>
@@ -244,15 +237,15 @@ export const RegistrationSection: React.FC = () => {
             <div
               className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold text-center transition flex items-center justify-center gap-1.5 ${
                 isGolfActive
-                  ? 'bg-white text-[#295636] border-2 border-black font-extrabold shadow-sm'
+                  ? 'bg-white text-[#1e4d2b] border-2 border-black font-extrabold shadow-sm'
                   : isGolfInView
-                  ? 'bg-white text-[#295636] border-2 border-black font-extrabold shadow-sm'
-                  : 'bg-emerald-50 text-[#1E4D2B] border border-emerald-200 group-hover:bg-white group-hover:text-[#295636] group-hover:border-black group-hover:shadow-sm'
+                  ? 'bg-white text-[#1e4d2b] border-2 border-black font-extrabold shadow-sm'
+                  : 'bg-emerald-50 text-[#1E4D2B] border border-emerald-200 group-hover:bg-white group-hover:text-[#1e4d2b] group-hover:border-black group-hover:shadow-sm'
               }`}
             >
               {isGolfActive ? (
                 <>
-                  <CheckCircle2 className="w-4 h-4 text-[#295636]" />
+                  <CheckCircle2 className="w-4 h-4 text-[#1e4d2b]" />
                   <span>Form Open Below</span>
                 </>
               ) : (
@@ -267,13 +260,13 @@ export const RegistrationSection: React.FC = () => {
             onClick={() => handleCardClick('dinner')}
             style={
               isDinnerHighlighted
-                ? { border: '2px solid #000000', backgroundColor: '#295636' }
+                ? { border: '2px solid #000000', backgroundColor: '#1e4d2b' }
                 : undefined
             }
             className={`rounded-2xl shadow-md p-6 flex flex-col justify-between transition-all duration-300 cursor-pointer relative overflow-hidden group ${
               isDinnerHighlighted
-                ? 'bg-[#295636] border-2 border-black text-white shadow-2xl ring-2 ring-emerald-400/40'
-                : 'bg-white border border-slate-200 text-slate-900 hover:bg-[#295636] hover:text-white hover:border-black hover:shadow-2xl'
+                ? 'bg-[#1e4d2b] border-2 border-black text-white shadow-2xl ring-2 ring-emerald-400/40'
+                : 'bg-white border border-slate-200 text-slate-900 hover:bg-[#1e4d2b] hover:text-white hover:border-black hover:shadow-2xl'
             }`}
           >
             <div>
@@ -377,15 +370,15 @@ export const RegistrationSection: React.FC = () => {
             <div
               className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold text-center transition flex items-center justify-center gap-1.5 ${
                 isDinnerActive
-                  ? 'bg-white text-[#295636] border-2 border-black font-extrabold shadow-sm'
+                  ? 'bg-white text-[#1e4d2b] border-2 border-black font-extrabold shadow-sm'
                   : isDinnerInView
-                  ? 'bg-white text-[#295636] border-2 border-black font-extrabold shadow-sm'
-                  : 'bg-slate-100 text-slate-800 border border-slate-300 group-hover:bg-white group-hover:text-[#295636] group-hover:border-black group-hover:shadow-sm'
+                  ? 'bg-white text-[#1e4d2b] border-2 border-black font-extrabold shadow-sm'
+                  : 'bg-slate-100 text-slate-800 border border-slate-300 group-hover:bg-white group-hover:text-[#1e4d2b] group-hover:border-black group-hover:shadow-sm'
               }`}
             >
               {isDinnerActive ? (
                 <>
-                  <CheckCircle2 className="w-4 h-4 text-[#295636]" />
+                  <CheckCircle2 className="w-4 h-4 text-[#1e4d2b]" />
                   <span>Form Open Below</span>
                 </>
               ) : (
@@ -400,13 +393,13 @@ export const RegistrationSection: React.FC = () => {
             onClick={() => handleCardClick('donation')}
             style={
               isDonationHighlighted
-                ? { border: '2px solid #000000', backgroundColor: '#295636' }
+                ? { border: '2px solid #000000', backgroundColor: '#1e4d2b' }
                 : undefined
             }
             className={`rounded-2xl shadow-xl p-6 flex flex-col justify-between transition-all duration-300 cursor-pointer relative overflow-hidden group ${
               isDonationHighlighted
-                ? 'bg-[#295636] border-2 border-black text-white shadow-2xl ring-2 ring-emerald-400/40'
-                : 'bg-white border-2 border-rose-300 text-slate-900 hover:bg-[#295636] hover:text-white hover:border-black hover:shadow-2xl'
+                ? 'bg-[#1e4d2b] border-2 border-black text-white shadow-2xl ring-2 ring-emerald-400/40'
+                : 'bg-white border-2 border-rose-300 text-slate-900 hover:bg-[#1e4d2b] hover:text-white hover:border-black hover:shadow-2xl'
             }`}
           >
             <div>
@@ -507,15 +500,7 @@ export const RegistrationSection: React.FC = () => {
                       isDonationHighlighted ? 'text-white' : 'text-rose-500 group-hover:text-white'
                     }`}
                   />
-                  <span>Official charitable tax receipt issued promptly</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle2
-                    className={`w-4 h-4 shrink-0 mt-0.5 transition-colors ${
-                      isDonationHighlighted ? 'text-white' : 'text-rose-500 group-hover:text-white'
-                    }`}
-                  />
-                  <span>Non-golfers and supporters warmly welcome</span>
+                  <span>Official charitable tax receipt issued by Hamilton Health Sciences Foundation at tax time.</span>
                 </div>
               </div>
             </div>
@@ -523,15 +508,15 @@ export const RegistrationSection: React.FC = () => {
             <div
               className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold text-center transition flex items-center justify-center gap-1.5 ${
                 isDonationActive
-                  ? 'bg-white text-[#295636] border-2 border-black font-extrabold shadow-sm'
+                  ? 'bg-white text-[#1e4d2b] border-2 border-black font-extrabold shadow-sm'
                   : isDonationInView
-                  ? 'bg-white text-[#295636] border-2 border-black font-extrabold shadow-sm'
-                  : 'bg-rose-50 text-rose-800 border border-rose-200 group-hover:bg-white group-hover:text-[#295636] group-hover:border-black group-hover:shadow-sm'
+                  ? 'bg-white text-[#1e4d2b] border-2 border-black font-extrabold shadow-sm'
+                  : 'bg-rose-50 text-rose-800 border border-rose-200 group-hover:bg-white group-hover:text-[#1e4d2b] group-hover:border-black group-hover:shadow-sm'
               }`}
             >
               {isDonationActive ? (
                 <>
-                  <CheckCircle2 className="w-4 h-4 text-[#295636]" />
+                  <CheckCircle2 className="w-4 h-4 text-[#1e4d2b]" />
                   <span>Form Open Below</span>
                 </>
               ) : (
@@ -559,6 +544,14 @@ export const RegistrationSection: React.FC = () => {
             />
           </div>
         )}
+
+        {/* Foursomes Management Section */}
+        <div className="mt-12">
+          <FoursomesRosterCard
+            title="Foursomes Management"
+            subtitle="Registered Foursome Teams, Primary Contacts & Teammate Rosters • October 2026"
+          />
+        </div>
       </div>
     </section>
   );

@@ -7,24 +7,6 @@ import { motion } from 'motion/react';
 export const MemorialStory: React.FC = () => {
   const { openDonationModal } = useTournament();
 
-  const impactPillars = [
-    {
-      icon: Activity,
-      title: 'Direct Patient Hardship Relief',
-      description: 'Funds essential travel, lodging, medical co-pays, and nutrition for oncology patients during intensive care.'
-    },
-    {
-      icon: ShieldCheck,
-      title: 'Clinical Research Fellowships',
-      description: 'Underwrites early-detection trials and targeted immunotherapy research at regional cancer centers.'
-    },
-    {
-      icon: Heart,
-      title: 'Community & Family Care',
-      description: 'Provides psychological counseling, child care support, and survivorship resources for affected families.'
-    }
-  ];
-
   return (
     <section id="memorial" className="py-20 bg-[#FBFBFA] relative overflow-hidden scroll-mt-20">
       <span id="about" className="block relative -top-24 invisible" />
@@ -57,14 +39,11 @@ export const MemorialStory: React.FC = () => {
                 <Sparkles className="w-5 h-5 text-[#D4AF37]" />
                 A Letter from Founder {EVENT_DETAILS.founder}
               </h3>
-              <p className="text-slate-100">
-                <em>"Naseem had a rare gift for making everyone feel cherished. Throughout her cancer battle, she focused on comforting fellow patients rather than her own pain."</em>
+              <p className="text-slate-100 leading-relaxed italic">
+                "One could never find a more gracious and self sacrificing person than the example that we had in our Mother. She always took the time and effort regardless of whatever birthday party, holiday, or social gathering, to make sure that whoever was present was a well comforted guest, taken care of and treated like royalty."
               </p>
-              <p className="text-slate-100">
-                <em>"Golf brought us joy and lasting friendships. In her memory, we created the Fragrant Breeze Golf Classic to provide tangible support for families fighting this disease."</em>
-              </p>
-              <p className="font-semibold text-white">
-                <em>"Thank you for playing, giving generously, and keeping Naseem’s kindness alive."</em>
+              <p className="font-semibold text-amber-200 leading-relaxed italic pt-1">
+                "Now, in the same spirit of joy &amp; fun, we hold this tournament."
               </p>
             </div>
 
@@ -137,35 +116,12 @@ export const MemorialStory: React.FC = () => {
                   <div className="text-[11px] text-slate-300 uppercase mt-0.5">Net Proceeds to Care</div>
                 </div>
                 <div className="bg-emerald-950/60 p-3 rounded-xl border border-emerald-700/60">
-                  <div className="text-2xl font-bold text-emerald-300 font-mono">501(c)(3)</div>
-                  <div className="text-[11px] text-slate-300 uppercase mt-0.5">Tax-Deductible</div>
+                  <div className="text-xl font-bold text-amber-300 font-mono">Memorial</div>
+                  <div className="text-[11px] text-slate-300 uppercase mt-0.5">Charitable Classic</div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-
-        {/* 3 Pillars of Impact */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {impactPillars.map((pillar, i) => {
-            const Icon = pillar.icon;
-            return (
-              <div
-                key={i}
-                className="bg-white rounded-xl p-6 shadow-sm border border-slate-200 hover:bg-[#1a4426] hover:text-white hover:border-emerald-600 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group cursor-pointer"
-              >
-                <div className="w-12 h-12 rounded-xl bg-emerald-50 text-[#1E4D2B] group-hover:bg-white/15 group-hover:text-[#D4AF37] group-hover:border group-hover:border-white/20 transition-all duration-300 flex items-center justify-center mb-4">
-                  <Icon className="w-6 h-6" />
-                </div>
-                <h4 className="text-base font-bold text-slate-900 group-hover:text-white mb-2 font-serif-heading transition-colors duration-300">
-                  {pillar.title}
-                </h4>
-                <p className="text-xs sm:text-sm text-slate-600 group-hover:text-emerald-100 leading-relaxed transition-colors duration-300">
-                  {pillar.description}
-                </p>
-              </div>
-            );
-          })}
         </div>
       </div>
     </section>

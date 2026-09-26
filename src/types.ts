@@ -48,6 +48,8 @@ export interface RegistrationRecord {
   checkedIn: boolean;
   assignedCart?: string;
   assignedStartingHole?: number;
+  teamNumber?: string;
+  teeTime?: string;
   notes?: string;
   routedToEmail?: string;
 }

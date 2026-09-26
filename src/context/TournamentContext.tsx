@@ -43,6 +43,10 @@ interface TournamentContextType {
   donations: DonationRecord[];
   leaderboard: LeaderboardTeam[];
   totalRaised: number;
+  totalCharityNet: number;
+  totalGolfFees: number;
+  registrationDonationPortion: number;
+  registrationGolfFeePortion: number;
   totalGolfers: number;
   goalAmount: number;
   goalPercentage: number;
@@ -119,6 +123,9 @@ interface TournamentContextType {
   setIsAgendaOpen: (open: boolean) => void;
   isMemorialNoteModalOpen: boolean;
   setIsMemorialNoteModalOpen: (open: boolean) => void;
+  isQrModalOpen: boolean;
+  setIsQrModalOpen: (open: boolean) => void;
+  openQrGeneratorModal: () => void;
   selectedRegType: RegistrationType;
   selectedSponsorTier: SponsorTier;
   selectedDonationAmount: number;
@@ -266,9 +273,10 @@ export const TournamentProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [donations, setDonations] = useState<DonationRecord[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.DONATIONS);
-      return saved ? JSON.parse(saved) : INITIAL_DONATIONS;
+      const list: DonationRecord[] = saved ? JSON.parse(saved) : INITIAL_DONATIONS;
+      return list.filter((d) => !d.donorName?.toLowerCase().includes('luc valade') && !d.donorName?.toLowerCase().includes('luc'));
     } catch {
-      return INITIAL_DONATIONS;
+      return INITIAL_DONATIONS.filter((d) => !d.donorName?.toLowerCase().includes('luc valade') && !d.donorName?.toLowerCase().includes('luc'));
     }
   });
 
@@ -390,6 +398,7 @@ export const TournamentProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [isSponsorModalOpen, setIsSponsorModalOpen] = useState(false);
   const [isAgendaOpen, setIsAgendaOpen] = useState(false);
   const [isMemorialNoteModalOpen, setIsMemorialNoteModalOpen] = useState(false);
+  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpenState] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
@@ -433,9 +442,21 @@ export const TournamentProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       window.removeEventListener('hashchange', handlePopState);
     };
   }, []);
+  const SIX_HOURS_MS = 6 * 60 * 60 * 1000; // 6 hours in milliseconds (21,600,000 ms)
+
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(() => {
     try {
-      return sessionStorage.getItem('saied_tournament_admin_auth') === 'true';
+      const isAuth = sessionStorage.getItem('saied_tournament_admin_auth') === 'true';
+      const timestampStr = sessionStorage.getItem('saied_tournament_admin_auth_timestamp');
+      if (isAuth && timestampStr) {
+        const timestamp = parseInt(timestampStr, 10);
+        if (Date.now() - timestamp >= SIX_HOURS_MS) {
+          sessionStorage.removeItem('saied_tournament_admin_auth');
+          sessionStorage.removeItem('saied_tournament_admin_auth_timestamp');
+          return false;
+        }
+      }
+      return isAuth;
     } catch {
       return false;
     }
@@ -451,12 +472,14 @@ export const TournamentProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       '2026',
       'saied2026',
       'luc.valade@gmail.com',
+      'ms_smnm@outlook.com',
       'naseem2026'
     ];
     if (validCodes.includes(normalized)) {
       setIsAdminAuthenticated(true);
       try {
         sessionStorage.setItem('saied_tournament_admin_auth', 'true');
+        sessionStorage.setItem('saied_tournament_admin_auth_timestamp', Date.now().toString());
       } catch {
         // ignore
       }
@@ -469,34 +492,69 @@ export const TournamentProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     setIsAdminAuthenticated(false);
     try {
       sessionStorage.removeItem('saied_tournament_admin_auth');
+      sessionStorage.removeItem('saied_tournament_admin_auth_timestamp');
     } catch {
       // ignore
     }
   };
+
+  // 6-Hour Session Expiration Check
+  useEffect(() => {
+    if (!isAdminAuthenticated) return;
+
+    const checkSessionExpiration = () => {
+      try {
+        const timestampStr = sessionStorage.getItem('saied_tournament_admin_auth_timestamp');
+        if (timestampStr) {
+          const timestamp = parseInt(timestampStr, 10);
+          if (Date.now() - timestamp >= SIX_HOURS_MS) {
+            logoutAdmin();
+            addToast('error', 'Session Expired', 'You have been automatically logged out after 6 hours. Please log in again.');
+          }
+        }
+      } catch {
+        // ignore
+      }
+    };
+
+    checkSessionExpiration();
+    const interval = setInterval(checkSessionExpiration, 30000); // Check every 30 seconds
+    const handleFocus = () => checkSessionExpiration();
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [isAdminAuthenticated]);
 
   const [selectedRegType, setSelectedRegType] = useState<RegistrationType>('foursome');
   const [selectedSponsorTier, setSelectedSponsorTier] = useState<SponsorTier>('eagle');
   const [selectedDonationAmount, setSelectedDonationAmount] = useState<number>(100);
   const [lastConfirmation, setLastConfirmation] = useState<RegistrationRecord | null>(null);
   const [contactTab, setContactTab] = useState<'inquiry' | 'volunteer'>('inquiry');
-  const [isSplashVisible, setIsSplashVisible] = useState<boolean>(() => {
-    try {
-      const alreadyShown = sessionStorage.getItem('fragrant_breeze_splash_shown');
-      return !alreadyShown;
-    } catch {
-      return false;
-    }
-  });
+  const [isSplashVisible, setIsSplashVisible] = useState<boolean>(false);
 
   const triggerSplash = () => setIsSplashVisible(true);
   const closeSplash = () => {
     setIsSplashVisible(false);
     try {
+      localStorage.setItem('fragrant_breeze_splash_shown', 'true');
       sessionStorage.setItem('fragrant_breeze_splash_shown', 'true');
     } catch {
       // ignore
     }
   };
+
+  // Safety Timer: Ensure splash screen auto-dismisses after 1500ms max
+  useEffect(() => {
+    if (isSplashVisible) {
+      const timer = setTimeout(() => {
+        closeSplash();
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [isSplashVisible]);
 
   const goToVolunteerSection = () => {
     setContactTab('volunteer');
@@ -610,6 +668,40 @@ export const TournamentProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   const sponsorRevenue = confirmedSponsorRevenue + crmPledgeRevenue;
   const directDonationRevenue = donations.reduce((sum, d) => sum + (d.amount || 0), 0);
+
+  // Exact Breakdown: $120 fee -> $30 donation, $90 golf fees. $100 fee -> $30 donation, $70 golf fees.
+  const registrationFeeBreakdown = registrations.reduce(
+    (acc, r) => {
+      let playerCount = 1 + (r.additionalPlayers?.length || 0);
+      if (r.type === 'foursome') {
+        playerCount = Math.max(4, playerCount);
+      }
+
+      if (r.type === 'dinner_only') {
+        acc.charityDonation += 20 * playerCount;
+        acc.golfFees += 40 * playerCount;
+      } else {
+        const isMember = r.golferType === 'member';
+        const donationPerGolfer = 30;
+        const golfFeePerGolfer = isMember ? 70 : 90;
+        acc.charityDonation += playerCount * donationPerGolfer;
+        acc.golfFees += playerCount * golfFeePerGolfer;
+      }
+
+      // Addons in registration (mulligans, raffle, etc.) go 100% to charity donation
+      const addonTotal = calculateAddonTotal(r.addons);
+      acc.charityDonation += addonTotal;
+
+      return acc;
+    },
+    { charityDonation: 0, golfFees: 0 }
+  );
+
+  const registrationDonationPortion = registrationFeeBreakdown.charityDonation;
+  const registrationGolfFeePortion = registrationFeeBreakdown.golfFees;
+
+  const totalCharityNet = registrationDonationPortion + sponsorRevenue + directDonationRevenue;
+  const totalGolfFees = registrationGolfFeePortion;
 
   const totalRaised = regRevenue + sponsorRevenue + directDonationRevenue;
   const goalAmount = EVENT_DETAILS.goalAmount;
@@ -943,6 +1035,10 @@ export const TournamentProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   const openMemorialNoteModal = () => {
     setIsMemorialNoteModalOpen(true);
+  };
+
+  const openQrGeneratorModal = () => {
+    setIsQrModalOpen(true);
   };
 
   const openApiKeyModal = () => {
@@ -1420,6 +1516,10 @@ export const TournamentProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         donations,
         leaderboard,
         totalRaised,
+        totalCharityNet,
+        totalGolfFees,
+        registrationDonationPortion,
+        registrationGolfFeePortion,
         totalGolfers,
         goalAmount,
         goalPercentage,
@@ -1466,6 +1566,9 @@ export const TournamentProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         setIsAgendaOpen,
         isMemorialNoteModalOpen,
         setIsMemorialNoteModalOpen,
+        isQrModalOpen,
+        setIsQrModalOpen,
+        openQrGeneratorModal,
         selectedRegType,
         selectedSponsorTier,
         selectedDonationAmount,

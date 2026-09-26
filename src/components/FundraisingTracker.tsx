@@ -5,7 +5,21 @@ import { Target, TrendingUp, Heart, Users, Award, DollarSign } from 'lucide-reac
 import { motion } from 'motion/react';
 
 export const FundraisingTracker: React.FC = () => {
-  const { totalRaised, goalAmount, goalPercentage, totalGolfers, sponsors, donations, registrations, openDonationModal, openRegistrationModal } = useTournament();
+  const {
+    totalRaised,
+    totalCharityNet,
+    totalGolfFees,
+    registrationDonationPortion,
+    registrationGolfFeePortion,
+    goalAmount,
+    goalPercentage,
+    totalGolfers,
+    sponsors,
+    donations,
+    registrations,
+    openDonationModal,
+    openRegistrationModal
+  } = useTournament();
 
   const juravinskiRaised = totalRaised * 0.75;
   const juravinskiTarget = (goalAmount || 2000) * 0.75;
@@ -39,7 +53,7 @@ export const FundraisingTracker: React.FC = () => {
                 </span>
                 <div>
                   <h3 className="text-xl sm:text-2xl font-bold text-slate-900 font-serif-heading">
-                    2026 Memorial Goal
+                    <span style={{ fontSize: '20px' }} className="text-[20px] font-extrabold inline-block">2026</span> Memorial Goal
                   </h3>
                   <p className="text-xs sm:text-sm text-slate-500">
                     Supporting Juravinski Breast Cancer Research (75%) &amp; Canadian Red Cross - Fire &amp; Flood (25%)
@@ -55,9 +69,11 @@ export const FundraisingTracker: React.FC = () => {
                 <span className="text-lg sm:text-xl font-medium text-slate-500">
                   raised of <strong className="text-slate-800 font-semibold">${(goalAmount || 2000).toLocaleString()}</strong> goal
                 </span>
-                <span className="px-3 py-1 text-xs font-bold rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
-                  {goalPercentage || 0}% Funded
-                </span>
+                <div className="p-[2px] rounded-full bg-gradient-to-r from-[#1E4D2B] via-[#D4AF37] via-rose-500 to-emerald-500 shadow-xs inline-block">
+                  <span className="block px-3.5 py-1 text-[13.8px] sm:text-[14px] font-extrabold rounded-full bg-emerald-50 text-emerald-950 font-mono tracking-tight">
+                    {goalPercentage || 0}% Funded
+                  </span>
+                </div>
               </div>
 
               {/* Visual Thermometer */}
@@ -73,7 +89,7 @@ export const FundraisingTracker: React.FC = () => {
                   </motion.div>
                 </div>
                 <div className="flex justify-between text-xs font-semibold text-slate-500">
-                  <span>$0 (Kickoff)</span>
+                  <span>$0</span>
                   <span className="text-[#1E4D2B] font-bold">Current: ${(totalRaised || 0).toLocaleString()}</span>
                   <span>${(goalAmount || 2000).toLocaleString()} (Target Goal)</span>
                 </div>
@@ -159,50 +175,75 @@ export const FundraisingTracker: React.FC = () => {
               </div>
             </div>
 
-            {/* Right mini stat breakdown tiles */}
-            <div className="lg:col-span-5 grid grid-cols-2 gap-3 sm:gap-4">
-              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-                <div className="flex items-center gap-2 text-[#D4AF37] mb-1">
-                  <Award className="w-4 h-4" />
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-600">Sponsorships</span>
+            {/* Right stat breakdown tiles */}
+            <div className="lg:col-span-5 flex flex-col gap-3">
+              <div className="p-4 rounded-xl bg-gradient-to-br from-[#295534] to-emerald-900 text-white border border-emerald-700 shadow-md">
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center gap-2 text-amber-300">
+                    <Heart className="w-4 h-4 fill-amber-300" />
+                    <span className="text-xs font-bold uppercase tracking-wider">Net Charity Donation Raised</span>
+                  </div>
+                  <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-200 border border-amber-300/30">
+                    Pure Giving
+                  </span>
                 </div>
-                <div className="text-xl sm:text-2xl font-bold text-slate-900 font-mono">
-                  ${sponsorTotal.toLocaleString()}
+                <div className="text-2xl sm:text-3xl font-extrabold font-mono tracking-tight text-white">
+                  ${(totalCharityNet || 0).toLocaleString()} CAD
                 </div>
-                <p className="text-[11px] text-slate-500 mt-1">{sponsors.length} Corporate Partners</p>
+                <p className="text-[11px] text-emerald-100 mt-1">
+                  Direct proceeds to Juravinski Breast Cancer Research &amp; Red Cross
+                </p>
               </div>
 
-              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-                <div className="flex items-center gap-2 text-[#15803D] mb-1">
-                  <Users className="w-4 h-4" />
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-600">Registrations</span>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                  <div className="flex items-center gap-1.5 text-[#295534] mb-1">
+                    <Users className="w-3.5 h-3.5" />
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-700">Registration Gifts</span>
+                  </div>
+                  <div className="text-lg font-bold text-slate-900 font-mono">
+                    ${(registrationDonationPortion || 0).toLocaleString()}
+                  </div>
+                  <p className="text-[10px] text-slate-500 mt-0.5">$30 per Golfer Entry</p>
                 </div>
-                <div className="text-xl sm:text-2xl font-bold text-slate-900 font-mono">
-                  ${registrationTotal.toLocaleString()}
+
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                  <div className="flex items-center gap-1.5 text-slate-600 mb-1">
+                    <DollarSign className="w-3.5 h-3.5 text-slate-500" />
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-700">Course &amp; Golf Fees</span>
+                  </div>
+                  <div className="text-lg font-bold text-slate-800 font-mono">
+                    ${(totalGolfFees || 0).toLocaleString()}
+                  </div>
+                  <p className="text-[10px] text-slate-500 mt-0.5">$90 / $70 Green &amp; Carts</p>
                 </div>
-                <p className="text-[11px] text-slate-500 mt-1">{totalGolfers} Total Golfers</p>
+
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                  <div className="flex items-center gap-1.5 text-[#D4AF37] mb-1">
+                    <Award className="w-3.5 h-3.5" />
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-700">Sponsorships</span>
+                  </div>
+                  <div className="text-lg font-bold text-slate-900 font-mono">
+                    ${sponsorTotal.toLocaleString()}
+                  </div>
+                  <p className="text-[10px] text-slate-500 mt-0.5">{sponsors.length} Corporate Partners</p>
+                </div>
+
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                  <div className="flex items-center gap-1.5 text-rose-500 mb-1">
+                    <Heart className="w-3.5 h-3.5" />
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-700">Direct Gifts</span>
+                  </div>
+                  <div className="text-lg font-bold text-slate-900 font-mono">
+                    ${donationTotal.toLocaleString()}
+                  </div>
+                  <p className="text-[10px] text-slate-500 mt-0.5">{donations.length} Dedicated Tributes</p>
+                </div>
               </div>
 
-              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-                <div className="flex items-center gap-2 text-rose-500 mb-1">
-                  <Heart className="w-4 h-4" />
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-600">Memorial Gifts</span>
-                </div>
-                <div className="text-xl sm:text-2xl font-bold text-slate-900 font-mono">
-                  ${donationTotal.toLocaleString()}
-                </div>
-                <p className="text-[11px] text-slate-500 mt-1">{donations.length} Dedicated Gifts</p>
-              </div>
-
-              <div className="p-4 rounded-xl bg-emerald-50/80 border border-emerald-200">
-                <div className="flex items-center gap-2 text-emerald-700 mb-1">
-                  <TrendingUp className="w-4 h-4" />
-                  <span className="text-xs font-bold uppercase tracking-wider text-emerald-800">Remaining</span>
-                </div>
-                <div className="text-xl sm:text-2xl font-bold text-emerald-900 font-mono">
-                  ${Math.max(0, goalAmount - totalRaised).toLocaleString()}
-                </div>
-                <p className="text-[11px] text-emerald-700 mt-1">To Reach 100% Target</p>
+              {/* Fee Formula Note */}
+              <div className="p-2.5 rounded-lg bg-amber-50/80 border border-amber-200/90 text-[11px] text-amber-900 leading-snug">
+                <strong className="font-bold">Fee Allocation Transparency:</strong> For e-transfers &amp; entry fees, <strong>$30</strong> of every $120 ($90 golf fees) or $100 ($70 golf fees) registration is tracked as a direct charitable contribution.
               </div>
             </div>
           </div>

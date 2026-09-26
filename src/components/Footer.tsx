@@ -102,10 +102,10 @@ export const Footer: React.FC = () => {
           {/* Col 5: Tax Info & Director Access */}
           <div className="space-y-4">
             <h4 className="text-xs font-bold uppercase tracking-wider text-amber-300 font-sans">
-              501(c)(3) Non-Profit
+              Memorial Charity
             </h4>
             <p className="text-xs text-slate-300 leading-relaxed">
-              All contributions, sponsorships, and tournament gifts are tax-deductible to the fullest extent of the law. Tax ID: <strong>{EVENT_DETAILS.taxId}</strong>
+              All contributions, sponsorships, and tournament gifts support Juravinski Cancer Research &amp; Canadian Red Cross.
             </p>
 
             <div className="pt-2">
@@ -124,7 +124,7 @@ export const Footer: React.FC = () => {
         {/* Bottom Bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-300">
           <div>
-            &copy; 2026 Saied  Fragrant Breeze Golf Tournament
+            &copy; 2026 6th Annual Fragrant Breeze Golf Tournament
           </div>
           <div className="flex items-center gap-3 text-[11px] text-slate-300">
             <button

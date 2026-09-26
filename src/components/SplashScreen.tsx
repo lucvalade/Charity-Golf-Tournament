@@ -1,28 +1,34 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Heart, Sparkles, Trophy } from 'lucide-react';
 
 interface SplashScreenProps {
-  duration?: number; // in milliseconds (default 5000ms = 5s)
+  duration?: number; // in milliseconds (default 2500ms = 2.5s)
   onComplete?: () => void;
 }
 
 export const SplashScreen: React.FC<SplashScreenProps> = ({
-  duration = 5000,
+  duration = 2500,
   onComplete,
 }) => {
   const [elapsed, setElapsed] = useState(0);
   const [isExiting, setIsExiting] = useState(false);
   const [shouldRender, setShouldRender] = useState(true);
 
+  const onCompleteRef = useRef(onComplete);
+  useEffect(() => {
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
+
   useEffect(() => {
     try {
+      localStorage.setItem('fragrant_breeze_splash_shown', 'true');
       sessionStorage.setItem('fragrant_breeze_splash_shown', 'true');
     } catch {
       // ignore
     }
 
     const startTime = Date.now();
-    const intervalMs = 50;
+    const intervalMs = 30;
 
     const timer = setInterval(() => {
       const currentElapsed = Date.now() - startTime;
@@ -31,25 +37,30 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
         setElapsed(duration);
         setIsExiting(true);
 
-        // Allow 700ms fade-out transition before unmounting
+        // Allow 400ms fade-out transition before unmounting
         setTimeout(() => {
           setShouldRender(false);
-          onComplete?.();
-        }, 700);
+          onCompleteRef.current?.();
+        }, 400);
       } else {
         setElapsed(currentElapsed);
       }
     }, intervalMs);
 
     return () => clearInterval(timer);
-  }, [duration, onComplete]);
+  }, [duration]);
 
-  const handleManualDismiss = () => {
+  const handleManualDismiss = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
     setIsExiting(true);
-    setTimeout(() => {
-      setShouldRender(false);
-      onComplete?.();
-    }, 400);
+    setShouldRender(false);
+    try {
+      localStorage.setItem('fragrant_breeze_splash_shown', 'true');
+      sessionStorage.setItem('fragrant_breeze_splash_shown', 'true');
+    } catch {
+      // ignore
+    }
+    onCompleteRef.current?.();
   };
 
   if (!shouldRender) {
@@ -127,7 +138,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
           </p>
         </div>
 
-        {/* 5-Second Progress Bar */}
+        {/* 2.5-Second Progress Bar */}
         <div className="mt-8 sm:mt-9 w-60 sm:w-68 max-w-[85vw] flex flex-col items-center gap-2">
           <div className="w-full h-1.5 bg-emerald-950/80 rounded-full overflow-hidden border border-[#D4AF37]/35 p-[1px] shadow-inner">
             <div
@@ -146,11 +157,15 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
         </div>
       </div>
 
-      {/* Skip Hint at bottom */}
-      <div className="absolute bottom-6 left-0 right-0 text-center pointer-events-none">
-        <span className="text-[11px] text-emerald-200/60 font-medium tracking-wide bg-emerald-900/40 px-3 py-1 rounded-full border border-emerald-700/30">
-          Tap anywhere to continue
-        </span>
+      {/* Skip Button at bottom */}
+      <div className="absolute bottom-6 left-0 right-0 text-center pointer-events-auto z-20">
+        <button
+          type="button"
+          onClick={handleManualDismiss}
+          className="px-5 py-2.5 bg-[#D4AF37] hover:bg-amber-400 text-emerald-950 font-extrabold text-xs rounded-full border border-amber-300 shadow-xl transition transform hover:scale-105 cursor-pointer"
+        >
+          <span>Tap Anywhere or Click Here to Enter App &rarr;</span>
+        </button>
       </div>
     </div>
   );

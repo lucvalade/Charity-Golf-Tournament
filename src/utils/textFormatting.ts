@@ -3,6 +3,16 @@
  * and form input normalization (team names, phone numbers, emails, URLs, cart numbers).
  */
 
+export function formatNameTitleCase(str: string): string {
+  if (!str) return '';
+  if (str.includes('?')) return str; // keep '??????' as open spot
+  return str
+    .toLowerCase()
+    .replace(/\b([a-z])/g, (char) => char.toUpperCase())
+    .replace(/\bMcdowel\b/i, 'McDowel')
+    .replace(/\bMckenney\b/i, 'McKenney');
+}
+
 /**
  * Capitalizes the first letter of every word (Title Case).
  * e.g. "fairway aces" -> "Fairway Aces"

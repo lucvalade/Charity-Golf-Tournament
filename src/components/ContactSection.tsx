@@ -80,7 +80,7 @@ export const ContactSection: React.FC = () => {
     setInquiryEmailError('');
 
     setIsInquirySent(true);
-    addToast('success', 'Message Sent!', `Thank you ${inquiryName}, the tournament committee will respond within 24 hours.`);
+    addToast('success', 'Inquiry Dispatched', `Thank you ${inquiryName}, your message has been sent to info@golfnorth.ca. The committee will respond shortly.`);
     setTimeout(() => {
       setInquiryName('');
       setInquiryEmail('');
@@ -169,8 +169,8 @@ export const ContactSection: React.FC = () => {
                   <div>
                     <div className="font-semibold text-white">Email Inquiries</div>
                     <div className="flex items-center gap-2 mt-0.5">
-                      <a href={`mailto:${EVENT_DETAILS.email}`} className="text-amber-300 hover:underline">
-                        {EVENT_DETAILS.email}
+                      <a href="mailto:info@golfnorth.ca" className="text-amber-300 hover:underline">
+                        info@golfnorth.ca
                       </a>
                       <button
                         type="button"
@@ -235,16 +235,6 @@ export const ContactSection: React.FC = () => {
               </div>
             </div>
 
-            {/* Tax Info & Quick Specs */}
-            <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 text-xs text-slate-600 space-y-2">
-              <div className="font-bold text-slate-800 flex items-center gap-1.5">
-                <CheckCircle className="w-4 h-4 text-emerald-600" />
-                <span>501(c)(3) Charitable Tax Deductible Status</span>
-              </div>
-              <p>
-                Federal Tax ID / EIN: <strong>{EVENT_DETAILS.taxId}</strong>. All donations and net sponsorship contributions are tax-deductible to the fullest extent of the law.
-              </p>
-            </div>
           </div>
 
           {/* Right Column: Inquiry Form */}
@@ -330,7 +320,7 @@ export const ContactSection: React.FC = () => {
                 className="w-full py-3.5 bg-[#EA580C] hover:bg-[#C2410C] text-white font-bold text-sm rounded-xl shadow-md transition flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Send className="w-4 h-4" />
-                <span>{isInquirySent ? 'Message Sent!' : 'Send Inquiry to Committee'}</span>
+                <span>{isInquirySent ? 'Message Sent!' : 'Send Inquiry'}</span>
               </button>
             </form>
           </div>

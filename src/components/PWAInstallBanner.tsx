@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { usePWAInstall } from '../hooks/usePWAInstall';
+import { useTournament } from '../context/TournamentContext';
 import { PWAInstallButton } from './PWAInstallButton';
-import { Monitor, Smartphone, X, Sparkles } from 'lucide-react';
+import { Monitor, Smartphone, X, Sparkles, QrCode } from 'lucide-react';
 
 export const PWAInstallBanner: React.FC = () => {
   const { isInstalled, isDesktop } = usePWAInstall();
+  const { openQrGeneratorModal } = useTournament();
   const [isDismissed, setIsDismissed] = useState(true); // default true until checked
 
   useEffect(() => {
@@ -56,12 +58,22 @@ export const PWAInstallBanner: React.FC = () => {
           </div>
         </div>
 
-        {/* Right: Install Action & Dismiss */}
-        <div className="flex items-center gap-2.5 shrink-0 self-end sm:self-center">
+        {/* Right: Install Action & QR Code & Dismiss */}
+        <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
           <PWAInstallButton
             variant="nav"
             className="px-3.5 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold text-xs flex items-center gap-1.5 shadow-sm transition cursor-pointer"
           />
+
+          <button
+            type="button"
+            onClick={openQrGeneratorModal}
+            className="px-3 py-1.5 rounded-lg bg-emerald-900 hover:bg-emerald-800 text-amber-200 hover:text-white font-bold text-xs flex items-center gap-1.5 border border-[#D4AF37]/60 shadow-xs transition cursor-pointer whitespace-nowrap"
+            title="Open Branded QR Code Generator & Options"
+          >
+            <QrCode className="w-3.5 h-3.5 text-[#D4AF37]" />
+            <span>QR Code</span>
+          </button>
 
           <button
             onClick={handleDismiss}

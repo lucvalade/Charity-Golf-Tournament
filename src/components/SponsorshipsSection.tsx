@@ -96,7 +96,7 @@ const SponsorPackageCard: React.FC<SponsorPackageCardProps> = ({ pkg, onPledge }
         >
           <span
             className={`text-3xl sm:text-4xl font-extrabold font-mono transition-colors duration-300 ${
-              isInView ? 'text-white' : 'text-[#1E4D2B] group-hover:text-white'
+              isInView ? 'text-white' : 'text-[#295636] group-hover:text-white'
             }`}
           >
             ${pkg.amount.toLocaleString()}
@@ -187,8 +187,8 @@ const SponsorPackageCard: React.FC<SponsorPackageCardProps> = ({ pkg, onPledge }
           }}
           className={`w-full py-3 px-4 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2 cursor-pointer ${
             isInView
-              ? 'bg-white hover:bg-slate-100 text-[#295636] shadow-md font-extrabold'
-              : `group-hover:bg-white group-hover:text-[#295636] group-hover:shadow-md ${
+              ? 'bg-white hover:bg-slate-100 text-[#295534] shadow-md font-extrabold'
+              : `group-hover:bg-white group-hover:text-[#295534] group-hover:shadow-md ${
                   isPresenting
                     ? 'bg-[#D4AF37] hover:bg-[#b89528] text-slate-950 shadow-md'
                     : isEagle
@@ -250,8 +250,8 @@ const ConfirmedSponsorCard: React.FC<ConfirmedSponsorCardProps> = ({ sponsor, pk
       ref={cardRef}
       className={`p-5 rounded-xl border shadow-sm transition-all duration-300 flex flex-col justify-between group cursor-pointer ${
         isInView
-          ? 'bg-[#295636] text-white border-emerald-600 shadow-md transform -translate-y-0.5'
-          : 'bg-white border-slate-200 hover:bg-[#295636] hover:text-white hover:border-emerald-600 hover:shadow-md hover:-translate-y-0.5'
+          ? 'bg-[#1e4d2b] text-white border-emerald-600 shadow-md transform -translate-y-0.5'
+          : 'bg-white border-slate-200 hover:bg-[#1e4d2b] hover:text-white hover:border-emerald-600 hover:shadow-md hover:-translate-y-0.5'
       }`}
     >
       <div>
@@ -325,7 +325,7 @@ export const SponsorshipsSection: React.FC = () => {
             Sponsorship Packages
           </h2>
           <p className="mt-4 text-base sm:text-lg text-slate-600 leading-relaxed">
-            Boost your brand while creating a life-saving impact. All packages feature prominent recognition, perks, and 100% tax-deductible contributions.
+            Boost your brand while creating a life-saving impact. All packages feature prominent recognition, perks, and official charitable contributions.
           </p>
         </div>
 
@@ -361,17 +361,13 @@ export const SponsorshipsSection: React.FC = () => {
             </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {sponsors.map((sponsor) => {
-              const pkg = SPONSORSHIP_PACKAGES.find((p) => p.id === sponsor.tier);
-              return (
-                <ConfirmedSponsorCard
-                  key={sponsor.id}
-                  sponsor={sponsor}
-                  pkg={pkg}
-                />
-              );
-            })}
+          <div className="bg-emerald-950/20 border-2 border-dashed border-emerald-700/40 rounded-2xl p-8 sm:p-12 text-center">
+            <span className="inline-block px-5 py-2 rounded-full bg-[#1E4D2B] text-amber-300 font-extrabold text-sm sm:text-base tracking-widest uppercase border border-amber-400/30 shadow-md">
+              Coming Soon
+            </span>
+            <p className="text-slate-600 dark:text-slate-300 text-xs sm:text-sm mt-3 max-w-md mx-auto font-medium">
+              Our 2026 corporate sponsorship roster and partner announcements will be published shortly.
+            </p>
           </div>
         </div>
       </div>

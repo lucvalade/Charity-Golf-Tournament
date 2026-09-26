@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { FoursomesRosterCard } from './FoursomesRosterCard';
 import { useTournament } from '../context/TournamentContext';
 import { EVENT_DETAILS, SPONSORSHIP_PACKAGES } from '../data/initialData';
 import { PlayerInfo, RegistrationRecord, SponsorRecord, DonationRecord } from '../types';
@@ -38,6 +39,7 @@ import {
   MapPin,
   Sparkles,
   Key,
+  QrCode,
   X,
   Edit2,
   Trash2,
@@ -89,6 +91,7 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({ onBackToSite }
     openSponsorModal,
     openDonationModal,
     resetToDefaults,
+    openQrGeneratorModal,
     addToast,
     triggerSplash,
     outreachLeads
@@ -106,7 +109,7 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({ onBackToSite }
     </button>
   );
 
-  const [activeTab, setActiveTab] = useState<'checkin' | 'golfers' | 'sponsors' | 'donations' | 'outreach' | 'analytics' | 'apikeys' | 'email'>('golfers');
+  const [activeTab, setActiveTab] = useState<'checkin' | 'golfers' | 'foursomes' | 'sponsors' | 'donations' | 'outreach' | 'analytics' | 'apikeys' | 'email'>('golfers');
   const [searchQuery, setSearchQuery] = useState('');
   const [paymentFilter, setPaymentFilter] = useState<'all' | 'cheque' | 'etransfer' | 'cash' | 'credit_card'>('all');
   const [statusFilter, setStatusFilter] = useState<'all' | 'paid' | 'pending'>('all');
@@ -512,6 +515,15 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({ onBackToSite }
             </button>
 
             <button
+              onClick={openQrGeneratorModal}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-[#1E4D2B] hover:bg-emerald-800 text-white rounded-lg text-xs font-bold border border-[#D4AF37]/50 transition cursor-pointer shadow-xs"
+              title="Generate Branded Vector & PNG QR Codes with Centered Logo"
+            >
+              <QrCode className="w-3.5 h-3.5 text-[#D4AF37]" />
+              <span>QR Code Generator</span>
+            </button>
+
+            <button
               onClick={() => setActiveTab('apikeys')}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition cursor-pointer shadow-xs ${
                 activeTab === 'apikeys'
@@ -688,6 +700,18 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({ onBackToSite }
           >
             <Users className="w-4 h-4" />
             <span>Golfer Roster &amp; Registrations ({registrations.length})</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('foursomes')}
+            className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-bold flex items-center gap-2 transition cursor-pointer ${
+              activeTab === 'foursomes'
+                ? 'bg-[#1E4D2B] text-white shadow-xs'
+                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+            }`}
+          >
+            <Users className="w-4 h-4 text-[#D4AF37]" />
+            <span>Foursomes Management ({registrations.filter(r => r.type === 'foursome' || (r.additionalPlayers && r.additionalPlayers.length > 0)).length})</span>
           </button>
 
           <button
@@ -1174,6 +1198,16 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({ onBackToSite }
           </div>
         )}
 
+        {/* Tab: FOURSOMES MANAGEMENT */}
+        {activeTab === 'foursomes' && (
+          <div className="space-y-6">
+            <FoursomesRosterCard
+              title="Foursomes Management Portal"
+              subtitle="Admin Roster Control & Primary Golfer Contacts • October 2026"
+            />
+          </div>
+        )}
+
         {/* Tab 2: ON-SITE CHECK-IN DESK */}
         {activeTab === 'checkin' && (
           <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden p-5 sm:p-6 space-y-4">
@@ -1450,7 +1484,9 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({ onBackToSite }
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {donations.map((don) => (
+                  {donations
+                    .filter((don) => !don.donorName?.toLowerCase().includes('luc valade') && !don.donorName?.toLowerCase().includes('luc'))
+                    .map((don) => (
                     <tr key={don.id} className="hover:bg-slate-50">
                       <td className="py-3 px-3 font-bold text-slate-900">
                         {don.donorName}

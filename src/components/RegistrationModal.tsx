@@ -120,7 +120,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({ inline = f
   const [copiedDetails, setCopiedDetails] = useState(false);
 
   // Golfer Classification state (Member $100 vs Other $120)
-  const [golferType, setGolferType] = useState<'member' | 'other'>('other');
+  const [golferType, setGolferType] = useState<'member' | 'other'>('member');
 
   // Inline Validation Errors
   const [rosterErrors, setRosterErrors] = useState<{ [key: string]: string }>({});
@@ -311,6 +311,7 @@ CASH PAYMENT INSTRUCTIONS FOR THE GOLFER
         { label: 'Send e-Transfer To', value: 'fragrant.breeze2023@gmail.com' },
         { label: 'Recipient Name', value: 'Saied Mohammed' },
         { label: 'Transfer Amount', value: `$${totalDue} CAD` },
+        { label: 'Fee Allocation Breakdown', value: `$30 Charitable Donation + ${totalDue === 100 ? '$70' : '$90'} Golf Course & Cart Fees` },
         { label: 'Required Memo / Note', value: `2026 Memorial Golf - ${golferName} - ${code}` },
         { label: 'Security Question', value: 'Auto-deposit enabled (If prompted: Q: Tournament / A: Memorial2026)' }
       ];
@@ -321,6 +322,7 @@ INTERAC E-TRANSFER INSTRUCTIONS FOR THE GOLFER
 • Recipient Name: Saied Mohammed
 • Recipient Email: fragrant.breeze2023@gmail.com
 • Transfer Amount: $${totalDue} CAD
+• Fee Breakdown: Out of your $${totalDue} fee, $30 is the actual charitable donation amount ($30 to charity, ${totalDue === 100 ? '$70' : '$90'} to golf fees).
 • Required Memo / Message: 2026 Memorial Golf - ${golferName} - ${code}
 • Security Question / Answer:
   Auto-deposit is typically enabled. If your bank requires a security question:
@@ -1786,7 +1788,22 @@ Status: PENDING RECEIPT BY SAIED MOHAMMED`
                     {confirmedRecord.type === 'dinner_only' ? 'Dinner Guest Pass' : 'Green Fee & Cart Package'}
                   </p>
                 </div>
-                <QRCodeSVG value={confirmedRecord.confirmationCode} size={64} level="M" />
+                <QRCodeSVG
+                  value={confirmedRecord.confirmationCode}
+                  size={72}
+                  bgColor="#ffffff"
+                  fgColor="#1E4D2B"
+                  level="H"
+                  imageSettings={{
+                    src: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="%231E4D2B" stroke="%23D4AF37" stroke-width="1.5"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>`,
+                    x: undefined,
+                    y: undefined,
+                    height: 18,
+                    width: 18,
+                    opacity: 1,
+                    excavate: true
+                  }}
+                />
               </div>
 
               {confirmedRecord.requestedTeammates && confirmedRecord.requestedTeammates.length > 0 && (

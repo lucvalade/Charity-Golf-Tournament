@@ -55,7 +55,7 @@ export const SPONSORSHIP_PACKAGES: SponsorPackage[] = [
     badgeColor: 'border-emerald-600 bg-emerald-50/70 text-emerald-950',
     benefits: [
       'One (1) Complimentary Tournament Foursome (4 Golfers)',
-      'Official Banquet Luncheon & Welcome Refreshments Co-Sponsor',
+      'Official Awards Dinner & Welcome Refreshments Co-Sponsor',
       'Prominent On-Course Banner & Custom Tee-Box Sign',
       'Logo displayed on digital leaderboards & player carts',
       'Full-page feature in the commemorative tournament program',
@@ -72,7 +72,7 @@ export const SPONSORSHIP_PACKAGES: SponsorPackage[] = [
     foursomesIncluded: 0,
     badgeColor: 'border-sky-600 bg-sky-50/70 text-sky-950',
     benefits: [
-      'Two (2) Individual Golfer Entries or 4 Banquet Passes',
+      'Two (2) Individual Golfer Entries or 4 Dinner Passes',
       'Exclusive Branded Signage on on-course roaming Beverage Carts',
       'Hole #9 & #18 Hospitality Station Brand Showcase',
       'Logo on tournament website & sponsor appreciation banner',
@@ -92,7 +92,7 @@ export const SPONSORSHIP_PACKAGES: SponsorPackage[] = [
       'Custom 24"x18" full-color Tee Box Sign at designated hole',
       'Opportunity to host a table or activity on your sponsored hole',
       'Recognition in tournament program and website sponsor roll',
-      'Two (2) complimentary Luncheon & Banquet tickets'
+      'Two (2) complimentary Dinner & Banquet tickets'
     ]
   },
   {
@@ -124,7 +124,60 @@ export const INITIAL_SPONSORS: SponsorRecord[] = [
     pledgedAt: '2026-07-22T11:00:00Z',
     status: 'confirmed',
     customNote: 'Proud to sponsor the skill contest green in memory of Naseem.'
+  },
+  {
+    id: 'sp-gn-1',
+    companyName: 'Golf North Golf Courses',
+    contactName: 'Executive Director',
+    email: 'info@golfnorth.ca',
+    phone: '(888) 833-8787',
+    tier: 'presenting',
+    websiteUrl: 'https://golfnorth.ca',
+    pledgedAt: '2026-08-01T09:00:00Z',
+    status: 'confirmed',
+    customNote: 'Host Course Partner & Title Sponsor for the 6th Annual Fragrant Breeze Classic.'
+  },
+  {
+    id: 'sp-kg-2',
+    companyName: 'Kaneff Golf Courses',
+    contactName: 'Corporate Relations',
+    email: 'info@kaneffgolf.com',
+    phone: '(905) 455-8700',
+    tier: 'eagle',
+    websiteUrl: 'https://kaneffgolf.com',
+    pledgedAt: '2026-08-05T10:00:00Z',
+    status: 'confirmed',
+    customNote: 'Memorial Eagle Sponsor supporting Canadian Red Cross & Breast Cancer Research.'
+  },
+  {
+    id: 'sp-lg-3',
+    companyName: 'Links Golf Courses',
+    contactName: 'Tournament Representative',
+    email: 'info@linksgolf.ca',
+    phone: '(905) 555-0199',
+    tier: 'birdie',
+    websiteUrl: 'https://linksgolf.ca',
+    pledgedAt: '2026-08-10T11:00:00Z',
+    status: 'confirmed',
+    customNote: 'Birdie Partner sponsoring hole pin flags and contest greens.'
+  },
+  {
+    id: 'sp-tg-4',
+    companyName: 'Tricity Golf Courses',
+    contactName: 'Alliance Coordinator',
+    email: 'info@tricitygolf.ca',
+    phone: '(519) 555-0188',
+    tier: 'hole',
+    websiteUrl: 'https://tricitygolf.ca',
+    pledgedAt: '2026-08-12T14:00:00Z',
+    status: 'confirmed',
+    customNote: 'Par Partner supporting the Kitchener, Waterloo & Cambridge golf network.'
   }
+];
+
+export const FBGT_TEE_TIMES = [
+  '11:00', '11:08', '11:16', '11:24', '11:32', '11:40', '11:48', '11:56',
+  '12:04', '12:12', '12:20', '12:28', '12:36', '12:44', '12:52', '13:00', '13:08', '13:16'
 ];
 
 export const INITIAL_REGISTRATIONS: RegistrationRecord[] = [
@@ -524,30 +577,331 @@ export const INITIAL_REGISTRATIONS: RegistrationRecord[] = [
     checkedIn: true,
     assignedCart: 'Cart #14A & #14B',
     assignedStartingHole: 16,
-    notes: 'Registered via Admin Roster Request. Payment via Cash.'
   },
   {
-    id: 'reg-team-17',
+    id: 'reg-fbgt-1',
     type: 'foursome',
-    teamName: 'Team 17 (Kitowski / Mohammed)',
+    teamNumber: '1',
+    teeTime: '11:00',
+    teamName: 'Team 1 (Deb Martin / Robert Martin / Jeff Saunders / Maureen Saunders)',
     targetTier: 'Corporate Foursome ($1,600)',
-    primaryContact: { id: 'p-t17-1', name: 'Ray Kitowski', email: 'ray.kitowski@example.com', phone: '(555) 988-1701', handicap: '14.0', shirtSize: 'L' },
+    primaryContact: { id: 'p-f1-1', name: 'Deb Martin', email: 'deb.martin@fbgt.ca', phone: '(905) 555-0101', handicap: '18.0', shirtSize: 'M' },
     additionalPlayers: [
-      { id: 'p-t17-2', name: 'Terry Kitowski', email: 'terry.kitowski@example.com', phone: '(555) 988-1702', handicap: '17.0', shirtSize: 'M' },
-      { id: 'p-t17-3', name: 'Ninaa Mohammed', email: 'ninaa.mohammed@example.com', phone: '(555) 988-1703', handicap: '19.5', shirtSize: 'S' },
-      { id: 'p-t17-4', name: 'Joob', email: 'joob@example.com', phone: '(555) 988-1704', handicap: '15.0', shirtSize: 'L' }
+      { id: 'p-f1-2', name: 'Robert Martin', email: 'robert.martin@fbgt.ca', phone: '(905) 555-0102', handicap: '14.0', shirtSize: 'L' },
+      { id: 'p-f1-3', name: 'Jeff Saunders', email: 'jeff.saunders@fbgt.ca', phone: '(905) 555-0103', handicap: '16.0', shirtSize: 'XL' },
+      { id: 'p-f1-4', name: 'Maureen Saunders', email: 'maureen.saunders@fbgt.ca', phone: '(905) 555-0104', handicap: '20.0', shirtSize: 'M' }
     ],
-    requestedTeammates: ['Terry Kitowski', 'Ninaa Mohammed', 'Joob'],
-    addons: { mulligansCount: 0, rafflePacks10: 2, rafflePacks25: 0, puttingContestCount: 1, tigerDriveCount: 0 },
+    requestedTeammates: ['Robert Martin', 'Jeff Saunders', 'Maureen Saunders'],
+    addons: { mulligansCount: 0, rafflePacks10: 1, rafflePacks25: 0, puttingContestCount: 2, tigerDriveCount: 0 },
+    totalAmount: 1600,
+    paymentStatus: 'paid',
+    paymentMethod: 'cheque',
+    confirmationCode: 'DMART-1010',
+    registeredAt: '2026-08-01T10:00:00Z',
+    checkedIn: true,
+    assignedCart: 'Cart #1A & #1B',
+    assignedStartingHole: 1,
+    notes: '2026 FBGT Line Up. Tee Time: 11:00 AM.'
+  },
+  {
+    id: 'reg-fbgt-2',
+    type: 'foursome',
+    teamNumber: '2',
+    teeTime: '11:08',
+    teamName: 'Team 2 (Bob Hehenkamp / Dave McDowel / Ron Kennedy / Amir Han)',
+    targetTier: 'Corporate Foursome ($1,600)',
+    primaryContact: { id: 'p-f2-1', name: 'Bob Hehenkamp', email: 'bob.hehenkamp@fbgt.ca', phone: '(905) 555-0201', handicap: '12.0', shirtSize: 'L' },
+    additionalPlayers: [
+      { id: 'p-f2-2', name: 'Dave McDowel', email: 'dave.mcdowel@fbgt.ca', phone: '(905) 555-0202', handicap: '15.0', shirtSize: 'XL' },
+      { id: 'p-f2-3', name: 'Ron Kennedy', email: 'ron.kennedy@fbgt.ca', phone: '(905) 555-0203', handicap: '11.0', shirtSize: 'L' },
+      { id: 'p-f2-4', name: 'Amir Han', email: 'amir.han@fbgt.ca', phone: '(905) 555-0204', handicap: '10.0', shirtSize: 'M' }
+    ],
+    requestedTeammates: ['Dave McDowel', 'Ron Kennedy', 'Amir Han'],
+    addons: { mulligansCount: 0, rafflePacks10: 0, rafflePacks25: 1, puttingContestCount: 1, tigerDriveCount: 0 },
+    totalAmount: 1600,
+    paymentStatus: 'paid',
+    paymentMethod: 'cheque',
+    confirmationCode: 'DMART-1010',
+    registeredAt: '2026-08-02T11:00:00Z',
+    checkedIn: true,
+    assignedCart: 'Cart #2A & #2B',
+    assignedStartingHole: 2,
+    notes: '2026 FBGT Line Up. Tee Time: 11:08 AM.'
+  },
+  {
+    id: 'reg-fbgt-3',
+    type: 'foursome',
+    teamNumber: '3',
+    teeTime: '11:16',
+    teamName: 'Team 3 (Garry Furgerson / Paul Furgerson / Bill Stubbings / Betty Solomon)',
+    targetTier: 'Corporate Foursome ($1,600)',
+    primaryContact: { id: 'p-f3-1', name: 'Garry Furgerson', email: 'garry.furgerson@fbgt.ca', phone: '(905) 555-0301', handicap: '13.0', shirtSize: 'L' },
+    additionalPlayers: [
+      { id: 'p-f3-2', name: 'Paul Furgerson', email: 'paul.furgerson@fbgt.ca', phone: '(905) 555-0302', handicap: '11.0', shirtSize: 'L' },
+      { id: 'p-f3-3', name: 'Bill Stubbings', email: 'bill.stubbings@fbgt.ca', phone: '(905) 555-0303', handicap: '15.2', shirtSize: 'XL' },
+      { id: 'p-f3-4', name: 'Betty Solomon', email: 'betty.solomon@fbgt.ca', phone: '(905) 555-0304', handicap: '22.0', shirtSize: 'S' }
+    ],
+    requestedTeammates: ['Paul Furgerson', 'Bill Stubbings', 'Betty Solomon'],
+    addons: { mulligansCount: 2, rafflePacks10: 1, rafflePacks25: 0, puttingContestCount: 2, tigerDriveCount: 0 },
+    totalAmount: 1600,
+    paymentStatus: 'paid',
+    paymentMethod: 'cheque',
+    confirmationCode: 'DMART-1010',
+    registeredAt: '2026-08-03T12:00:00Z',
+    checkedIn: true,
+    assignedCart: 'Cart #3A & #3B',
+    assignedStartingHole: 3,
+    notes: '2026 FBGT Line Up. Tee Time: 11:16 AM.'
+  },
+  {
+    id: 'reg-fbgt-4',
+    type: 'foursome',
+    teamNumber: '4',
+    teeTime: '11:24',
+    teamName: 'Team 4 (Wayne Childerley / Hugh James / Peter Bakker / [Open Spot])',
+    targetTier: 'Corporate Foursome ($1,600)',
+    primaryContact: { id: 'p-f4-1', name: 'Wayne Childerley', email: 'wayne.childerley@fbgt.ca', phone: '(905) 555-0401', handicap: '14.0', shirtSize: 'L' },
+    additionalPlayers: [
+      { id: 'p-f4-2', name: 'Hugh James', email: 'hugh.james@fbgt.ca', phone: '(905) 555-0402', handicap: '16.5', shirtSize: 'XL' },
+      { id: 'p-f4-3', name: 'Peter Bakker', email: 'peter.bakker@fbgt.ca', phone: '(905) 555-0403', handicap: '18.0', shirtSize: 'L' },
+      { id: 'p-f4-4', name: '?????? (Open Spot)', email: 'open.spot@fbgt.ca', phone: 'Needed', handicap: '-', shirtSize: 'L' }
+    ],
+    requestedTeammates: ['Hugh James', 'Peter Bakker', '??????'],
+    addons: { mulligansCount: 0, rafflePacks10: 0, rafflePacks25: 0, puttingContestCount: 0, tigerDriveCount: 0 },
+    totalAmount: 1600,
+    paymentStatus: 'paid',
+    paymentMethod: 'cheque',
+    confirmationCode: 'DMART-1010',
+    registeredAt: '2026-08-04T13:00:00Z',
+    checkedIn: false,
+    assignedCart: 'Cart #4A & #4B',
+    assignedStartingHole: 4,
+    notes: '2026 FBGT Line Up. Tee Time: 11:24 AM. Spot #4 open for new player!'
+  },
+  {
+    id: 'reg-fbgt-5',
+    type: 'foursome',
+    teamNumber: '5',
+    teeTime: '11:32',
+    teamName: 'Team 5 (BARRY HYDE / MARY HYDE / CARL McKENNEY / JANICE McKENNEY)',
+    targetTier: 'Corporate Foursome ($1,600)',
+    primaryContact: { id: 'p-f5-1', name: 'BARRY HYDE', email: 'barry.hyde@fbgt.ca', phone: '(905) 555-0501', handicap: '13.5', shirtSize: 'L' },
+    additionalPlayers: [
+      { id: 'p-f5-2', name: 'MARY HYDE', email: 'mary.hyde@fbgt.ca', phone: '(905) 555-0502', handicap: '19.0', shirtSize: 'S' },
+      { id: 'p-f5-3', name: 'CARL McKENNEY', email: 'carl.mckenney@fbgt.ca', phone: '(905) 555-0503', handicap: '16.0', shirtSize: 'XL' },
+      { id: 'p-f5-4', name: 'JANICE McKENNEY', email: 'janice.mckenney@fbgt.ca', phone: '(905) 555-0504', handicap: '22.0', shirtSize: 'M' }
+    ],
+    requestedTeammates: ['MARY HYDE', 'CARL McKENNEY', 'JANICE McKENNEY'],
+    addons: { mulligansCount: 0, rafflePacks10: 2, rafflePacks25: 0, puttingContestCount: 0, tigerDriveCount: 0 },
+    totalAmount: 1600,
+    paymentStatus: 'paid',
+    paymentMethod: 'etransfer',
+    confirmationCode: 'PFURG-1111',
+    registeredAt: '2026-08-05T14:00:00Z',
+    checkedIn: true,
+    assignedCart: 'Cart #5A & #5B',
+    assignedStartingHole: 5,
+    notes: 'Imported from 2026 - FBGT Line Up Google Sheet (Teams Tab). Tee Time: 11:32 AM. Payment via e-Transfer.'
+  },
+  {
+    id: 'reg-fbgt-6',
+    type: 'foursome',
+    teamNumber: '6',
+    teeTime: '11:40',
+    teamName: 'Team 6 (KHALIL SHERIFF / IAN MOHAMMED / JEFF SHERIFF / SAIED MOHAMMED)',
+    targetTier: 'Corporate Foursome ($1,600)',
+    primaryContact: { id: 'p-f6-1', name: 'KHALIL SHERIFF', email: 'khalil.sheriff@fbgt.ca', phone: '(905) 555-0601', handicap: '9.5', shirtSize: 'L' },
+    additionalPlayers: [
+      { id: 'p-f6-2', name: 'IAN MOHAMMED', email: 'ian.mohammed@fbgt.ca', phone: '(905) 555-0602', handicap: '12.0', shirtSize: 'XL' },
+      { id: 'p-f6-3', name: 'JEFF SHERIFF', email: 'jeff.sheriff@fbgt.ca', phone: '(905) 555-0603', handicap: '14.0', shirtSize: 'L' },
+      { id: 'p-f6-4', name: 'SAIED MOHAMMED', email: 'saied.mohammed@fbgt.ca', phone: '(905) 818-2005', handicap: '10.2', shirtSize: 'L' }
+    ],
+    requestedTeammates: ['IAN MOHAMMED', 'JEFF SHERIFF', 'SAIED MOHAMMED'],
+    addons: { mulligansCount: 3, rafflePacks10: 1, rafflePacks25: 1, puttingContestCount: 4, tigerDriveCount: 4 },
+    totalAmount: 1600,
+    paymentStatus: 'paid',
+    paymentMethod: 'etransfer',
+    confirmationCode: 'PFURG-1111',
+    registeredAt: '2026-08-06T15:00:00Z',
+    checkedIn: true,
+    assignedCart: 'Cart #6A & #6B',
+    assignedStartingHole: 6,
+    notes: 'Imported from 2026 - FBGT Line Up Google Sheet (Teams Tab). Tee Time: 11:40 AM. Payment via e-Transfer.'
+  },
+  {
+    id: 'reg-fbgt-7',
+    type: 'foursome',
+    teamNumber: '7',
+    teeTime: '11:48',
+    teamName: 'Team 7 (EVAN HORNE / MIKE HORNE / MITCH BRITTON / NITCH #2)',
+    targetTier: 'Corporate Foursome ($1,600)',
+    primaryContact: { id: 'p-f7-1', name: 'EVAN HORNE', email: 'evan.horne@fbgt.ca', phone: '(905) 555-0701', handicap: '11.0', shirtSize: 'M' },
+    additionalPlayers: [
+      { id: 'p-f7-2', name: 'MIKE HORNE', email: 'mike.horne@fbgt.ca', phone: '(905) 555-0702', handicap: '13.0', shirtSize: 'L' },
+      { id: 'p-f7-3', name: 'MITCH BRITTON', email: 'mitch.britton@fbgt.ca', phone: '(905) 555-0703', handicap: '15.0', shirtSize: 'L' },
+      { id: 'p-f7-4', name: 'NITCH #2', email: 'nitch2@fbgt.ca', phone: '(905) 555-0704', handicap: '14.0', shirtSize: 'L' }
+    ],
+    requestedTeammates: ['MIKE HORNE', 'MITCH BRITTON', 'NITCH #2'],
+    addons: { mulligansCount: 0, rafflePacks10: 2, rafflePacks25: 0, puttingContestCount: 2, tigerDriveCount: 0 },
+    totalAmount: 1600,
+    paymentStatus: 'paid',
+    paymentMethod: 'etransfer',
+    confirmationCode: 'PFURG-1111',
+    registeredAt: '2026-08-07T16:00:00Z',
+    checkedIn: true,
+    assignedCart: 'Cart #7A & #7B',
+    assignedStartingHole: 7,
+    notes: 'Imported from 2026 - FBGT Line Up Google Sheet (Teams Tab). Tee Time: 11:48 AM. Payment via e-Transfer.'
+  },
+  {
+    id: 'reg-fbgt-8',
+    type: 'foursome',
+    teamNumber: '8',
+    teeTime: '11:56',
+    teamName: 'Team 8 ([Open Spot] / BILL TRAYNOR / BILL WHITE / BOB COYN)',
+    targetTier: 'Corporate Foursome ($1,600)',
+    primaryContact: { id: 'p-f8-1', name: 'BILL TRAYNOR', email: 'bill.traynor@fbgt.ca', phone: '(905) 555-0801', handicap: '16.0', shirtSize: 'L' },
+    additionalPlayers: [
+      { id: 'p-f8-2', name: 'BILL WHITE', email: 'bill.white@fbgt.ca', phone: '(905) 555-0802', handicap: '18.0', shirtSize: 'XL' },
+      { id: 'p-f8-3', name: 'BOB COYN', email: 'bob.coyn@fbgt.ca', phone: '(905) 555-0803', handicap: '14.5', shirtSize: 'L' },
+      { id: 'p-f8-4', name: '?????? (Open Spot)', email: 'open.spot@fbgt.ca', phone: 'Needed', handicap: '-', shirtSize: 'L' }
+    ],
+    requestedTeammates: ['BILL WHITE', 'BOB COYN', '??????'],
+    addons: { mulligansCount: 0, rafflePacks10: 1, rafflePacks25: 0, puttingContestCount: 0, tigerDriveCount: 0 },
+    totalAmount: 1600,
+    paymentStatus: 'paid',
+    paymentMethod: 'etransfer',
+    confirmationCode: 'PFURG-1111',
+    registeredAt: '2026-08-08T09:00:00Z',
+    checkedIn: false,
+    assignedCart: 'Cart #8A & #8B',
+    assignedStartingHole: 8,
+    notes: 'Imported from 2026 - FBGT Line Up Google Sheet (Teams Tab). Tee Time: 11:56 AM. Spot #1 open for player assignment!'
+  },
+  {
+    id: 'reg-fbgt-9',
+    type: 'foursome',
+    teamNumber: '9',
+    teeTime: '12:04',
+    teamName: 'Team 9 (BILL POWELL / RUTH-ANN POWELL / MICHELLE BERTOTHY / [Open Spot])',
+    targetTier: 'Corporate Foursome ($1,600)',
+    primaryContact: { id: 'p-f9-1', name: 'BILL POWELL', email: 'bill.powell@fbgt.ca', phone: '(905) 555-0901', handicap: '12.5', shirtSize: 'L' },
+    additionalPlayers: [
+      { id: 'p-f9-2', name: 'RUTH-ANN POWELL', email: 'ruthann.powell@fbgt.ca', phone: '(905) 555-0902', handicap: '20.0', shirtSize: 'S' },
+      { id: 'p-f9-3', name: 'MICHELLE BERTOTHY', email: 'michelle.bertothy@fbgt.ca', phone: '(905) 555-0903', handicap: '17.5', shirtSize: 'M' },
+      { id: 'p-f9-4', name: '?????? (Open Spot)', email: 'open.spot@fbgt.ca', phone: 'Needed', handicap: '-', shirtSize: 'L' }
+    ],
+    requestedTeammates: ['RUTH-ANN POWELL', 'MICHELLE BERTOTHY', '??????'],
+    addons: { mulligansCount: 0, rafflePacks10: 1, rafflePacks25: 0, puttingContestCount: 2, tigerDriveCount: 0 },
+    totalAmount: 1600,
+    paymentStatus: 'paid',
+    paymentMethod: 'cash',
+    confirmationCode: 'BHYDE-1212',
+    registeredAt: '2026-08-09T10:00:00Z',
+    checkedIn: true,
+    assignedCart: 'Cart #9A & #9B',
+    assignedStartingHole: 9,
+    notes: 'Imported from 2026 - FBGT Line Up Google Sheet (Teams Tab). Tee Time: 12:04 PM. Spot #4 open for assignment!'
+  },
+  {
+    id: 'reg-fbgt-10',
+    type: 'foursome',
+    teamNumber: '10',
+    teeTime: '12:12',
+    teamName: 'Team 10 (GEORGE GROOT / JOE ZANCOLA / JOOB / MIKE)',
+    targetTier: 'Corporate Foursome ($1,600)',
+    primaryContact: { id: 'p-f10-1', name: 'GEORGE GROOT', email: 'george.groot@fbgt.ca', phone: '(905) 555-1001', handicap: '11.0', shirtSize: 'L' },
+    additionalPlayers: [
+      { id: 'p-f10-2', name: 'JOE ZANCOLA', email: 'joe.zancola@fbgt.ca', phone: '(905) 555-1002', handicap: '14.0', shirtSize: 'XL' },
+      { id: 'p-f10-3', name: 'JOOB', email: 'joob@fbgt.ca', phone: '(905) 555-1003', handicap: '15.0', shirtSize: 'L' },
+      { id: 'p-f10-4', name: 'MIKE', email: 'mike@fbgt.ca', phone: '(905) 555-1004', handicap: '13.0', shirtSize: 'L' }
+    ],
+    requestedTeammates: ['JOE ZANCOLA', 'JOOB', 'MIKE'],
+    addons: { mulligansCount: 1, rafflePacks10: 0, rafflePacks25: 1, puttingContestCount: 1, tigerDriveCount: 0 },
+    totalAmount: 1600,
+    paymentStatus: 'paid',
+    paymentMethod: 'cash',
+    confirmationCode: 'BHYDE-1212',
+    registeredAt: '2026-08-10T11:00:00Z',
+    checkedIn: true,
+    assignedCart: 'Cart #10A & #10B',
+    assignedStartingHole: 10,
+    notes: 'Imported from 2026 - FBGT Line Up Google Sheet (Teams Tab). Tee Time: 12:12 PM. Payment via Cash.'
+  },
+  {
+    id: 'reg-fbgt-11',
+    type: 'foursome',
+    teamNumber: '11',
+    teeTime: '12:20',
+    teamName: 'Team 11 (NAEEM MOHAMMED / NINAA MOHAMMED / MATT MANERING / JANICE MANNERING)',
+    targetTier: 'Corporate Foursome ($1,600)',
+    primaryContact: { id: 'p-f11-1', name: 'NAEEM MOHAMMED', email: 'naeem.mohammed@fbgt.ca', phone: '(905) 555-1101', handicap: '10.8', shirtSize: 'L' },
+    additionalPlayers: [
+      { id: 'p-f11-2', name: 'NINAA MOHAMMED', email: 'ninaa.mohammed@fbgt.ca', phone: '(905) 555-1102', handicap: '18.0', shirtSize: 'M' },
+      { id: 'p-f11-3', name: 'MATT MANERING', email: 'matt.manering@fbgt.ca', phone: '(905) 555-1103', handicap: '13.0', shirtSize: 'XL' },
+      { id: 'p-f11-4', name: 'JANICE MANNERING', email: 'janice.mannering@fbgt.ca', phone: '(905) 555-1104', handicap: '21.0', shirtSize: 'M' }
+    ],
+    requestedTeammates: ['NINAA MOHAMMED', 'MATT MANERING', 'JANICE MANNERING'],
+    addons: { mulligansCount: 2, rafflePacks10: 2, rafflePacks25: 0, puttingContestCount: 2, tigerDriveCount: 1 },
+    totalAmount: 1600,
+    paymentStatus: 'paid',
+    paymentMethod: 'cash',
+    confirmationCode: 'BHYDE-1212',
+    registeredAt: '2026-08-11T12:00:00Z',
+    checkedIn: true,
+    assignedCart: 'Cart #11A & #11B',
+    assignedStartingHole: 11,
+    notes: 'Imported from 2026 - FBGT Line Up Google Sheet (Teams Tab). Tee Time: 12:20 PM. Payment via Cash.'
+  },
+  {
+    id: 'reg-fbgt-12',
+    type: 'foursome',
+    teamNumber: '12',
+    teeTime: '12:28',
+    teamName: 'Team 12 (NANCY KNOX / GARY KNOX / RAY KITOWSKI / TERRY KITOWSKI)',
+    targetTier: 'Corporate Foursome ($1,600)',
+    primaryContact: { id: 'p-f12-1', name: 'NANCY KNOX', email: 'nancy.knox@fbgt.ca', phone: '(905) 555-1201', handicap: '19.0', shirtSize: 'M' },
+    additionalPlayers: [
+      { id: 'p-f12-2', name: 'GARY KNOX', email: 'gary.knox@fbgt.ca', phone: '(905) 555-1202', handicap: '15.0', shirtSize: 'L' },
+      { id: 'p-f12-3', name: 'RAY KITOWSKI', email: 'ray.kitowski@fbgt.ca', phone: '(905) 555-1203', handicap: '14.0', shirtSize: 'XL' },
+      { id: 'p-f12-4', name: 'TERRY KITOWSKI', email: 'terry.kitowski@fbgt.ca', phone: '(905) 555-1204', handicap: '18.0', shirtSize: 'L' }
+    ],
+    requestedTeammates: ['GARY KNOX', 'RAY KITOWSKI', 'TERRY KITOWSKI'],
+    addons: { mulligansCount: 0, rafflePacks10: 1, rafflePacks25: 1, puttingContestCount: 2, tigerDriveCount: 0 },
+    totalAmount: 1600,
+    paymentStatus: 'paid',
+    paymentMethod: 'cash',
+    confirmationCode: 'BHYDE-1212',
+    registeredAt: '2026-08-12T13:00:00Z',
+    checkedIn: true,
+    assignedCart: 'Cart #12A & #12B',
+    assignedStartingHole: 12,
+    notes: 'Imported from 2026 - FBGT Line Up Google Sheet (Teams Tab). Tee Time: 12:28 PM. Payment via Cash.'
+  },
+  {
+    id: 'reg-fbgt-13',
+    type: 'foursome',
+    teamNumber: '???',
+    teeTime: '12:44',
+    teamName: 'Team ??? (ROSS CLARKE & Open Teammates)',
+    targetTier: 'Corporate Foursome ($1,600)',
+    primaryContact: { id: 'p-f13-1', name: 'ROSS CLARKE', email: 'ross.clarke@fbgt.ca', phone: '(905) 555-1301', handicap: '12.0', shirtSize: 'L' },
+    additionalPlayers: [
+      { id: 'p-f13-2', name: '?????? (Open Spot)', email: 'open.spot@fbgt.ca', phone: 'Needed', handicap: '-', shirtSize: 'L' },
+      { id: 'p-f13-3', name: '?????? (Open Spot)', email: 'open.spot@fbgt.ca', phone: 'Needed', handicap: '-', shirtSize: 'L' },
+      { id: 'p-f13-4', name: '?????? (Open Spot)', email: 'open.spot@fbgt.ca', phone: 'Needed', handicap: '-', shirtSize: 'L' }
+    ],
+    requestedTeammates: ['??????', '??????', '??????'],
+    addons: { mulligansCount: 0, rafflePacks10: 0, rafflePacks25: 0, puttingContestCount: 1, tigerDriveCount: 0 },
     totalAmount: 1600,
     paymentStatus: 'paid',
     paymentMethod: 'etransfer',
     confirmationCode: 'RKIT-1717',
-    registeredAt: '2026-09-10T12:00:00Z',
+    registeredAt: '2026-08-13T14:00:00Z',
     checkedIn: true,
-    assignedCart: 'Cart #15A & #15B',
-    assignedStartingHole: 17,
-    notes: 'Registered via Admin Roster Request. Payment via e-Transfer.'
+    assignedCart: 'Cart #13A & #13B',
+    assignedStartingHole: 13,
+    notes: 'Imported from 2026 - FBGT Line Up Google Sheet (Teams Tab). Tee Time: 12:44 PM. 3 spots open!'
   }
 ];
 
@@ -701,16 +1055,10 @@ export interface FaqItem {
 
 export const FAQ_DATA: FaqItem[] = [
   {
-    id: 'faq-weather',
-    category: 'weather',
-    question: 'What is the tournament weather policy in case of rain?',
-    answer: 'The tournament is scheduled as a rain-or-shine charity event. Burford Golf Links features excellent drainage and weather-covered golf carts with protective enclosures. In the rare event of severe lightning or course unplayability, play will be paused, and if suspended, the Welcome Luncheon, Silent Auction, and Awards Banquet will proceed as scheduled indoors with prizes awarded via scorecard projections.'
-  },
-  {
     id: 'faq-dress',
     category: 'dress',
     question: 'What is the course dress code for golfers and dinner guests?',
-    answer: 'Traditional golf club attire is required: collared shirts (tucked in), mock-neck golf shirts, slacks, or tailored Bermuda-length shorts for gentlemen; golf polos, sleeveless collars, slacks, skirts, or golf dresses for ladies. Soft spike or spikeless golf shoes or clean athletic sneakers only. Denim/jeans, cargo shorts, tank tops, and metal spikes are strictly prohibited.'
+    answer: 'Normal golf attire is required for all golfers and dinner guests.'
   },
   {
     id: 'faq-rentals',

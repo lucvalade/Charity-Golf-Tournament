@@ -126,7 +126,7 @@ const FaqItemCard: React.FC<FaqItemCardProps> = ({ faq, isOpen, onToggle, getCat
 
 export const FaqSection: React.FC = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
-  const [activeCategory, setActiveCategory] = useState<'all' | 'weather' | 'dress' | 'rentals' | 'format'>('all');
+  const [activeCategory, setActiveCategory] = useState<'all' | 'dress' | 'rentals' | 'format'>('all');
 
   const filteredFaqs = activeCategory === 'all'
     ? FAQ_DATA
@@ -134,14 +134,6 @@ export const FaqSection: React.FC = () => {
 
   const getCategoryIcon = (cat: string, isInView: boolean) => {
     switch (cat) {
-      case 'weather':
-        return (
-          <CloudRain
-            className={`w-4 h-4 transition-colors duration-300 ${
-              isInView ? 'text-amber-300' : 'text-sky-600 group-hover:text-amber-300'
-            }`}
-          />
-        );
       case 'dress':
         return (
           <Shirt
@@ -190,7 +182,7 @@ export const FaqSection: React.FC = () => {
             Tournament Guidelines &amp; Policies
           </h2>
           <p className="mt-3 text-base text-slate-600">
-            Answers regarding weather policies, clubhouse dress code, golf club rental reservations, and 4-person scramble scoring rules.
+            Answers regarding clubhouse dress code, golf club rental reservations, and 4-person scramble scoring rules.
           </p>
         </div>
 
@@ -205,17 +197,6 @@ export const FaqSection: React.FC = () => {
             }`}
           >
             All Questions ({FAQ_DATA.length})
-          </button>
-          <button
-            onClick={() => setActiveCategory('weather')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
-              activeCategory === 'weather'
-                ? 'bg-[#1E4D2B] text-white shadow-sm'
-                : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
-            }`}
-          >
-            <CloudRain className="w-3.5 h-3.5" />
-            Weather Policies
           </button>
           <button
             onClick={() => setActiveCategory('dress')}

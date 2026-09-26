@@ -43,6 +43,8 @@ import { ImportLeadsModal } from './ImportLeadsModal';
 import { LeadDetailDrawer } from './LeadDetailDrawer';
 import { MassEmailModal } from './MassEmailModal';
 import { AnalyticsDashboard } from './AnalyticsDashboard';
+import { FoursomesRosterCard } from '../FoursomesRosterCard';
+import { SponsorsCard } from './SponsorsCard';
 import { filterEligibleAudience, AudienceTargetSegment } from '../../utils/timezoneUtils';
 import { generateSolicitationLetterPDF, generateFilteredLeadsReportPDF } from '../../utils/pdfGenerator';
 
@@ -184,7 +186,7 @@ export const OutreachDashboard: React.FC = () => {
 
   // Selected lead IDs for batch actions
   const [checkedLeadIds, setCheckedLeadIds] = useState<string[]>([]);
-  const [viewMode, setViewMode] = useState<'table' | 'analytics'>('table');
+  const [viewMode, setViewMode] = useState<'table' | 'sponsors' | 'foursomes' | 'analytics'>('table');
 
   // Modals state
   const [dashboardTargetSegment, setDashboardTargetSegment] = useState<AudienceTargetSegment>('unopened_only');
@@ -725,6 +727,30 @@ export const OutreachDashboard: React.FC = () => {
             </button>
             <button
               type="button"
+              onClick={() => setViewMode('sponsors')}
+              className={`px-3.5 py-1.5 rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
+                viewMode === 'sponsors'
+                  ? 'bg-[#D4AF37] text-emerald-950 font-extrabold shadow-sm'
+                  : 'text-emerald-200 hover:text-white'
+              }`}
+            >
+              <Award className="w-3.5 h-3.5" />
+              <span>Sponsors Card</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode('foursomes')}
+              className={`px-3.5 py-1.5 rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
+                viewMode === 'foursomes'
+                  ? 'bg-gradient-to-r from-[#D4AF37] via-amber-200 to-[#D4AF37] text-emerald-950 font-extrabold shadow-sm'
+                  : 'text-emerald-200 hover:text-white'
+              }`}
+            >
+              <Users className="w-3.5 h-3.5" />
+              <span>Foursomes Card</span>
+            </button>
+            <button
+              type="button"
               onClick={() => setViewMode('analytics')}
               className={`px-3.5 py-1.5 rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
                 viewMode === 'analytics'
@@ -817,8 +843,44 @@ export const OutreachDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Conditional Rendering: Analytics Dashboard vs Table CRM */}
-      {viewMode === 'analytics' ? (
+      {/* Conditional Rendering: Sponsors Card vs Analytics Dashboard vs Foursomes Card vs Table CRM */}
+      {viewMode === 'sponsors' ? (
+        <SponsorsCard
+          title="Corporate Sponsor & Donation Solicitation — Sponsors Directory"
+          subtitle="Real-time directory of tournament sponsors, contribution amounts, contact points, payment status, and sponsorship packages."
+          onSendSolicitation={(email, companyName) => {
+            setSelectedLeadForSend({
+              id: `lead-sponsor-${Date.now()}`,
+              companyName: companyName || 'Corporate Sponsor',
+              contactName: companyName || 'Sponsor Delegate',
+              email: email || '',
+              phone: '',
+              targetTier: 'Corporate Sponsor',
+              status: 'Lead',
+              lastContacted: new Date().toISOString()
+            } as any);
+            setIsSendModalOpen(true);
+          }}
+        />
+      ) : viewMode === 'foursomes' ? (
+        <FoursomesRosterCard
+          title="Corporate Sponsor & Donation Solicitation — Foursomes Card"
+          subtitle="Complete Roster of Member & Guest Foursomes &bull; Primary Contacts, Emails, Phones & Teammates"
+          onSendSolicitation={(email, teamName) => {
+            setSelectedLeadForSend({
+              id: `lead-foursome-${Date.now()}`,
+              companyName: teamName || 'Foursome Team',
+              contactName: teamName || 'Primary Golfer Contact',
+              email: email || '',
+              phone: '',
+              targetTier: 'Corporate Foursome ($1,600)',
+              status: 'Lead',
+              lastContacted: new Date().toISOString()
+            } as any);
+            setIsSendModalOpen(true);
+          }}
+        />
+      ) : viewMode === 'analytics' ? (
         <AnalyticsDashboard
           leads={outreachLeads}
           onNavigateToCRM={() => setViewMode('table')}

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { usePWAInstall } from '../hooks/usePWAInstall';
-import { Smartphone, Monitor, Download, X, Share, CheckCircle2, ArrowRight } from 'lucide-react';
+import { useTournament } from '../context/TournamentContext';
+import { Smartphone, Monitor, Download, X, Share, CheckCircle2, ArrowRight, QrCode } from 'lucide-react';
 
 interface PWAInstallButtonProps {
   className?: string;
@@ -14,6 +15,7 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({
   onInstallStarted,
 }) => {
   const { isInstallable, isInstalled, isIOS, isAndroid, isDesktop, browserName, install } = usePWAInstall();
+  const { openQrGeneratorModal } = useTournament();
   const [showModal, setShowModal] = useState(false);
 
   // If already running inside standalone PWA mode, don't show install buttons
@@ -213,12 +215,25 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({
               </div>
             </div>
 
-            <button
-              onClick={() => setShowModal(false)}
-              className="mt-5 w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition cursor-pointer"
-            >
-              Close
-            </button>
+            <div className="mt-5 grid grid-cols-2 gap-2">
+              <button
+                onClick={() => {
+                  setShowModal(false);
+                  openQrGeneratorModal();
+                }}
+                className="py-2.5 px-3 rounded-xl bg-[#1E4D2B] hover:bg-emerald-800 text-white text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                <QrCode className="w-3.5 h-3.5 text-[#D4AF37]" />
+                <span>QR Code Options</span>
+              </button>
+
+              <button
+                onClick={() => setShowModal(false)}
+                className="py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}

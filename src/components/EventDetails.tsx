@@ -207,90 +207,81 @@ export const EventDetails: React.FC = () => {
         {activeTab === 'course' && (
           <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             <div className="lg:col-span-7 space-y-5">
-              <div className="bg-[#1E4D2B] text-white p-8 rounded-2xl shadow-xl relative overflow-hidden">
-                <a
-                  href={EVENT_DETAILS.venue.websiteUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group inline-flex items-center gap-2 mb-2"
-                  title="Visit Burford Golf Links Official Website"
-                >
-                  <h3 className="text-2xl font-bold font-serif-heading text-white group-hover:text-amber-200 transition underline-offset-2 group-hover:underline flex items-center gap-2">
-                    <Compass className="w-5 h-5 text-[#D4AF37]" />
-                    <span>Championship Facility: Burford Golf Links</span>
-                    <ExternalLink className="w-4 h-4 text-emerald-300 group-hover:text-amber-200 shrink-0" />
+              <div className="bg-[#1E4D2B] text-white p-6 sm:p-8 rounded-2xl shadow-xl relative overflow-hidden">
+                <div className="mb-4">
+                  <div className="text-[#D4AF37] text-xs font-bold uppercase tracking-wider">
+                    Championship Facility
+                  </div>
+                  <h3 className="text-2xl sm:text-3xl font-extrabold font-serif-heading text-white mt-0.5">
+                    Burford Golf Links
                   </h3>
-                </a>
-                <div className="space-y-1.5">
-                  <a
-                    href={EVENT_DETAILS.venue.mapsUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block group"
-                    title="Open venue location in Google Maps"
-                  >
-                    <p className="text-sm text-amber-200 flex items-center gap-1.5 group-hover:text-amber-100 transition">
-                      <MapPin className="w-4 h-4 text-amber-300" />
-                      <span>120 Golf Links Rd., Burford, ON</span>
-                      <span className="text-xs text-emerald-200 underline font-semibold">(Map ↗)</span>
-                    </p>
-                  </a>
                 </div>
 
-                <div className="mt-6 pt-6 border-t border-emerald-800/80 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                  <div>
-                    <span className="text-slate-300">Rating / Slope:</span>
-                    <div className="font-bold text-white font-mono mt-0.5 text-sm">71.8 / 126 (18-Hole Layout)</div>
-                  </div>
-                  <div>
-                    <span className="text-slate-300">Turf:</span>
-                    <div className="font-bold text-white mt-0.5 text-sm">Bentgrass Greens • Bermuda Fairways</div>
-                  </div>
+                <div className="space-y-2 text-xs sm:text-sm text-slate-100 font-medium">
+                  <p>
+                    <strong className="text-amber-200">Facility:</strong> Championship Facility Burford Golf Links
+                  </p>
+                  <p>
+                    <strong className="text-amber-200">Address:</strong> 120 Golf Links Rd., Burford, ON
+                  </p>
+                  <p>
+                    <strong className="text-amber-200">Layout:</strong> 18-Hole Layout (Par 71)
+                  </p>
+                  <p>
+                    <strong className="text-amber-200">Turf:</strong> Bentgrass Greens • Bluegrass/Ryegrass Fairways
+                  </p>
+                  <p>
+                    <strong className="text-amber-200">Men's Blue Tees:</strong> 66.3 / 116 (5,438 Yards)
+                  </p>
+                  <p>
+                    <strong className="text-amber-200">Ladies' Blue Tees:</strong> 71.8 / 129 (5,438 Yards)
+                  </p>
                 </div>
               </div>
 
-              {/* Weather and amenities */}
+              {/* Weather and amenities: Center aligned mini cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center gap-3">
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row items-center justify-center text-center sm:text-center gap-3">
                   <div className="w-10 h-10 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center shrink-0">
                     <CloudSun className="w-5 h-5" />
                   </div>
-                  <div>
+                  <div className="text-center">
                     <div className="text-xs font-bold text-slate-800">October Climate</div>
                     <div className="text-xs text-slate-500">Sunny 18°C &bull; 5mph Crisp Fall Breeze</div>
                   </div>
                 </div>
 
-                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center gap-3">
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row items-center justify-center text-center sm:text-center gap-3">
                   <div className="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
                     <ShieldCheck className="w-5 h-5" />
                   </div>
-                  <div>
+                  <div className="text-center">
                     <div className="text-xs font-bold text-slate-800">Dress Code</div>
-                    <div className="text-xs text-slate-500">Collared Shirts & Soft Spikes Required</div>
+                    <div className="text-xs text-slate-500">Normal Golf Attire Required</div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="lg:col-span-5 bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-4">
-              <h4 className="font-bold text-slate-900 text-sm uppercase tracking-wider">
+            {/* Included Amenities: Centered at vertical middle height compared to left column */}
+            <div className="lg:col-span-5 bg-slate-50 p-6 sm:p-8 rounded-2xl border border-slate-200 space-y-4 self-center my-auto shadow-sm">
+              <h4 className="font-bold text-slate-900 text-sm uppercase tracking-wider text-center sm:text-left">
                 Included Amenities
               </h4>
-              <ul className="space-y-2.5 text-xs text-slate-700">
-                <li className="flex items-center gap-2">
+              <ul className="space-y-3 text-xs text-slate-700">
+                <li className="flex items-center gap-2.5">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                   <span>Free range &amp; putting balls</span>
                 </li>
-                <li className="flex items-center gap-2">
+                <li className="flex items-center gap-2.5">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                   <span>GPS carts with USB chargers</span>
                 </li>
-                <li className="flex items-center gap-2">
+                <li className="flex items-center gap-2.5">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                   <span>Full locker room access</span>
                 </li>
-                <li className="flex items-center gap-2">
+                <li className="flex items-center gap-2.5">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                   <span>20% pro shop player discount</span>
                 </li>
@@ -299,21 +290,21 @@ export const EventDetails: React.FC = () => {
           </div>
         )}
 
-        {/* TAB 3: Rules & Contests */}
+        {/* TAB 3: Rules & Contests (Scramble rules & prizes) */}
         {activeTab === 'rules' && (
           <div className="max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-6">
             {scrambleRules.map((rule, idx) => (
               <div
                 key={idx}
-                className="bg-slate-50 p-6 rounded-2xl border border-slate-200 shadow-sm"
+                className="group bg-slate-50 hover:bg-[#1e4d2c] p-6 rounded-2xl border border-slate-200 hover:border-[#D4AF37] shadow-sm transition-all duration-300 cursor-pointer"
               >
-                <div className="w-8 h-8 rounded-lg bg-emerald-100 text-[#1E4D2B] font-bold text-xs flex items-center justify-center mb-3">
+                <div className="w-8 h-8 rounded-lg bg-emerald-100 group-hover:bg-[#D4AF37] text-[#1E4D2B] group-hover:text-slate-950 font-bold text-xs flex items-center justify-center mb-3 transition-colors duration-300">
                   0{idx + 1}
                 </div>
-                <h4 className="text-base font-bold text-slate-900 mb-1 font-serif-heading">
+                <h4 className="text-base font-bold text-slate-900 group-hover:text-white mb-1 font-serif-heading transition-colors duration-300">
                   {rule.title}
                 </h4>
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                <p className="text-xs sm:text-sm text-slate-600 group-hover:text-white leading-relaxed transition-colors duration-300">
                   {rule.desc}
                 </p>
               </div>

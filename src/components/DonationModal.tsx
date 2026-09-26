@@ -119,12 +119,9 @@ export const DonationModal: React.FC<DonationModalProps> = ({ inline = false, on
     setCustomInput(digitsOnly);
     const parsed = Number(digitsOnly);
 
-    if (!digitsOnly || isNaN(parsed)) {
+    if (!digitsOnly || isNaN(parsed) || parsed <= 0) {
       setAmount(0);
-      setAmountError('Donation amount must be at least $100 CAD.');
-    } else if (parsed < 100) {
-      setAmount(parsed);
-      setAmountError('Donation amount must be at least $100 CAD.');
+      setAmountError('Please enter a valid donation amount.');
     } else {
       setAmount(parsed);
       setAmountError('');
@@ -133,9 +130,9 @@ export const DonationModal: React.FC<DonationModalProps> = ({ inline = false, on
 
   const handleCustomAmountBlur = () => {
     const parsed = Number(customInput);
-    if (!customInput || isNaN(parsed) || parsed < 100) {
-      setAmount(100);
-      setCustomInput('100');
+    if (!customInput || isNaN(parsed) || parsed <= 0) {
+      setAmount(25);
+      setCustomInput('25');
       setAmountError('');
     }
   };
@@ -168,9 +165,9 @@ export const DonationModal: React.FC<DonationModalProps> = ({ inline = false, on
 
     let hasError = false;
 
-    // Restrict donation amount to minimum $100
-    if (!amount || amount < 100) {
-      setAmountError('Please enter your donation amount. Min $100');
+    // Validate donation amount (min $1)
+    if (!amount || amount < 1) {
+      setAmountError('Please enter a valid donation amount.');
       hasError = true;
     } else {
       setAmountError('');
@@ -312,7 +309,7 @@ export const DonationModal: React.FC<DonationModalProps> = ({ inline = false, on
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">Tax Status:</span>
-                <span className="font-bold text-emerald-700">100% Tax-Deductible 501(c)(3)</span>
+                <span className="font-bold text-emerald-700">Official Charitable Donation</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">Receipt Email:</span>
@@ -340,9 +337,9 @@ export const DonationModal: React.FC<DonationModalProps> = ({ inline = false, on
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
                 Select Donation Amount
               </label>
-              {/* Presets updated: $100, $150, $250, $500, $1000 */}
+              {/* Presets */}
               <div className="grid grid-cols-5 gap-2 mb-2.5">
-                {[100, 150, 250, 500, 1000].map((val) => (
+                {[25, 50, 100, 250, 500].map((val) => (
                   <button
                     key={val}
                     type="button"
@@ -358,14 +355,14 @@ export const DonationModal: React.FC<DonationModalProps> = ({ inline = false, on
                 ))}
               </div>
 
-              {/* Custom amount input restricted to min $100 & numbers only */}
+              {/* Custom amount input */}
               <div className="relative">
                 <span className="absolute left-3 top-2.5 text-slate-400 font-bold">$</span>
                 <input
                   type="text"
                   inputMode="numeric"
                   pattern="[0-9]*"
-                  placeholder="100"
+                  placeholder="25"
                   value={customInput}
                   onChange={handleCustomAmountChange}
                   onBlur={handleCustomAmountBlur}
@@ -383,7 +380,7 @@ export const DonationModal: React.FC<DonationModalProps> = ({ inline = false, on
 
               {/* Requested notice text below donation amounts */}
               <p className={`text-xs mt-1.5 font-medium ${amountError ? 'text-rose-600 font-semibold' : 'text-slate-500'}`}>
-                {amountError || 'Please enter your donation amount (Minimum $100 CAD).'}
+                {amountError || 'Please enter your donation amount.'}
               </p>
             </div>
 

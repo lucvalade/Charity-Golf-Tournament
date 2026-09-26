@@ -204,7 +204,7 @@ export const SponsorModal: React.FC = () => {
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">Tax Deductible Receipt:</span>
-                <span className="font-semibold text-slate-800">501(c)(3) Eligible</span>
+                <span className="font-semibold text-slate-800">Official Charitable Receipt Provided</span>
               </div>
             </div>
 
