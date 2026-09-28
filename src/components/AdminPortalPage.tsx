@@ -46,7 +46,8 @@ import {
   Plus,
   BarChart3,
   HelpCircle,
-  BookOpen
+  BookOpen,
+  Link
 } from 'lucide-react';
 import { ApiKeySettingsModal } from './ApiKeySettingsModal';
 import { EmailSettingsModal } from './EmailSettingsModal';
@@ -94,7 +95,12 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({ onBackToSite }
     openQrGeneratorModal,
     addToast,
     triggerSplash,
-    outreachLeads
+    outreachLeads,
+    goalPercentage,
+    sponsorRevenue,
+    regRevenue,
+    directDonationRevenue,
+    totalCharityNet
   } = useTournament();
 
   // If this is rendered as part of a modal/popup context, we might want a close button
@@ -137,6 +143,95 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({ onBackToSite }
   // User Manual & Sheet Audit Modal States
   const [isManualModalOpen, setIsManualModalOpen] = useState(false);
   const [isSheetAuditModalOpen, setIsSheetAuditModalOpen] = useState(false);
+  const [activeReportModal, setActiveReportModal] = useState<'raised' | 'golfers' | 'checkin' | 'pending' | null>(null);
+
+  // Google Sheet Link & Google Sheets API Key Configuration States
+  const [sheetUrl, setSheetUrl] = useState<string>(() => {
+    return localStorage.getItem('fbgt_spreadsheet_link') || 'https://docs.google.com/spreadsheets/d/1y6Y7fepD90P6x5f7N8922tN-nLclL5kI9rPfeQ6Pte8/edit?usp=sharing';
+  });
+  const [sheetsApiKey, setSheetsApiKey] = useState<string>(() => {
+    return localStorage.getItem('fbgt_sheets_api_key') || '';
+  });
+
+  const [isConnectSheetModalOpen, setIsConnectSheetModalOpen] = useState(false);
+  const [isSheetsApiKeyModalOpen, setIsSheetsApiKeyModalOpen] = useState(false);
+
+  const [sheetUrlInput, setSheetUrlInput] = useState(sheetUrl);
+  const [sheetsApiKeyInput, setSheetsApiKeyInput] = useState(sheetsApiKey);
+  const [showSheetsApiKeyText, setShowSheetsApiKeyText] = useState(false);
+  const [isSavingConfig, setIsSavingConfig] = useState(false);
+
+  // Sync global sheet URL and API Key from server on mount
+  React.useEffect(() => {
+    const fetchGlobalConfig = async () => {
+      try {
+        const res = await fetch('/api/get-sheet-url');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.sheetUrl && data.sheetUrl.trim()) {
+            const serverUrl = data.sheetUrl.trim();
+            setSheetUrl(serverUrl);
+            setSheetUrlInput(serverUrl);
+            localStorage.setItem('fbgt_spreadsheet_link', serverUrl);
+          }
+          if (data.apiKey && data.apiKey.trim()) {
+            const serverKey = data.apiKey.trim();
+            setSheetsApiKey(serverKey);
+            setSheetsApiKeyInput(serverKey);
+            localStorage.setItem('fbgt_sheets_api_key', serverKey);
+          }
+        }
+      } catch (err) {
+        console.warn('Could not fetch global sheet configuration:', err);
+      }
+    };
+    fetchGlobalConfig();
+  }, []);
+
+  const handleSaveSheetUrl = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanUrl = sheetUrlInput.trim();
+    if (!cleanUrl) return;
+    setIsSavingConfig(true);
+    setSheetUrl(cleanUrl);
+    localStorage.setItem('fbgt_spreadsheet_link', cleanUrl);
+
+    try {
+      await fetch('/api/save-sheet-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sheetUrl: cleanUrl, apiKey: sheetsApiKey })
+      });
+    } catch (err) {
+      console.warn('Could not save sheet URL to server:', err);
+    }
+
+    setIsSavingConfig(false);
+    setIsConnectSheetModalOpen(false);
+    addToast('success', 'Google Sheet Link Saved', 'Live Google Sheet URL updated globally for real-time leaderboard scoring.');
+  };
+
+  const handleSaveSheetsApiKey = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanKey = sheetsApiKeyInput.trim();
+    setIsSavingConfig(true);
+    setSheetsApiKey(cleanKey);
+    localStorage.setItem('fbgt_sheets_api_key', cleanKey);
+
+    try {
+      await fetch('/api/save-sheet-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sheetUrl, apiKey: cleanKey })
+      });
+    } catch (err) {
+      console.warn('Could not save API Key to server:', err);
+    }
+
+    setIsSavingConfig(false);
+    setIsSheetsApiKeyModalOpen(false);
+    addToast('success', 'API Key Saved', 'Google Sheets API v4 Key saved securely and active for real-time leaderboard sync.');
+  };
 
   // Lock Screen States
   const [passcode, setPasscode] = useState('');
@@ -599,6 +694,33 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({ onBackToSite }
                 <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-800 shrink-0 group-hover:scale-110 transition-transform" />
                 <span>Google Sheet Roster Audit (33 Players)</span>
               </button>
+              <span className="text-slate-300 hidden sm:inline">&bull;</span>
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-amber-500/15 text-amber-900 border border-amber-400/50 rounded-full text-[11px] font-extrabold uppercase tracking-wider">
+                For The Live Tournament Leaderboard Hub:
+              </span>
+              <button
+                type="button"
+                onClick={() => setIsConnectSheetModalOpen(true)}
+                className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-emerald-100 hover:bg-emerald-200 text-emerald-950 border border-emerald-400 rounded-full text-xs font-bold transition cursor-pointer shadow-2xs hover:shadow-xs group"
+                title="Connect or update Live Google Sheet Link for real-time leaderboard scoring"
+              >
+                <Link className="w-3.5 h-3.5 text-emerald-700 shrink-0 group-hover:scale-110 transition-transform" />
+                <span>Connect Sheet</span>
+              </button>
+              <span className="text-slate-300 hidden sm:inline">&bull;</span>
+              <button
+                type="button"
+                onClick={() => setIsSheetsApiKeyModalOpen(true)}
+                className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold transition cursor-pointer shadow-2xs hover:shadow-xs group border ${
+                  sheetsApiKey
+                    ? 'bg-amber-100 hover:bg-amber-200 text-amber-950 border-amber-400'
+                    : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-300'
+                }`}
+                title="Configure Google Sheets API Key for v4 real-time leaderboard sync"
+              >
+                <Key className="w-3.5 h-3.5 text-amber-600 shrink-0 group-hover:scale-110 transition-transform" />
+                <span>{sheetsApiKey ? 'API Key Active' : 'API Key'}</span>
+              </button>
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold font-serif text-slate-900">
               Golfer Database &amp; Operations Oversight
@@ -622,70 +744,77 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({ onBackToSite }
         {/* 4 Metric Summary Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {/* Card 1: Total Raised */}
-          <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-xs space-y-1">
+          <button
+            onClick={() => setActiveReportModal('raised')}
+            className="p-4 bg-white rounded-xl border border-slate-200 shadow-xs space-y-1 text-left hover:border-emerald-600 hover:shadow-md transition cursor-pointer group focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          >
             <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
               <span>Total Raised</span>
-              <DollarSign className="w-4 h-4 text-emerald-600" />
+              <DollarSign className="w-4 h-4 text-emerald-600 group-hover:scale-110 transition" />
             </div>
             <div className="text-xl sm:text-2xl font-black font-mono text-[#1E4D2B]">
               ${totalRaised.toLocaleString()} CAD
             </div>
-            <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden mt-2">
-              <div
-                className="bg-gradient-to-r from-emerald-600 to-amber-500 h-full rounded-full"
-                style={{ width: `${Math.min(100, Math.round((totalRaised / goalAmount) * 100))}%` }}
-              />
+            <div className="text-[11px] text-slate-500 pt-0.5">
+              Including registrations, sponsorships &amp; direct donations.
             </div>
-            <div className="text-[11px] text-slate-500 pt-0.5 flex justify-between">
-              <span>{Math.round((totalRaised / goalAmount) * 100)}% of goal</span>
-              <span>Goal: ${goalAmount.toLocaleString()}</span>
-            </div>
-          </div>
+          </button>
 
           {/* Card 2: Registered Golfers */}
-          <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-xs space-y-1">
+          <button
+            onClick={() => setActiveReportModal('golfers')}
+            className="p-4 bg-white rounded-xl border border-slate-200 shadow-xs space-y-1 text-left hover:border-blue-600 hover:shadow-md transition cursor-pointer group focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
             <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
               <span>Registered Golfers</span>
-              <Users className="w-4 h-4 text-blue-600" />
+              <Users className="w-4 h-4 text-blue-600 group-hover:scale-110 transition" />
             </div>
             <div className="text-xl sm:text-2xl font-black font-mono text-slate-900">
               {totalGolfers}{' '}
               <span className="text-xs font-normal text-slate-400">/ 144 Max</span>
             </div>
-            <div className="text-[11px] text-slate-500 pt-1">
-              {144 - totalGolfers} field spots remaining
+            <div className="text-[11px] text-slate-500 pt-1 flex justify-between">
+              <span className="font-bold text-blue-800">{totalGolfers} Playing</span>
+              <span>{144 - totalGolfers} remaining</span>
             </div>
-          </div>
+          </button>
 
           {/* Card 3: Morning Check-in Readiness */}
-          <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-xs space-y-1">
+          <button
+            onClick={() => setActiveReportModal('checkin')}
+            className="p-4 bg-white rounded-xl border border-slate-200 shadow-xs space-y-1 text-left hover:border-emerald-600 hover:shadow-md transition cursor-pointer group focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          >
             <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
               <span>Check-in Status</span>
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 group-hover:scale-110 transition" />
             </div>
             <div className="text-xl sm:text-2xl font-black font-mono text-emerald-700">
               {checkedInCount}{' '}
               <span className="text-xs font-normal text-slate-400">/ {registrations.length} groups</span>
             </div>
-            <div className="text-[11px] text-slate-500 pt-1">
-              {registrations.length - checkedInCount} groups pending morning arrival
+            <div className="text-[11px] text-slate-500 pt-1 flex justify-between">
+              <span className="font-bold text-emerald-800">{Math.round((checkedInCount / Math.max(1, registrations.length)) * 100)}% checked in</span>
+              <span>{registrations.length - checkedInCount} pending</span>
             </div>
-          </div>
+          </button>
 
           {/* Card 4: Pending Offline Payments */}
-          <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-xs space-y-1">
+          <button
+            onClick={() => setActiveReportModal('pending')}
+            className="p-4 bg-white rounded-xl border border-slate-200 shadow-xs space-y-1 text-left hover:border-amber-600 hover:shadow-md transition cursor-pointer group focus:outline-none focus:ring-2 focus:ring-amber-500"
+          >
             <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
               <span>Pending Payments</span>
-              <Clock className="w-4 h-4 text-amber-600" />
+              <Clock className="w-4 h-4 text-amber-600 group-hover:scale-110 transition" />
             </div>
             <div className="text-xl sm:text-2xl font-black font-mono text-amber-700">
               {pendingOfflineCount}{' '}
               <span className="text-xs font-normal text-slate-400">Pending</span>
             </div>
             <div className="text-[11px] text-slate-500 pt-1">
-              Pending receipt by Saied Mohammed
+              Click to view pending receipt list
             </div>
-          </div>
+          </button>
         </div>
 
         {/* Tab Navigation Controls */}
@@ -1662,11 +1791,451 @@ export const AdminPortalPage: React.FC<AdminPortalPageProps> = ({ onBackToSite }
         }}
       />
 
+      {/* ========================================================================= */}
+      {/* INTERACTIVE METRIC REPORT MODALS (TOTAL RAISED, GOLFERS, CHECK-IN, PENDING) */}
+      {/* ========================================================================= */}
+      {activeReportModal && (
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-4xl w-full max-h-[85vh] flex flex-col overflow-hidden animate-scaleUp">
+            
+            {/* Modal Header */}
+            <div className="px-6 py-4.5 bg-[#1E4D2B] text-white flex items-center justify-between border-b border-emerald-800/80">
+              <div className="flex items-center gap-2.5">
+                {activeReportModal === 'raised' && <DollarSign className="w-6 h-6 text-amber-300" />}
+                {activeReportModal === 'golfers' && <Users className="w-6 h-6 text-blue-300" />}
+                {activeReportModal === 'checkin' && <CheckCircle2 className="w-6 h-6 text-emerald-300" />}
+                {activeReportModal === 'pending' && <Clock className="w-6 h-6 text-amber-300" />}
+                <div>
+                  <h3 className="text-lg font-bold font-serif-heading">
+                    {activeReportModal === 'raised' && 'Financial Audit Report & Fundraising Breakdown'}
+                    {activeReportModal === 'golfers' && 'Registered Golfers Roster & Cart Parings'}
+                    {activeReportModal === 'checkin' && 'On-Site Registration Desk & Cart Dispatch'}
+                    {activeReportModal === 'pending' && 'Outstanding Invoices & Pending Reconciliations'}
+                  </h3>
+                  <p className="text-xs text-emerald-100/90 mt-0.5">
+                    {activeReportModal === 'raised' && 'Comprehensive report comparing registration dues, corporate pledges, and direct gifts.'}
+                    {activeReportModal === 'golfers' && 'Official field list of all registered competitors, handicaps, and team rosters.'}
+                    {activeReportModal === 'checkin' && 'Real-time monitoring of checked-in golfers vs. pending arrivals.'}
+                    {activeReportModal === 'pending' && 'Outstanding accounts receivable awaiting admin verification.'}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setActiveReportModal(null)}
+                className="p-1.5 rounded-lg bg-emerald-950/40 hover:bg-emerald-900/60 text-emerald-100 hover:text-white transition cursor-pointer"
+                title="Close Report"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body / Report Content */}
+            <div className="p-6 overflow-y-auto space-y-6 flex-1 text-slate-700">
+              
+              {/* REPORT 1: TOTAL RAISED */}
+              {activeReportModal === 'raised' && (
+                <div className="space-y-6">
+                  {/* Summary Metric Header */}
+                  {/* Summary Metric Header */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-100 text-center">
+                      <span className="text-xs uppercase font-bold tracking-wider text-slate-500">Gross Pledged Dues</span>
+                      <h4 className="text-2xl font-black text-[#1E4D2B] font-mono mt-1">
+                        ${totalRaised.toLocaleString()} CAD
+                      </h4>
+                    </div>
+                    <div className="p-4 bg-[#D4AF37]/10 rounded-xl border border-[#D4AF37]/30 text-center">
+                      <span className="text-xs uppercase font-bold tracking-wider text-slate-500">Direct Net Charity Value</span>
+                      <h4 className="text-2xl font-black text-amber-950 font-mono mt-1">
+                        ${totalCharityNet.toLocaleString()} CAD
+                      </h4>
+                    </div>
+                  </div>
+
+                  {/* Financial Breakdown Table */}
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-bold text-slate-900">Fundraising Channel Distribution</h4>
+                    <div className="overflow-x-auto border border-slate-200 rounded-xl">
+                      <table className="w-full text-left text-xs text-slate-700">
+                        <thead className="bg-slate-50 font-bold uppercase text-slate-500 border-b border-slate-200">
+                          <tr>
+                            <th className="py-2.5 px-3">Category</th>
+                            <th className="py-2.5 px-3">Description</th>
+                            <th className="py-2.5 px-3 text-right">Amount (CAD)</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                          <tr>
+                            <td className="py-3 px-3 font-bold text-slate-900">Golfer Registrations</td>
+                            <td className="py-3 px-3 text-slate-600">Entry fees, team foursomes, and dinner-only packages.</td>
+                            <td className="py-3 px-3 text-right font-mono font-bold text-[#1E4D2B]">
+                              ${regRevenue.toLocaleString()} CAD
+                            </td>
+                          </tr>
+                          <tr>
+                            <td className="py-3 px-3 font-bold text-slate-900">Corporate Sponsorships &amp; Pledges</td>
+                            <td className="py-3 px-3 text-slate-600">Title, Eagle, Birdie, and contest sponsorships including outreach pledges.</td>
+                            <td className="py-3 px-3 text-right font-mono font-bold text-[#1E4D2B]">
+                              ${sponsorRevenue.toLocaleString()} CAD
+                            </td>
+                          </tr>
+                          <tr>
+                            <td className="py-3 px-3 font-bold text-slate-900">Memorial Donations</td>
+                            <td className="py-3 px-3 text-slate-600">Charitable gifts donated in memory of Naseem Mohammed.</td>
+                            <td className="py-3 px-3 text-right font-mono font-bold text-[#1E4D2B]">
+                              ${directDonationRevenue.toLocaleString()} CAD
+                            </td>
+                          </tr>
+                          <tr className="bg-emerald-50/40">
+                            <td className="py-3.5 px-3 font-bold text-[#1E4D2B] text-sm">Grand Total Raised</td>
+                            <td className="py-3.5 px-3 text-slate-600 font-semibold">Gross bookings and fundraising channel total.</td>
+                            <td className="py-3.5 px-3 text-right font-mono font-black text-[#1E4D2B] text-sm border-t border-emerald-200">
+                              ${totalRaised.toLocaleString()} CAD
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* REPORT 2: REGISTERED GOLFERS */}
+              {activeReportModal === 'golfers' && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-bold text-slate-900">Active Field Roster ({totalGolfers} Golfers)</h4>
+                    <span className="text-xs bg-blue-100 text-blue-800 px-3 py-0.5 rounded-full font-bold border border-blue-200">
+                      {144 - totalGolfers} spots available
+                    </span>
+                  </div>
+
+                  <div className="overflow-x-auto border border-slate-200 rounded-xl max-h-[450px]">
+                    <table className="w-full text-left text-xs text-slate-700">
+                      <thead className="bg-slate-50 font-bold uppercase text-slate-500 border-b border-slate-200 sticky top-0">
+                        <tr>
+                          <th className="py-2.5 px-3">Team Name</th>
+                          <th className="py-2.5 px-3">Primary Contact</th>
+                          <th className="py-2.5 px-3">Player Roster</th>
+                          <th className="py-2.5 px-3">Carts / Hole</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {registrations.map((reg) => (
+                          <tr key={reg.id} className="hover:bg-slate-50">
+                            <td className="py-3 px-3 font-bold text-slate-900">{reg.teamName || 'Single Entrant'}</td>
+                            <td className="py-3 px-3">
+                              <div className="font-semibold text-slate-800">{reg.primaryContact.name}</div>
+                              <div className="text-[10.5px] text-slate-400 font-mono">{reg.primaryContact.email}</div>
+                            </td>
+                            <td className="py-3 px-3">
+                              <ul className="list-disc pl-4 space-y-0.5 text-[11px] text-slate-600">
+                                <li>{reg.primaryContact.name} (Hcp: {reg.primaryContact.handicap || 'N/A'})</li>
+                                {reg.additionalPlayers?.map((p, idx) => (
+                                  <li key={p.id || idx}>{p.name} (Hcp: {p.handicap || 'N/A'})</li>
+                                ))}
+                              </ul>
+                            </td>
+                            <td className="py-3 px-3 font-semibold text-emerald-800 font-mono">
+                              <div>{reg.assignedCart || 'Unassigned'}</div>
+                              <div className="text-[10px] text-slate-400">Starting Hole: {reg.assignedStartingHole || 'TBD'}</div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* REPORT 3: CHECK-IN STATUS */}
+              {activeReportModal === 'checkin' && (
+                <div className="space-y-6">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-100 text-center">
+                      <span className="text-xs uppercase font-bold text-emerald-800">Completed Check-ins</span>
+                      <h4 className="text-3xl font-black text-[#1E4D2B] font-mono mt-1">{checkedInCount} Groups</h4>
+                    </div>
+                    <div className="p-4 bg-amber-50 rounded-xl border border-amber-100 text-center">
+                      <span className="text-xs uppercase font-bold text-amber-800">Pending Arrivals</span>
+                      <h4 className="text-3xl font-black text-amber-900 font-mono mt-1">
+                        {registrations.length - checkedInCount} Groups
+                      </h4>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Checked-in list */}
+                    <div className="space-y-2 border border-slate-200 rounded-xl p-4 bg-white">
+                      <h4 className="font-bold text-slate-900 text-sm flex items-center gap-1.5 text-emerald-700 border-b pb-2">
+                        <CheckCircle2 className="w-4 h-4" />
+                        <span>Checked In ({checkedInCount})</span>
+                      </h4>
+                      <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                        {registrations.filter(r => r.checkedIn).map(reg => (
+                          <div key={reg.id} className="p-2.5 bg-emerald-50/50 rounded-lg border border-emerald-100 flex items-center justify-between text-xs">
+                            <div>
+                              <div className="font-bold text-slate-900">{reg.teamName || reg.primaryContact.name}</div>
+                              <div className="text-[10px] text-slate-500">Cart: {reg.assignedCart || 'Handout'}</div>
+                            </div>
+                            <span className="text-[10px] font-mono font-bold text-emerald-800 bg-emerald-100 border border-emerald-200 px-2 py-0.5 rounded-md">
+                              Hole {reg.assignedStartingHole || '1'}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Pending list */}
+                    <div className="space-y-2 border border-slate-200 rounded-xl p-4 bg-white">
+                      <h4 className="font-bold text-slate-900 text-sm flex items-center gap-1.5 text-amber-700 border-b pb-2">
+                        <Clock className="w-4 h-4" />
+                        <span>Pending Arrival ({registrations.length - checkedInCount})</span>
+                      </h4>
+                      <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                        {registrations.filter(r => !r.checkedIn).map(reg => (
+                          <div key={reg.id} className="p-2.5 bg-slate-50 rounded-lg border border-slate-100 flex items-center justify-between text-xs">
+                            <div>
+                              <div className="font-bold text-slate-800">{reg.teamName || reg.primaryContact.name}</div>
+                              <div className="text-[10px] text-slate-400">Contact: {reg.primaryContact.name}</div>
+                            </div>
+                            <button
+                              onClick={() => {
+                                checkInPlayer(reg.id, true);
+                                addToast('success', 'Checked In!', `Successfully checked in ${reg.teamName || reg.primaryContact.name}`);
+                              }}
+                              className="px-2.5 py-1 bg-[#1E4D2B] hover:bg-emerald-800 text-white rounded-md text-[10.5px] font-extrabold cursor-pointer transition shadow-2xs"
+                            >
+                              Check In
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* REPORT 4: PENDING PAYMENTS */}
+              {activeReportModal === 'pending' && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-bold text-slate-900">Outstanding Offline Reconciliations</h4>
+                    <span className="text-xs bg-amber-100 text-amber-800 px-3 py-0.5 rounded-full font-bold border border-amber-200">
+                      {pendingOfflineCount} Pending
+                    </span>
+                  </div>
+
+                  {registrations.filter(r => (r.paymentMethod === 'cheque' || r.paymentMethod === 'etransfer' || r.paymentMethod === 'cash') && r.paymentStatus === 'pending').length === 0 ? (
+                    <div className="p-12 text-center border-2 border-dashed border-slate-200 rounded-xl">
+                      <CheckCircle2 className="w-8 h-8 text-emerald-500 mx-auto mb-2" />
+                      <h4 className="text-sm font-bold text-slate-800">All Accounts Reconciled!</h4>
+                      <p className="text-xs text-slate-500 mt-1">There are no outstanding offline payments to process at this time.</p>
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto border border-slate-200 rounded-xl max-h-[400px]">
+                      <table className="w-full text-left text-xs text-slate-700">
+                        <thead className="bg-slate-50 font-bold uppercase text-slate-500 border-b border-slate-200">
+                          <tr>
+                            <th className="py-2.5 px-3">Code</th>
+                            <th className="py-2.5 px-3">Team / Contact</th>
+                            <th className="py-2.5 px-3">Dues</th>
+                            <th className="py-2.5 px-3">Payment Method</th>
+                            <th className="py-2.5 px-3 text-right">Desk Action</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                          {registrations
+                            .filter(r => (r.paymentMethod === 'cheque' || r.paymentMethod === 'etransfer' || r.paymentMethod === 'cash') && r.paymentStatus === 'pending')
+                            .map((reg) => (
+                              <tr key={reg.id} className="hover:bg-slate-50">
+                                <td className="py-3 px-3 font-mono font-bold text-[#1E4D2B]">{reg.confirmationCode}</td>
+                                <td className="py-3 px-3">
+                                  <div className="font-bold text-slate-900">{reg.teamName || 'Single Entrant'}</div>
+                                  <div className="text-[10px] text-slate-400">{reg.primaryContact.name}</div>
+                                </td>
+                                <td className="py-3 px-3 font-mono font-bold text-amber-700">
+                                  ${reg.totalAmount?.toLocaleString()} CAD
+                                </td>
+                                <td className="py-3 px-3">
+                                  <span className="inline-block px-2 py-0.5 rounded bg-slate-100 border border-slate-200 text-[10px] font-bold uppercase">
+                                    {reg.paymentMethod}
+                                  </span>
+                                </td>
+                                <td className="py-3 px-3 text-right">
+                                  <button
+                                    onClick={() => {
+                                      updatePaymentStatus(reg.id, 'paid');
+                                      addToast('success', 'Payment Received', `Marked ${reg.confirmationCode} as paid via ${reg.paymentMethod}.`);
+                                    }}
+                                    className="px-2.5 py-1 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-[10px] font-extrabold cursor-pointer transition shadow-2xs"
+                                  >
+                                    Mark as Paid
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              )}
+
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex justify-end">
+              <button
+                onClick={() => setActiveReportModal(null)}
+                className="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg text-xs font-bold transition cursor-pointer"
+              >
+                Close Report
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
       {/* Admin Panel User Manual Modal */}
       <AdminManualModal
         isOpen={isManualModalOpen}
         onClose={() => setIsManualModalOpen(false)}
       />
+
+      {/* Connect Live Google Sheet Modal */}
+      {isConnectSheetModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs animate-fade-in">
+          <div className="bg-white rounded-2xl max-w-xl w-full shadow-2xl border border-slate-200 overflow-hidden">
+            <div className="bg-[#1E4D2B] text-white p-5 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-800 border border-emerald-600 flex items-center justify-center">
+                  <Link className="w-5 h-5 text-amber-300" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold font-serif">Connect Live Google Sheet</h3>
+                  <p className="text-xs text-emerald-200 font-medium">Link Google Sheet URL for real-time leaderboard score sync</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsConnectSheetModalOpen(false)}
+                className="text-white/80 hover:text-white p-1 rounded-lg hover:bg-white/10 transition cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveSheetUrl} className="p-6 space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                  Live Google Sheet Link / Share URL
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={sheetUrlInput}
+                    onChange={(e) => setSheetUrlInput(e.target.value)}
+                    placeholder="https://docs.google.com/spreadsheets/d/1y6Y7fepD90P6x5f7N8922tN-nLclL5kI9rPfeQ6Pte8/edit?usp=sharing"
+                    className="w-full pl-3 pr-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-xl font-mono text-slate-800 focus:ring-2 focus:ring-[#1E4D2B] focus:border-[#1E4D2B] outline-none"
+                  />
+                </div>
+                <p className="text-[11px] text-slate-500 mt-1.5">
+                  Paste your Google Sheet share link or spreadsheet ID. This configures the source for the live scoring leaderboard across the entire application.
+                </p>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-200">
+                <button
+                  type="button"
+                  onClick={() => setIsConnectSheetModalOpen(false)}
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSavingConfig}
+                  className="px-5 py-2 bg-[#1E4D2B] hover:bg-[#163a20] text-amber-200 hover:text-white rounded-xl text-xs font-extrabold transition cursor-pointer shadow-md flex items-center gap-1.5"
+                >
+                  {isSavingConfig ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5 text-emerald-400" />}
+                  <span>Save &amp; Sync Live Sheet</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Google Sheets API Key Modal */}
+      {isSheetsApiKeyModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs animate-fade-in">
+          <div className="bg-white rounded-2xl max-w-xl w-full shadow-2xl border border-slate-200 overflow-hidden">
+            <div className="bg-[#1E4D2B] text-white p-5 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-[#D4AF37] flex items-center justify-center">
+                  <Key className="w-5 h-5 text-amber-300" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold font-serif">Google Sheets API Key Settings</h3>
+                  <p className="text-xs text-emerald-200 font-medium">Configure v4 API Key for direct live scoring synchronization</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsSheetsApiKeyModalOpen(false)}
+                className="text-white/80 hover:text-white p-1 rounded-lg hover:bg-white/10 transition cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveSheetsApiKey} className="p-6 space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                  Google Sheets API v4 Key
+                </label>
+                <div className="relative">
+                  <input
+                    type={showSheetsApiKeyText ? 'text' : 'password'}
+                    value={sheetsApiKeyInput}
+                    onChange={(e) => setSheetsApiKeyInput(e.target.value)}
+                    placeholder="AIzaSyA__1z34HxUy-hi7CE1v77fINtkuW9f3AU"
+                    className="w-full pl-3 pr-10 py-2 text-xs bg-slate-50 border border-slate-300 rounded-xl font-mono text-slate-800 focus:ring-2 focus:ring-[#1E4D2B] focus:border-[#1E4D2B] outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowSheetsApiKeyText(!showSheetsApiKeyText)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                  >
+                    {showSheetsApiKeyText ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+                <p className="text-[11px] text-slate-500 mt-1.5">
+                  Your Google Sheets API Key is saved securely and utilized across the application to query Google Sheets API v4 endpoints.
+                </p>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-200">
+                <button
+                  type="button"
+                  onClick={() => setIsSheetsApiKeyModalOpen(false)}
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSavingConfig}
+                  className="px-5 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-extrabold transition cursor-pointer shadow-md flex items-center gap-1.5"
+                >
+                  {isSavingConfig ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5 text-white" />}
+                  <span>Save API Key</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -50,6 +50,9 @@ interface TournamentContextType {
   totalGolfers: number;
   goalAmount: number;
   goalPercentage: number;
+  sponsorRevenue: number;
+  regRevenue: number;
+  directDonationRevenue: number;
   toasts: ToastMessage[];
   addToast: (type: 'success' | 'info' | 'error', title: string, message: string) => void;
   removeToast: (id: string) => void;
@@ -126,6 +129,8 @@ interface TournamentContextType {
   isQrModalOpen: boolean;
   setIsQrModalOpen: (open: boolean) => void;
   openQrGeneratorModal: () => void;
+  isLeaderboardOpen: boolean;
+  setIsLeaderboardOpen: (open: boolean) => void;
   selectedRegType: RegistrationType;
   selectedSponsorTier: SponsorTier;
   selectedDonationAmount: number;
@@ -217,40 +222,10 @@ export const TournamentProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
-          const valid = parsed
-            .filter((r: any) => {
-              const isLuc = r.teamName?.toLowerCase().includes('dummies') || r.primaryContact?.name?.toLowerCase().includes('luc valade');
-              const isSaied = r.teamName?.toLowerCase().includes('fairway eagles') || r.primaryContact?.name?.toLowerCase().includes('saied mohammed');
-              const isObsoleteDefault = ['reg-102', 'reg-103', 'reg-104'].includes(r.id) || ['Samantha Reed', 'Julian Tremblay', 'David & Karen Sterling'].includes(r.primaryContact?.name) || r.confirmationCode === 'SAIED-6240' || r.id === 'SAIED-6240';
-              if (isObsoleteDefault) return false;
-              return isLuc || isSaied || (r.id && r.primaryContact?.name && r.type);
-            })
-            .map((r: any) => ({
-              ...r,
-              primaryContact: r.primaryContact || {
-                id: r.id || 'p-default',
-                name: r.captainName || 'Valued Participant',
-                email: r.captainEmail || '',
-                phone: r.captainPhone || '',
-                handicap: '',
-                shirtSize: 'L'
-              },
-              requestedTeammates: Array.isArray(r.requestedTeammates) ? r.requestedTeammates : []
-            }));
-
-          const hasLuc = valid.some((r: any) => r.primaryContact?.name?.toLowerCase().includes('luc valade') || r.teamName?.toLowerCase().includes('dummies'));
-          const hasSaied = valid.some((r: any) => r.primaryContact?.name?.toLowerCase().includes('saied mohammed') || r.teamName?.toLowerCase().includes('fairway eagles'));
-
-          let result = [...valid];
-          if (!hasLuc) {
-            const luc = INITIAL_REGISTRATIONS.find(r => r.teamName === 'Team Dummies');
-            if (luc) result.unshift(luc);
-          }
-          if (!hasSaied) {
-            const saied = INITIAL_REGISTRATIONS.find(r => r.teamName === 'The Fairway Eagles');
-            if (saied) result.push(saied);
-          }
-          return result;
+          return parsed.filter((r: any) => {
+            const hasLuc = r.primaryContact?.name?.toLowerCase().includes('luc valade') || r.teamName?.toLowerCase().includes('dummies');
+            return !hasLuc;
+          });
         }
       }
       return INITIAL_REGISTRATIONS;
@@ -534,6 +509,7 @@ export const TournamentProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [lastConfirmation, setLastConfirmation] = useState<RegistrationRecord | null>(null);
   const [contactTab, setContactTab] = useState<'inquiry' | 'volunteer'>('inquiry');
   const [isSplashVisible, setIsSplashVisible] = useState<boolean>(false);
+  const [isLeaderboardOpen, setIsLeaderboardOpen] = useState<boolean>(true);
 
   const triggerSplash = () => setIsSplashVisible(true);
   const closeSplash = () => {
@@ -705,7 +681,7 @@ export const TournamentProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   const totalRaised = regRevenue + sponsorRevenue + directDonationRevenue;
   const goalAmount = EVENT_DETAILS.goalAmount;
-  const goalPercentage = Math.min(100, Math.round((totalRaised / goalAmount) * 100));
+  const goalPercentage = Math.round((totalRaised / goalAmount) * 100);
 
   const totalGolfers = registrations.reduce((sum, r) => {
     if (r.type === 'dinner_only') return sum;
@@ -1523,6 +1499,9 @@ export const TournamentProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         totalGolfers,
         goalAmount,
         goalPercentage,
+        sponsorRevenue,
+        regRevenue,
+        directDonationRevenue,
         toasts,
         addToast,
         removeToast,
@@ -1585,6 +1564,8 @@ export const TournamentProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         isSplashVisible,
         triggerSplash,
         closeSplash,
+        isLeaderboardOpen,
+        setIsLeaderboardOpen,
         // Outreach CRM & Solicitations Engine
         outreachLeads,
         outreachTemplates,

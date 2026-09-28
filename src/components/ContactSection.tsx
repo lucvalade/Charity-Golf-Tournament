@@ -80,7 +80,7 @@ export const ContactSection: React.FC = () => {
     setInquiryEmailError('');
 
     setIsInquirySent(true);
-    addToast('success', 'Inquiry Dispatched', `Thank you ${inquiryName}, your message has been sent to info@golfnorth.ca. The committee will respond shortly.`);
+    addToast('success', 'Inquiry Dispatched', `Thank you ${inquiryName}, your message has been sent to Proshop.burford@golfnorth.ca. The committee will respond shortly.`);
     setTimeout(() => {
       setInquiryName('');
       setInquiryEmail('');
@@ -162,19 +162,28 @@ export const ContactSection: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3">
+                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 rounded-lg bg-emerald-800 flex items-center justify-center shrink-0 mt-0.5">
                     <Mail className="w-4 h-4 text-amber-300" />
                   </div>
                   <div>
                     <div className="font-semibold text-white">Email Inquiries</div>
                     <div className="flex items-center gap-2 mt-0.5">
-                      <a href="mailto:info@golfnorth.ca" className="text-amber-300 hover:underline">
-                        info@golfnorth.ca
+                      <a href="mailto:Proshop.burford@golfnorth.ca" className="text-amber-300 hover:underline">
+                        Proshop.burford@golfnorth.ca
                       </a>
                       <button
                         type="button"
-                        onClick={handleCopyEmail}
+                        onClick={async () => {
+                          try {
+                            await navigator.clipboard.writeText('Proshop.burford@golfnorth.ca');
+                            setCopiedEmail(true);
+                            addToast('info', 'Email Copied', 'Proshop.burford@golfnorth.ca copied to clipboard.');
+                            setTimeout(() => setCopiedEmail(false), 2500);
+                          } catch {
+                            // fallback
+                          }
+                        }}
                         className="group/copy inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-800/90 hover:bg-emerald-700 border border-emerald-700/80 hover:border-amber-300/60 text-amber-300 hover:text-white transition text-xs cursor-pointer shadow-sm"
                         title={copiedEmail ? 'Copied to clipboard!' : 'Copy email address'}
                         aria-label="Copy email address"

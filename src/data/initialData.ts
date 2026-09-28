@@ -184,33 +184,33 @@ export const INITIAL_REGISTRATIONS: RegistrationRecord[] = [
   {
     id: 'reg-100',
     type: 'foursome',
-    teamName: 'Team Dummies',
+    teamName: 'Team Saied',
     targetTier: 'Corporate Foursome ($1,600)',
     primaryContact: {
-      id: 'p-luc-1',
-      name: 'Luc Valade',
-      email: 'luc.valade@gmail.com',
+      id: 'p-saied-1',
+      name: 'Saied Mohammed',
+      email: 'saied.mohammed@example.com',
       phone: '(555) 987-6543',
       handicap: '12.0',
       shirtSize: 'L',
       dietaryRestrictions: 'None'
     },
     additionalPlayers: [
-      { id: 'p-luc-2', name: 'Marc Valade', email: 'marc.valade@example.com', phone: '(555) 987-6544', handicap: '14.5', shirtSize: 'L' },
-      { id: 'p-luc-3', name: 'Alain Dugas', email: 'alain.dugas@example.com', phone: '(555) 987-6545', handicap: '16.2', shirtSize: 'XL' },
-      { id: 'p-luc-4', name: 'Eric Tremblay', email: 'eric.tremblay@example.com', phone: '(555) 987-6546', handicap: '18.0', shirtSize: 'M' }
+      { id: 'p-saied-2', name: 'Tony Saad', email: 'tony.saad@example.com', phone: '(555) 987-6544', handicap: '14.5', shirtSize: 'L' },
+      { id: 'p-saied-3', name: 'Frank Bauder', email: 'frank.bauder@example.com', phone: '(555) 987-6545', handicap: '16.2', shirtSize: 'XL' },
+      { id: 'p-saied-4', name: 'Jane Bauder', email: 'jane.bauder@example.com', phone: '(555) 987-6546', handicap: '18.0', shirtSize: 'M' }
     ],
-    requestedTeammates: ['Marc Valade', 'Alain Dugas', 'Eric Tremblay'],
+    requestedTeammates: ['Tony Saad', 'Frank Bauder', 'Jane Bauder'],
     addons: { mulligansCount: 0, rafflePacks10: 0, rafflePacks25: 0, puttingContestCount: 0, tigerDriveCount: 0 },
     totalAmount: 1600,
     paymentStatus: 'paid',
     paymentMethod: 'credit_card',
-    confirmationCode: 'LUC-1001',
+    confirmationCode: 'SAIED-1775',
     registeredAt: '2026-06-01T10:00:00Z',
     checkedIn: true,
     assignedCart: 'Cart #1C & #1D',
     assignedStartingHole: 1,
-    notes: 'Tournament Administrator & Co-Host Team (Team Dummies)'
+    notes: 'Tournament Founder & Host Team (Team Saied)'
   },
   {
     id: 'reg-team-1',
@@ -354,7 +354,7 @@ export const INITIAL_REGISTRATIONS: RegistrationRecord[] = [
     id: 'reg-team-7',
     type: 'foursome',
     teamName: 'Team 7 (Mohammed / The Fairway Eagles)',
-    targetTier: 'Presenting Title Sponsor ($5,000)',
+    targetTier: 'Corporate Foursome ($1,600)',
     primaryContact: { id: 'p-t7-1', name: 'Saied Mohammed', email: 'saied.m@charitygolf.org', phone: '(555) 123-4567', handicap: '10.2', shirtSize: 'L' },
     additionalPlayers: [
       { id: 'p-t7-2', name: 'Ross Clarke', email: 'ross.clarke@example.com', phone: '(555) 123-4588', handicap: '12.0', shirtSize: 'L' },
@@ -363,7 +363,7 @@ export const INITIAL_REGISTRATIONS: RegistrationRecord[] = [
     ],
     requestedTeammates: ['Ross Clarke', 'Peggy', 'Barry Kelly'],
     addons: { mulligansCount: 3, rafflePacks10: 2, rafflePacks25: 2, puttingContestCount: 4, tigerDriveCount: 4 },
-    totalAmount: 5000,
+    totalAmount: 1600,
     paymentStatus: 'paid',
     paymentMethod: 'credit_card',
     confirmationCode: 'SAIED-9042',
@@ -400,7 +400,7 @@ export const INITIAL_REGISTRATIONS: RegistrationRecord[] = [
     id: 'reg-team-9',
     type: 'foursome',
     teamName: 'Team 9 (Khan)',
-    targetTier: 'Hole & Tee Box Sponsor ($1,000)',
+    targetTier: 'Corporate Foursome ($1,600)',
     primaryContact: { id: 'p-t9-1', name: 'Amir Khan', email: 'amir.khan@example.com', phone: '(555) 901-2301', handicap: '9.0', shirtSize: 'M' },
     additionalPlayers: [
       { id: 'p-t9-2', name: 'Wayne Childerley', email: 'wayne.childerley@example.com', phone: '(555) 901-2302', handicap: '14.0', shirtSize: 'L' },
@@ -408,7 +408,7 @@ export const INITIAL_REGISTRATIONS: RegistrationRecord[] = [
     ],
     requestedTeammates: ['Wayne Childerley', 'Hugh James'],
     addons: { mulligansCount: 0, rafflePacks10: 0, rafflePacks25: 1, puttingContestCount: 3, tigerDriveCount: 0 },
-    totalAmount: 1000,
+    totalAmount: 1600,
     paymentStatus: 'pending',
     paymentMethod: 'cash',
     confirmationCode: 'AKHAN-9009',
@@ -416,7 +416,7 @@ export const INITIAL_REGISTRATIONS: RegistrationRecord[] = [
     checkedIn: false,
     assignedCart: 'Cart #7A & #7B',
     assignedStartingHole: 9,
-    notes: 'Hole sponsor & 3-player team. Cash payment at morning check-in. Sourced from Google Sheet Team #9'
+    notes: 'Standard 3-player corporate team. Sourced from Google Sheet Team #9'
   },
   {
     id: 'reg-team-10',

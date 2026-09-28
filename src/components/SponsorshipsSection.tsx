@@ -3,6 +3,7 @@ import { useTournament } from '../context/TournamentContext';
 import { SPONSORSHIP_PACKAGES } from '../data/initialData';
 import { Award, CheckCircle2, Star, Sparkles, Building2, ArrowRight, ShieldCheck, Heart } from 'lucide-react';
 import { SponsorTier } from '../types';
+import { SponsorLogoCarousel } from './SponsorLogoCarousel';
 
 interface SponsorPackageCardProps {
   pkg: (typeof SPONSORSHIP_PACKAGES)[0];
@@ -52,8 +53,8 @@ const SponsorPackageCard: React.FC<SponsorPackageCardProps> = ({ pkg, onPledge }
       ref={cardRef}
       className={`rounded-2xl flex flex-col justify-between transition-all duration-300 relative border p-6 sm:p-8 group cursor-pointer ${
         isInView
-          ? 'bg-[#295636] text-white border-emerald-500 shadow-2xl transform -translate-y-1'
-          : `hover:bg-[#295636] hover:text-white hover:border-emerald-500 hover:shadow-2xl hover:-translate-y-1 ${
+          ? 'bg-[#295534] text-white border-emerald-500 shadow-2xl transform -translate-y-1'
+          : `hover:bg-[#295534] hover:text-white hover:border-emerald-500 hover:shadow-2xl hover:-translate-y-1 ${
               isPresenting
                 ? 'border-[#D4AF37] bg-gradient-to-b from-amber-50/70 via-white to-amber-50/30 shadow-xl ring-2 ring-[#D4AF37]/50'
                 : isEagle
@@ -96,7 +97,7 @@ const SponsorPackageCard: React.FC<SponsorPackageCardProps> = ({ pkg, onPledge }
         >
           <span
             className={`text-3xl sm:text-4xl font-extrabold font-mono transition-colors duration-300 ${
-              isInView ? 'text-white' : 'text-[#295636] group-hover:text-white'
+              isInView ? 'text-white' : 'text-[#295534] group-hover:text-white'
             }`}
           >
             ${pkg.amount.toLocaleString()}
@@ -340,35 +341,9 @@ export const SponsorshipsSection: React.FC = () => {
           ))}
         </div>
 
-        {/* Existing Confirmed Sponsors Wall */}
-        <div className="bg-slate-50 border border-slate-200/90 rounded-2xl p-8 sm:p-10">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-6 border-b border-slate-200">
-            <div>
-              <div className="text-xs font-bold uppercase tracking-wider text-emerald-700 flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4" />
-                Community Leadership
-              </div>
-              <h3 className="text-2xl font-bold text-slate-900 font-serif-heading mt-0.5">
-                Our 2026 Memorial Tournament Partners
-              </h3>
-            </div>
-            <button
-              onClick={() => openSponsorModal('eagle')}
-              className="px-4 py-2 bg-[#EA580C] hover:bg-[#C2410C] text-white text-xs font-bold rounded-lg shadow-sm transition flex items-center gap-1.5 self-start sm:self-auto cursor-pointer"
-            >
-              <Sparkles className="w-4 h-4" />
-              Join as Corporate Sponsor
-            </button>
-          </div>
-
-          <div className="bg-emerald-950/20 border-2 border-dashed border-emerald-700/40 rounded-2xl p-8 sm:p-12 text-center">
-            <span className="inline-block px-5 py-2 rounded-full bg-[#1E4D2B] text-amber-300 font-extrabold text-sm sm:text-base tracking-widest uppercase border border-amber-400/30 shadow-md">
-              Coming Soon
-            </span>
-            <p className="text-slate-600 dark:text-slate-300 text-xs sm:text-sm mt-3 max-w-md mx-auto font-medium">
-              Our 2026 corporate sponsorship roster and partner announcements will be published shortly.
-            </p>
-          </div>
+        {/* Interactive Sponsor Logo Carousel */}
+        <div className="mt-12">
+          <SponsorLogoCarousel />
         </div>
       </div>
     </section>

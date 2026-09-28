@@ -221,40 +221,16 @@ const AllocationCard: React.FC<AllocationCardProps> = ({ init, idx, totalRaised,
               isInView ? 'text-white' : 'text-slate-900 group-hover:text-white'
             }`}
           >
-            ${Math.round(allocatedAmount).toLocaleString()}
-            <span
-              className={`text-xs font-normal transition-colors duration-300 ${
-                isInView ? 'text-emerald-200' : 'text-slate-500 group-hover:text-emerald-200'
-              }`}
-            >
-              {' '}
-              / ${Math.round(targetAmount).toLocaleString()} target
-            </span>
+            ${Math.round(allocatedAmount).toLocaleString()} CAD
           </span>
         </div>
 
-        <div
-          className={`w-full rounded-full h-2.5 overflow-hidden transition-colors duration-300 ${
-            isInView ? 'bg-emerald-950/60' : 'bg-slate-200 group-hover:bg-emerald-950/60'
-          }`}
-        >
-          <div
-            className={`h-full rounded-full transition-all duration-700 ${
-              isInView
-                ? 'bg-amber-400'
-                : init.percent === 75
-                ? 'bg-emerald-600 group-hover:bg-amber-400'
-                : 'bg-rose-600 group-hover:bg-amber-400'
-            }`}
-            style={{ width: `${allocPct}%` }}
-          />
-        </div>
         <div
           className={`flex justify-between text-[11px] transition-colors duration-300 ${
             isInView ? 'text-emerald-200' : 'text-slate-500 group-hover:text-emerald-200'
           }`}
         >
-          <span>{allocPct}% of partner allocation target funded</span>
+          <span>100% of net proceeds directly distributed</span>
           <span
             className={`font-semibold transition-colors duration-300 ${
               isInView ? 'text-amber-300' : 'text-slate-700 group-hover:text-amber-300'
@@ -298,26 +274,11 @@ export const ImpactSection: React.FC = () => {
                 2026 Memorial Campaign Progress
               </span>
               <h3 className="text-2xl sm:text-3xl font-bold font-serif-heading">
-                ${(totalRaised || 0).toLocaleString()} Raised Toward Our ${targetGoal.toLocaleString()} Goal
+                ${(totalRaised || 0).toLocaleString()} CAD Raised to Date
               </h3>
               <p className="text-xs sm:text-sm text-emerald-100/90 leading-relaxed">
-                Together, our community has achieved {percentage}% of our ${targetGoal.toLocaleString()} goal, split between Juravinski Breast Cancer Research (75%) and Canadian Red Cross - Fire &amp; Flood (25%).
+                Together, our community has pooled these vital resources to support Juravinski Breast Cancer Research (75%) and the Canadian Red Cross - Fire &amp; Flood (25%).
               </p>
-
-              {/* Progress track */}
-              <div className="pt-2">
-                <div className="w-full bg-emerald-950/80 rounded-full h-4 p-0.5 overflow-hidden border border-emerald-700/60 shadow-inner">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-[#D4AF37] transition-all duration-1000 shadow-md"
-                    style={{ width: `${Math.max(5, percentage)}%` }}
-                  />
-                </div>
-                <div className="flex justify-between items-center text-xs font-semibold text-emerald-200 mt-2">
-                  <span>$0 Baseline</span>
-                  <span className="font-bold text-[#D4AF37] text-sm">{percentage}% Funded</span>
-                  <span>Goal: ${targetGoal.toLocaleString()}</span>
-                </div>
-              </div>
             </div>
 
             <div className="lg:col-span-5 flex flex-col sm:flex-row lg:flex-col gap-3 justify-center">
@@ -354,7 +315,7 @@ export const ImpactSection: React.FC = () => {
                 Transparent Stewardship
               </span>
               <h3 className="text-xl sm:text-2xl font-bold text-slate-900 font-serif-heading">
-                How Your Support is Allocated &amp; 2026 Memorial Goal
+                How Your Support is Allocated &amp; Distributed
               </h3>
               <p className="text-xs text-slate-500 mt-1">
                 As money is raised, 100% of net proceeds are automatically allocated between our two vital charitable partners:

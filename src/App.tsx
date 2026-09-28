@@ -17,6 +17,7 @@ import { TributesWall } from './components/TributesWall';
 import { FaqSection } from './components/FaqSection';
 import { ContactSection } from './components/ContactSection';
 import { Footer } from './components/Footer';
+import { LiveScoring } from './components/LiveScoring';
 
 // Regular Admin Page
 import { AdminPortalPage } from './components/AdminPortalPage';
@@ -30,6 +31,7 @@ import { GameDayAgendaModal } from './components/GameDayAgendaModal';
 import { ApiKeySettingsModal } from './components/ApiKeySettingsModal';
 import { SplashScreen } from './components/SplashScreen';
 import { BrandedQrCodeGeneratorModal } from './components/BrandedQrCodeGeneratorModal';
+import { WelcomePopup } from './components/WelcomePopup';
 
 function TournamentAppContent() {
   const {
@@ -81,9 +83,6 @@ function TournamentAppContent() {
   // Main Application Render (Single Splash Screen rendered at top level)
   return (
     <>
-      {/* Launch Splash Screen: Rendered ONCE at app root to prevent multiple mounts on route checks */}
-      {isSplashVisible && <SplashScreen duration={2000} onComplete={closeSplash} />}
-
       {isAdminOpen ? (
         <div className="min-h-screen bg-slate-100 text-slate-900 flex flex-col font-sans">
           <AdminPortalPage onBackToSite={() => setIsAdminOpen(false)} />
@@ -116,7 +115,8 @@ function TournamentAppContent() {
             {/* 6. Sponsorships: Tiered Corporate Packages & Showcase */}
             <SponsorshipsSection />
 
-            {/* 7. Live Scoring: Hub, Pairing Matrix, Direct App Links & Rules */}
+            {/* 7. Live Scoring: Google Sheets API v4 Real-Time Leaderboard & Spectator Cards */}
+            <LiveScoring />
 
             {/* 10. Community Messages & Memorial Tribute Book */}
             <TributesWall />
@@ -136,6 +136,7 @@ function TournamentAppContent() {
           <DonationModal />
           <AddMemorialNoteModal />
           <GameDayAgendaModal />
+          <WelcomePopup />
           <ApiKeySettingsModal isOpen={isApiKeyModalOpen} onClose={() => setIsApiKeyModalOpen(false)} />
           <BrandedQrCodeGeneratorModal isOpen={isQrModalOpen} onClose={() => setIsQrModalOpen(false)} addToast={addToast} />
 

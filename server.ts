@@ -1,4 +1,5 @@
 import express from 'express';
+import https from 'https';
 import path from 'path';
 import fs from 'fs';
 import { createServer as createViteServer } from 'vite';
@@ -584,6 +585,269 @@ async function startServer() {
   // Health check
   app.get('/api/health', (_req, res) => {
     res.json({ status: 'ok' });
+  });
+
+  const ACTIVE_SHEET_FILE = path.join(DATA_DIR, 'active-sheet-config.json');
+
+let activeSheetUrl = '';
+let activeApiKey = '';
+try {
+  if (fs.existsSync(ACTIVE_SHEET_FILE)) {
+    const saved = JSON.parse(fs.readFileSync(ACTIVE_SHEET_FILE, 'utf-8'));
+    if (saved) {
+      if (saved.sheetUrl) activeSheetUrl = saved.sheetUrl;
+      if (saved.apiKey) activeApiKey = saved.apiKey;
+    }
+  }
+} catch (e) {
+  console.warn('Could not load active-sheet-config.json:', e);
+}
+
+function persistActiveSheetConfig(url?: string, key?: string) {
+  try {
+    if (typeof url === 'string') activeSheetUrl = url.trim();
+    if (typeof key === 'string') activeApiKey = key.trim();
+    fs.writeFileSync(ACTIVE_SHEET_FILE, JSON.stringify({ 
+      sheetUrl: activeSheetUrl, 
+      apiKey: activeApiKey,
+      updatedAt: new Date().toISOString() 
+    }, null, 2));
+  } catch (e) {
+    console.warn('Could not write active-sheet-config.json:', e);
+  }
+}
+
+// Google Sheet proxy to bypass CORS restrictions with real-time cache busting
+  app.get('/api/proxy-sheet', async (req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0, s-maxage=0, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.setHeader('Surrogate-Control', 'no-store');
+    
+    // Support dynamic spreadsheet ID or full URL from frontend query parameter, falling back to server-persisted URL
+    const queryParam = ((req.query.id || req.query.url || activeSheetUrl || '') as string).trim();
+    let targetUrls: string[] = [];
+
+    if (!queryParam) {
+      // Default fallback ID
+      const defaultId = '1y6Y7fepD90P6x5f7N8922tN-nLclL5kI9rPfeQ6Pte8';
+      targetUrls = [
+        `https://docs.google.com/spreadsheets/d/${defaultId}/gviz/tq?tqx=out:csv`,
+        `https://docs.google.com/spreadsheets/d/${defaultId}/export?format=csv`
+      ];
+    } else if (queryParam.includes('/spreadsheets/d/e/2PACX-')) {
+      const pubMatch = queryParam.match(/spreadsheets\/d\/e\/(2PACX-[a-zA-Z0-9-_]+)/);
+      const pubId = pubMatch ? pubMatch[1] : queryParam;
+      targetUrls = [
+        `https://docs.google.com/spreadsheets/d/e/${pubId}/pub?output=csv`,
+        `https://docs.google.com/spreadsheets/d/e/${pubId}/pub?gid=0&single=true&output=csv`
+      ];
+    } else if (queryParam.includes('spreadsheets/d/')) {
+      const stdMatch = queryParam.match(/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+      const sheetId = (stdMatch && stdMatch[1] !== 'e') ? stdMatch[1] : queryParam;
+      targetUrls = [
+        `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv`,
+        `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`,
+        `https://docs.google.com/spreadsheets/d/${sheetId}/pub?output=csv`
+      ];
+    } else if (queryParam.startsWith('http://') || queryParam.startsWith('https://')) {
+      targetUrls = [queryParam];
+    } else {
+      // Plain ID string
+      targetUrls = [
+        `https://docs.google.com/spreadsheets/d/${queryParam}/gviz/tq?tqx=out:csv`,
+        `https://docs.google.com/spreadsheets/d/${queryParam}/export?format=csv`
+      ];
+    }
+
+    // Append unique cache-busting timestamp to bypass Google edge caching
+    const cacheBuster = `_nocache=${Date.now()}&_rand=${Math.random().toString(36).substring(2)}`;
+    targetUrls = targetUrls.map(u => u.includes('?') ? `${u}&${cacheBuster}` : `${u}?${cacheBuster}`);
+
+    // Helper to fetch URL following redirects recursively with proper Chrome User-Agent
+    const fetchUrlWithRedirects = (url: string, maxRedirects = 5): Promise<string> => {
+      return new Promise((resolve, reject) => {
+        if (maxRedirects <= 0) return reject(new Error('Too many redirects'));
+
+        const options = {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'text/csv,text/plain,application/csv,*/*'
+          }
+        };
+
+        https.get(url, options, (response) => {
+          if (response.statusCode && response.statusCode >= 300 && response.statusCode < 400 && response.headers.location) {
+            let redirectUrl = response.headers.location;
+            if (redirectUrl.startsWith('/')) {
+              const parsed = new URL(url);
+              redirectUrl = `${parsed.protocol}//${parsed.host}${redirectUrl}`;
+            }
+            fetchUrlWithRedirects(redirectUrl, maxRedirects - 1).then(resolve).catch(reject);
+            return;
+          }
+
+          if (response.statusCode && (response.statusCode < 200 || response.statusCode >= 300)) {
+            return reject(new Error(`HTTP status ${response.statusCode}`));
+          }
+
+          let data = '';
+          response.on('data', (chunk) => { data += chunk; });
+          response.on('end', () => resolve(data));
+        }).on('error', reject);
+      });
+    };
+
+    for (const endpointUrl of targetUrls) {
+      try {
+        const data = await fetchUrlWithRedirects(endpointUrl);
+        if (data && !data.trim().startsWith('<!DOCTYPE') && !data.trim().startsWith('<html')) {
+          res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+          return res.status(200).send(data);
+        }
+      } catch (err: any) {
+        console.warn(`[Google Sheet Proxy] Endpoint failed (${endpointUrl}):`, err?.message);
+      }
+    }
+
+    return res.status(500).send('Unable to fetch CSV data from Google Sheet endpoints');
+  });
+
+  // Get globally persisted Google Sheet URL & API Key
+  app.get('/api/get-sheet-url', (_req, res) => {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.json({
+      success: true,
+      sheetUrl: activeSheetUrl || '',
+      apiKey: activeApiKey || ''
+    });
+  });
+
+  // Save globally persisted Google Sheet URL & API Key for all live users
+  app.post('/api/save-sheet-url', (req, res) => {
+    const { sheetUrl, apiKey } = req.body;
+    if (typeof sheetUrl === 'string' || typeof apiKey === 'string') {
+      persistActiveSheetConfig(sheetUrl, apiKey);
+      return res.json({
+        success: true,
+        sheetUrl: activeSheetUrl,
+        apiKey: activeApiKey,
+        message: 'Google Sheet configuration updated globally!'
+      });
+    }
+    return res.status(400).json({ success: false, error: 'Invalid config provided' });
+  });
+
+  // Dedicated Google Sheets API v4 Endpoint for Live Scoring
+  app.get('/api/sheets-v4', async (req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0, s-maxage=0, proxy-revalidate');
+
+    const rawSpreadsheetId = (req.query.spreadsheetId || req.query.id || activeSheetUrl || '1y6Y7fepD90P6x5f7N8922tN-nLclL5kI9rPfeQ6Pte8') as string;
+    const range = (req.query.range || 'A1:R50') as string;
+    const userApiKey = (req.query.apiKey || activeApiKey || process.env.GOOGLE_SHEETS_API_KEY || process.env.VITE_GOOGLE_SHEETS_API_KEY || '') as string;
+
+    // Extract spreadsheet ID if full URL passed
+    let spreadsheetId = rawSpreadsheetId.trim();
+    if (spreadsheetId.includes('spreadsheets/d/')) {
+      const match = spreadsheetId.match(/spreadsheets\/d\/(?:e\/)?([a-zA-Z0-9-_]+)/);
+      if (match && match[1]) spreadsheetId = match[1];
+    }
+
+    let googleApiErrorMessage = '';
+    // 1. Try Google Sheets API v4 directly if API Key is available
+    if (userApiKey && userApiKey.trim()) {
+      try {
+        const v4Url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(range)}?key=${encodeURIComponent(userApiKey.trim())}&_nocache=${Date.now()}`;
+        const v4Res = await new Promise<{ statusCode: number; data: string }>((resolve, reject) => {
+          https.get(v4Url, { headers: { 'User-Agent': 'Mozilla/5.0' } }, (response) => {
+            let data = '';
+            response.on('data', chunk => { data += chunk; });
+            response.on('end', () => resolve({ statusCode: response.statusCode || 500, data }));
+          }).on('error', reject);
+        });
+
+        if (v4Res.statusCode === 200) {
+          const json = JSON.parse(v4Res.data);
+          return res.json({
+            success: true,
+            source: 'sheets_api_v4',
+            values: json.values || [],
+            spreadsheetId,
+            range,
+            fetchedAt: new Date().toISOString()
+          });
+        } else {
+          try {
+            const errJson = JSON.parse(v4Res.data);
+            if (errJson?.error?.message) {
+              googleApiErrorMessage = errJson.error.message;
+            }
+          } catch (_) {}
+          console.warn('[Sheets API v4] API Key request returned status', v4Res.statusCode, googleApiErrorMessage || v4Res.data);
+        }
+      } catch (err: any) {
+        console.warn('[Sheets API v4] Direct v4 fetch failed, falling back to CSV proxy:', err?.message);
+      }
+    }
+
+    // 2. Fallback to high-speed CSV proxy if no API key or v4 failed
+    try {
+      const csvEndpoint = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/gviz/tq?tqx=out:csv&_nocache=${Date.now()}`;
+      const csvData = await new Promise<string>((resolve, reject) => {
+        https.get(csvEndpoint, { headers: { 'User-Agent': 'Mozilla/5.0' } }, (response) => {
+          let data = '';
+          response.on('data', chunk => { data += chunk; });
+          response.on('end', () => resolve(data));
+        }).on('error', reject);
+      });
+
+      if (csvData && !csvData.trim().startsWith('<!DOCTYPE') && !csvData.trim().startsWith('<html')) {
+        const rows: string[][] = [];
+        const lines = csvData.split(/\r?\n/);
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          const row: string[] = [];
+          let currentVal = '';
+          let insideQuote = false;
+          for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+            if (char === '"' && (i === 0 || line[i - 1] !== '\\')) {
+              insideQuote = !insideQuote;
+            } else if (char === ',' && !insideQuote) {
+              row.push(currentVal.replace(/^"|"$/g, '').trim());
+              currentVal = '';
+            } else {
+              currentVal += char;
+            }
+          }
+          row.push(currentVal.replace(/^"|"$/g, '').trim());
+          rows.push(row);
+        }
+
+        return res.json({
+          success: true,
+          source: 'gviz_csv_proxy',
+          values: rows,
+          spreadsheetId,
+          range,
+          warning: googleApiErrorMessage ? `Google API Key Notice: ${googleApiErrorMessage}. Synced via public link fallback.` : undefined,
+          fetchedAt: new Date().toISOString()
+        });
+      }
+    } catch (err: any) {
+      console.warn('[Sheets API v4 Proxy] Fallback CSV conversion failed:', err?.message);
+    }
+
+    const cleanError = googleApiErrorMessage
+      ? `Google Sheets API Notice: ${googleApiErrorMessage}`
+      : 'Unable to fetch data via Google Sheets API v4 or CSV proxy. Please check spreadsheet ID and sharing permissions.';
+
+    return res.status(200).json({
+      success: false,
+      error: cleanError
+    });
   });
 
   // Serve the Hamilton Health Sciences Foundation Acknowledgement Letter PDF

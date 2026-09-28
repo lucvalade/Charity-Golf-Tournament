@@ -72,10 +72,9 @@ export const Hero: React.FC = () => {
             </button>
           </div>
 
-          {/* b) Fragrant Breeze Golf Classic Banner Layout: [ LEFT: Text Box (~80%) ] ------------ [ RIGHT: Circular Golfer Photo (~20%) ] */}
-          <div className="flex items-center justify-between gap-3 sm:gap-6 w-full max-w-3xl mx-auto my-3">
-            {/* LEFT SIDE: Event Title + Subtitle Box (~80%) */}
-            <div className="flex-1 px-5 py-3.5 sm:px-8 sm:py-4 rounded-2xl bg-[#032817]/95 border-2 border-[#D4AF37]/90 shadow-2xl backdrop-blur-md flex flex-col items-center justify-center text-center">
+          {/* b) Fragrant Breeze Golf Classic Banner Layout: Centered & Full Width */}
+          <div className="w-full max-w-lg mx-auto my-3">
+            <div className="px-5 py-3.5 sm:px-8 sm:py-4 rounded-2xl bg-[#032817]/95 border-2 border-[#D4AF37]/90 shadow-2xl backdrop-blur-md flex flex-col items-center justify-center text-center">
               <span className="text-amber-400 font-extrabold text-sm sm:text-lg md:text-xl tracking-widest uppercase font-serif-heading">
                 FRAGRANT BREEZE GOLF CLASSIC
               </span>
@@ -85,30 +84,6 @@ export const Hero: React.FC = () => {
               <strong className="text-white font-extrabold text-sm sm:text-base md:text-lg leading-tight mt-0.5 tracking-wide">
                 {EVENT_DETAILS.memorialHonoree}
               </strong>
-            </div>
-
-            {/* RIGHT SIDE: Circular Golfer Photo (~20%) */}
-            <div className="shrink-0 flex items-center justify-center">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full p-[2px] bg-gradient-to-tr from-[#032817] via-[#D4AF37] to-[#15803D] shadow-2xl transition-transform duration-300 hover:scale-105">
-                <div className="w-full h-full rounded-full border-2 border-[#D4AF37] overflow-hidden bg-slate-950 flex items-center justify-center">
-                  <img
-                    src="/images/female_putting.png"
-                    alt="Female Golfer Putting - Sunset Scene"
-                    loading="eager"
-                    decoding="async"
-                    className="w-full h-full object-cover object-center rounded-full scale-105"
-                    onError={(e) => {
-                      const img = e.target as HTMLImageElement;
-                      if (!img.dataset.failedOnce) {
-                        img.dataset.failedOnce = 'true';
-                        img.src = '/female_putting.png';
-                      } else {
-                        img.src = '/images/female_putting_vertical.jpg';
-                      }
-                    }}
-                  />
-                </div>
-              </div>
             </div>
           </div>
 

@@ -3,11 +3,12 @@ import { TOURNAMENT_SCHEDULE, EVENT_DETAILS } from '../data/initialData';
 import { useTournament } from '../context/TournamentContext';
 import { printTournamentSchedulePdf } from '../utils/formatters';
 import { ItineraryPdfModal } from './ItineraryPdfModal';
-import { Calendar, Clock, MapPin, Coffee, Heart, Flag, Trophy, Compass, CloudSun, ShieldCheck, ChevronRight, CheckCircle2, CalendarDays, ExternalLink, Printer, User } from 'lucide-react';
+import { Calendar, Clock, MapPin, Coffee, Heart, Flag, Trophy, Compass, CloudSun, ShieldCheck, ChevronRight, CheckCircle2, CalendarDays, ExternalLink, Printer, User, Target, X, FileDown } from 'lucide-react';
 
 export const EventDetails: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'schedule' | 'course' | 'rules'>('schedule');
   const [isPrintPdfOpen, setIsPrintPdfOpen] = useState(false);
+  const [isProximityOpen, setIsProximityOpen] = useState(false);
   const { openAgendaModal, openRegistrationModal } = useTournament();
 
   const getIcon = (iconName: string) => {
@@ -26,16 +27,16 @@ export const EventDetails: React.FC = () => {
       desc: '18-hole competition split into three 6-hole rotations where players swap partners within their group. Details and official scorecards will follow during the 11:00 AM cart dispatch.'
     },
     {
-      title: 'Gross & Net Flights',
-      desc: 'Teams will compete in both Gross and Net divisions. Official USGA/GHIN handicaps will be factored for the Net flight awards.'
+      title: 'Gross & Net',
+      desc: 'Teams will compete in Gross & Net Scores and this is not based on handicaps.'
     },
     {
-      title: 'Mulligans & Skills Rules',
-      desc: 'Mulligans may be used anywhere on the course except on contest holes for prize eligibility. Maximum 2 mulligans per player on putting greens.'
+      title: 'Mulligans',
+      desc: 'On hole #15, eahc player is aloud only 1 mulligan and can be used anywhere on the hole. Therefore, maximum for the group is 4 mulligans'
     },
     {
-      title: 'Hole-in-One Luxury Car Prize',
-      desc: 'Sponsored hole on Par 3 #14 featuring a brand new luxury vehicle prize for the first verified ace of the morning!'
+      title: 'Hole-in-One',
+      desc: 'Sponsored by Bari for $111.11 (based on his birthday)'
     }
   ];
 
@@ -131,7 +132,16 @@ export const EventDetails: React.FC = () => {
               title="Print PDF (8.5 x 11 Itinerary flyer)"
             >
               <Printer className="w-4 h-4 text-[#1E4D2B]" />
-              <span>Print PDF</span>
+              <span>Itinerary PDF</span>
+            </button>
+            <button
+              id="btn-proximity-holes"
+              onClick={() => setIsProximityOpen(true)}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-[#1E4D2B] hover:text-emerald-950 font-bold text-xs sm:text-sm shadow-xs border-2 border-emerald-300 hover:border-[#1E4D2B] transition cursor-pointer"
+              title="View 2026 FBGT Proximity Holes &amp; Querky Rules"
+            >
+              <Target className="w-4 h-4 text-[#1E4D2B]" />
+              <span>Proximity Holes</span>
             </button>
           </div>
         </div>
@@ -190,7 +200,16 @@ export const EventDetails: React.FC = () => {
                 title="Print PDF (8.5 x 11 Itinerary)"
               >
                 <Printer className="w-4 h-4 text-[#D4AF37]" />
-                <span>Print PDF</span>
+                <span>Itinerary PDF</span>
+              </button>
+              <button
+                id="btn-proximity-holes-bottom"
+                onClick={() => setIsProximityOpen(true)}
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#D4AF37] hover:bg-amber-500 text-slate-950 font-bold text-sm shadow-md transition transform hover:-translate-y-0.5 cursor-pointer border border-amber-600"
+                title="View 2026 FBGT Proximity Holes &amp; Querky Rules"
+              >
+                <Target className="w-4 h-4 text-slate-950" />
+                <span>Proximity Holes</span>
               </button>
               <button
                 onClick={openAgendaModal}
@@ -318,6 +337,140 @@ export const EventDetails: React.FC = () => {
         isOpen={isPrintPdfOpen}
         onClose={() => setIsPrintPdfOpen(false)}
       />
+
+      {/* Proximity Holes Modal */}
+      {isProximityOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xs overflow-y-auto">
+          <div className="bg-white rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 duration-250 flex flex-col max-h-[90vh]">
+            {/* Modal Header */}
+            <div className="bg-[#1E4D2B] text-white p-5 flex items-center justify-between border-b border-emerald-800">
+              <div className="flex items-center gap-2.5">
+                <Target className="w-5.5 h-5.5 text-amber-300" />
+                <div>
+                  <h3 className="text-lg font-bold font-serif-heading">Proximity Holes &amp; Contest Rules</h3>
+                  <p className="text-[11px] text-emerald-200">6th Annual Fragrant Breeze Golf Tournament</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsProximityOpen(false)}
+                className="w-8 h-8 rounded-full bg-emerald-900/40 hover:bg-emerald-900/80 text-white flex items-center justify-center transition cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Scrollable Content */}
+            <div className="p-6 overflow-y-auto space-y-6 text-slate-800 text-sm flex-1">
+              {/* Alert box */}
+              <div className="p-4 bg-amber-50 rounded-xl border border-amber-200 text-amber-950 text-xs font-semibold leading-relaxed">
+                📢 <strong className="text-amber-900">NOTE FOR LADIES CTP:</strong> IF THE TAG IS NOT YET ON GREEN, WRITE YOUR NAME EVEN IF YOUR BALL IS IN THE ROUGH!
+              </div>
+
+              {/* Proximity Holes */}
+              <div className="space-y-3">
+                <h4 className="font-extrabold text-[#1E4D2B] text-xs uppercase tracking-wider border-b border-slate-100 pb-1 flex items-center gap-1.5">
+                  <span className="w-1.5 h-3 bg-emerald-600 rounded-full" />
+                  Official Proximity Contests
+                </h4>
+                <div className="divide-y divide-slate-100 font-medium">
+                  {[
+                    { hole: 'Hole #2', desc: 'Closest to pin (LADIES)', tag: 'Ladies Only' },
+                    { hole: 'Hole #5', desc: 'Closest to pin (both MEN & LADIES) - 2 TAGS', tag: 'Men & Ladies' },
+                    { hole: 'Hole #7', desc: 'Closest to pin (MEN)', tag: 'Men Only' },
+                    { hole: 'Hole #10', desc: 'Closest to squiggly rope (both MEN & LADIES) - 2 TAGS', tag: 'Specialty Pin' },
+                    { hole: 'Hole #11', desc: 'Closest to pin (LADIES)', tag: 'Ladies Only' },
+                    { hole: 'Hole #11', desc: 'HOLE IN ONE CHALLENGE (ALL) $111.11 sponsored by Bari M.', highlight: true },
+                    { hole: 'Hole #13', desc: 'Closest to pin (MEN)', tag: 'Men Only' },
+                    { hole: 'Hole #16', desc: 'Longest drive in fairway (MEN)', tag: 'Men Only' },
+                    { hole: 'Hole #17', desc: 'Longest drive in fairway (LADIES)', tag: 'Ladies Only' },
+                    { hole: 'Hole #18', desc: 'Longest PUTT (ALL)', tag: 'All Players' }
+                  ].map((p, i) => (
+                    <div key={i} className={`py-2.5 flex items-start sm:items-center justify-between gap-4 ${p.highlight ? 'bg-amber-50/70 px-2 rounded-lg border border-amber-100' : ''}`}>
+                      <div className="flex items-center gap-3">
+                        <span className={`font-mono text-xs font-bold px-2.5 py-0.5 rounded-md ${p.highlight ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-slate-100 text-slate-700'}`}>
+                          {p.hole}
+                        </span>
+                        <span className={`text-[13px] ${p.highlight ? 'font-black text-amber-950' : 'text-slate-700'}`}>
+                          {p.desc}
+                        </span>
+                      </div>
+                      {p.tag && (
+                        <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full shrink-0">
+                          {p.tag}
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Querky Holes */}
+              <div className="space-y-3 pt-2">
+                <h4 className="font-extrabold text-[#1E4D2B] text-xs uppercase tracking-wider border-b border-slate-100 pb-1 flex items-center gap-1.5">
+                  <span className="w-1.5 h-3 bg-amber-500 rounded-full" />
+                  Querky Holes &amp; Side Games
+                </h4>
+                <div className="space-y-3">
+                  {[
+                    {
+                      hole: 'Hole #3',
+                      title: "Team surprise awaits — RACK 'EM UP",
+                      desc: "Each partner must hole out. Your score is Tee to green strokes + sum of all putts from each partner to hole."
+                    },
+                    {
+                      hole: 'Hole #9',
+                      title: "Worst Ball Putting",
+                      desc: "Both players putt from the ball furthest from pin on the putting surface."
+                    },
+                    {
+                      hole: 'Hole #15',
+                      title: "Do or Die",
+                      desc: "Each player allowed an optional mulligan anywhere on this hole. But once you hit a mulligan, the 1st shot no longer is in play. Keep track of mulligans (tie-breaker)."
+                    }
+                  ].map((q, i) => (
+                    <div key={i} className="p-3.5 bg-slate-50 rounded-xl border border-slate-200">
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <span className="font-mono text-xs font-bold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-900 border border-emerald-200">
+                          {q.hole}
+                        </span>
+                        <h5 className="font-bold text-slate-900 text-xs sm:text-sm">{q.title}</h5>
+                      </div>
+                      <p className="text-xs text-slate-600 leading-relaxed pl-1">{q.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer / Actions */}
+            <div className="bg-slate-50 p-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-end gap-2">
+              <a
+                href="/2026 fbgt proximity holes.pdf"
+                download="2026 fbgt proximity holes.pdf"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm transition cursor-pointer"
+                title="Download 2026 fbgt proximity holes.pdf"
+              >
+                <FileDown className="w-4 h-4 text-white" />
+                <span>Download PDF Flyer</span>
+              </a>
+              <button
+                onClick={() => window.print()}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs sm:text-sm border border-slate-300 transition cursor-pointer"
+                title="Print this sheet"
+              >
+                <Printer className="w-4 h-4 text-slate-500" />
+                <span>Print Rules</span>
+              </button>
+              <button
+                onClick={() => setIsProximityOpen(false)}
+                className="w-full sm:w-auto inline-flex items-center justify-center px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm transition cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 };

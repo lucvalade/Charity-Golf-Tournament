@@ -229,6 +229,37 @@ Tournament Founder
 [Fragrant Breeze Golf Tournament](https://fragrant-breeze-golf-tournament.ai.studio)`,
     isDefault: false,
     updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'tpl-casual-quick-reply',
+    title: 'Casual Quick Reply Logistics',
+    category: 'follow_up',
+    subject: 'Quick check-in on [Company Name]’s sponsorship details – Fragrant Breeze Golf Classic',
+    body: `Hi [Contact Name],
+
+We are so grateful for [Company Name]’s pledged support for the upcoming Fragrant Breeze Memorial Golf Classic!
+
+We are currently putting together our event day run-of-show and want to ensure everything runs smoothly for you and your team. Whenever you have a free two minutes, could you hit reply and give us a quick heads-up on these four quick items?
+
+* **Directing Your Funds:** Are there specific ways you want your sponsorship allocated, or are you comfortable with a portion (such as 10%–20%) supporting our skill prizes and player awards, with the remainder going straight to [Beneficiary Org]?
+
+* **Player Headcount:** Will you be using all of the golfer spots included with your sponsorship package, or will you just be joining us for the awards dinner?
+
+* **Course Signage:** If you have custom banners or pop-up signs for the course, do you want to arrange delivery with us ahead of time, drop them off at Burford Golf Links, or simply bring them with you the morning of the tournament?
+
+* **Player Names:** If you have your foursome or player names handy, feel free to drop them below so we can get your cart badges pre-printed.
+
+Thank you again for championing this cause with us, [Contact Name]—we are looking forward to a fantastic day out at Burford!
+
+Warmly,
+
+[Founder Name]
+Tournament Founder & Chair
+Fragrant Breeze Golf Tournament
+Phone: (905) 818-2005
+Benefiting: [Beneficiary Org]`,
+    isDefault: false,
+    updatedAt: new Date().toISOString()
   }
 ];
 

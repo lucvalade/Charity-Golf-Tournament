@@ -1,0 +1,58 @@
+[
+  {
+    "id": "camp_sched_quick_reply_2026",
+    "leadIds": ["lead_0", "lead_2", "lead_4", "lead_3", "lead_5", "lead_6", "lead_7", "lead_8", "lead_9", "lead_10", "lead_11"],
+    "recipients": [
+      {
+        "leadId": "lead_0",
+        "recipientEmail": "contact@sierravalley.example.com",
+        "recipientName": "Karen Miller",
+        "businessName": "Sierra Valley Wealth Advisory",
+        "city": "Brantford",
+        "targetTier": "Title Sponsor",
+        "status": "Pledged",
+        "openCount": 5
+      },
+      {
+        "leadId": "lead_2",
+        "recipientEmail": "info@kaneffgolf.com",
+        "recipientName": "Corporate Relations",
+        "businessName": "Kaneff Golf Courses",
+        "city": "Brampton",
+        "targetTier": "Eagle Sponsor",
+        "status": "Pledged",
+        "openCount": 4
+      },
+      {
+        "leadId": "lead_4",
+        "recipientEmail": "info@tricitygolf.ca",
+        "recipientName": "Alliance Coordinator",
+        "businessName": "Tricity Golf Courses",
+        "city": "Kitchener",
+        "targetTier": "Eagle Sponsor",
+        "status": "Pledged",
+        "openCount": 3
+      },
+      {
+        "leadId": "lead_3",
+        "recipientEmail": "info@linksgolf.ca",
+        "recipientName": "Tournament Representative",
+        "businessName": "Links Golf Courses",
+        "city": "Burlington",
+        "targetTier": "Corporate Foursome",
+        "status": "Pledged",
+        "openCount": 2
+      }
+    ],
+    "templateId": "tpl-casual-quick-reply",
+    "subjectTemplate": "Quick check-in on [Company Name]’s sponsorship details – Fragrant Breeze Golf Classic",
+    "bodyTemplate": "Hi [Contact Name],\n\nWe are so grateful for [Company Name]’s pledged support for the upcoming Fragrant Breeze Memorial Golf Classic!\n\nWe are currently putting together our event day run-of-show and want to ensure everything runs smoothly for you and your team. Whenever you have a free two minutes, could you hit reply and give us a quick heads-up on these four quick items?\n\n* **Directing Your Funds:** Are there specific ways you want your sponsorship allocated, or are you comfortable with a portion (such as 10%–20%) supporting our skill prizes and player awards, with the remainder going straight to [Beneficiary Org]?\n\n* **Player Headcount:** Will you be using all of the golfer spots included with your sponsorship package, or will you just be joining us for the awards dinner?\n\n* **Course Signage:** If you have custom banners or pop-up signs for the course, do you want to arrange delivery with us ahead of time, drop them off at Burford Golf Links, or simply bring them with you the morning of the tournament?\n\n* **Player Names:** If you have your foursome or player names handy, feel free to drop them below so we can get your cart badges pre-printed.\n\nThank you again for championing this cause with us, [Contact Name]—we are looking forward to a fantastic day out at Burford!\n\nWarmly,\n\n[Founder Name]\nTournament Founder & Chair\nFragrant Breeze Golf Tournament\nPhone: (905) 818-2005\nBenefiting: [Beneficiary Org]",
+    "scheduledForLocal": "2026-09-27T20:00",
+    "timezone": "America/Toronto",
+    "scheduledForUTC": "2026-09-28T00:00:00.000Z",
+    "scheduledForEasternDisplay": "Sunday, September 27, 2026 @ 8:00 PM Eastern Time (EST)",
+    "targetSegment": "all_non_responders",
+    "status": "scheduled",
+    "createdAt": "2026-09-27T15:24:55.000Z"
+  }
+]

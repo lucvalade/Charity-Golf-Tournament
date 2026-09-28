@@ -9,8 +9,55 @@ import { EVENT_DETAILS } from '../data/initialData';
  * - Auto-linking (905) 818-2005 with tel:19058182005 phone dialer
  * - Auto-linking Fragrant Breeze Golf Tournament to https://fragrant-breeze-golf-tournament.ai.studio
  */
+function getLiveMetrics() {
+  let regRevenue = 0;
+  let sponsorRevenue = 0;
+  let directDonationRevenue = 0;
+
+  try {
+    const regsSaved = typeof window !== 'undefined' ? localStorage.getItem('saied_golf_registrations_v4') : null;
+    const regs = regsSaved ? JSON.parse(regsSaved) : [];
+    if (Array.isArray(regs)) {
+      regRevenue = regs.reduce((sum: any, r: any) => sum + (r.totalAmount || 0), 0);
+    }
+  } catch (e) {}
+
+  try {
+    const sponsorsSaved = typeof window !== 'undefined' ? localStorage.getItem('saied_golf_sponsors_v4') : null;
+    const sps = sponsorsSaved ? JSON.parse(sponsorsSaved) : [];
+    if (Array.isArray(sps)) {
+      sps.forEach((s: any) => {
+        const pkgAmount = s.tier === 'presenting' ? 10000 : s.tier === 'eagle' ? 5000 : s.tier === 'birdie' ? 2500 : s.tier === 'hole' ? 500 : s.tier === 'contest' ? 300 : 1000;
+        sponsorRevenue += pkgAmount;
+      });
+    }
+  } catch (e) {}
+
+  try {
+    const donationsSaved = typeof window !== 'undefined' ? localStorage.getItem('saied_golf_donations_v4') : null;
+    const dons = donationsSaved ? JSON.parse(donationsSaved) : [];
+    if (Array.isArray(dons)) {
+      directDonationRevenue = dons.reduce((sum: any, d: any) => sum + (d.amount || 0), 0);
+    }
+  } catch (e) {}
+
+  const totalRaised = regRevenue + sponsorRevenue + directDonationRevenue;
+  // If totalRaised is zero or not loaded, fallback to sample seed total which is $27,800
+  const actualRaised = totalRaised > 0 ? totalRaised : 27800;
+  const goalAmount = EVENT_DETAILS.goalAmount || 20000;
+  const goalPercentage = Math.round((actualRaised / goalAmount) * 100);
+
+  return {
+    totalRaised: actualRaised,
+    goalAmount,
+    goalPercentage
+  };
+}
+
 export function interpolateLetterTokens(rawText: string, lead: OutreachLead): string {
   if (!rawText) return '';
+
+  const { totalRaised, goalAmount, goalPercentage } = getLiveMetrics();
 
   const businessName = lead.businessName || 'Valued Community Partner';
   const recipientName = lead.recipientName || businessName;
@@ -26,6 +73,12 @@ export function interpolateLetterTokens(rawText: string, lead: OutreachLead): st
     // Dynamic fields
     .replace(/\[Target Tier\]/gi, lead.targetTier || 'Hole Sponsor')
     .replace(/\[City\]/gi, lead.city || 'our community')
+    // Dynamic Campaign metrics (139% funded etc)
+    .replace(/\[Total Raised\]/gi, `$${totalRaised.toLocaleString()} CAD`)
+    .replace(/\[Goal Amount\]/gi, `$${goalAmount.toLocaleString()} CAD`)
+    .replace(/\[Goal Percentage\]/gi, `${goalPercentage}%`)
+    .replace(/100%\s+funded/gi, `${goalPercentage}% funded`)
+    .replace(/100%\s+of\s+our\s+campaign\s+goal/gi, `${goalPercentage}% of our campaign goal`)
     // Tournament core info
     .replace(/\[Tournament Date\]/gi, 'Monday, October 5, 2026')
     .replace(/\[Course Location\]/gi, 'Burford Golf Links Course (120 Golf Links Rd., Burford ON)')

@@ -23,7 +23,7 @@ import {
 import { LanguageSelector } from './LanguageSelector';
 
 export const Navbar: React.FC = () => {
-  const { openDonationModal, setIsAdminOpen, isAdminAuthenticated, logoutAdmin, addToast, openApiKeyModal, openQrGeneratorModal } = useTournament();
+  const { openDonationModal, setIsAdminOpen, isAdminAuthenticated, logoutAdmin, addToast, openApiKeyModal, openQrGeneratorModal, setIsLeaderboardOpen } = useTournament();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
@@ -123,6 +123,13 @@ export const Navbar: React.FC = () => {
               <Award className="w-3.5 h-3.5 text-[#D4AF37]" />
               <span>Sponsors</span>
             </button>
+            <button
+              onClick={() => scrollToSection('live-scoring')}
+              className="text-[#D4AF37] hover:text-amber-200 transition flex items-center gap-1 cursor-pointer whitespace-nowrap py-1 font-bold bg-[#14381E]/45 border border-[#D4AF37]/35 rounded-lg px-2.5 transition active:scale-95"
+            >
+              <Trophy className="w-3.5 h-3.5 text-[#D4AF37]" />
+              <span>Live Scoring</span>
+            </button>
             {/* FAQ */}
             <button
               onClick={() => scrollToSection('faq')}
@@ -162,7 +169,7 @@ export const Navbar: React.FC = () => {
                   </button>
                   <button onClick={() => scrollToSection('goal')} className="w-full text-left px-3.5 py-2 hover:bg-emerald-800/60 transition flex items-center gap-2.5 text-xs text-slate-100 hover:text-amber-200 group cursor-pointer">
                     <Target className="w-4 h-4 text-emerald-300 shrink-0" />
-                    <div><div className="font-semibold">2026 Fundraising Goal</div><div className="text-[10px] text-slate-300">Campaign progress &amp; metrics</div></div>
+                    <div><div className="font-semibold">Fundraising Tracker</div><div className="text-[10px] text-slate-300">Campaign progress &amp; metrics</div></div>
                   </button>
                   <button onClick={() => { setMoreMenuOpen(false); openQrGeneratorModal(); }} className="w-full text-left px-3.5 py-2 hover:bg-emerald-800/60 transition flex items-center gap-2.5 text-xs text-amber-200 hover:text-white group cursor-pointer border-t border-emerald-800/80 mt-1">
                     <QrCode className="w-4 h-4 text-[#D4AF37] shrink-0" />
@@ -280,6 +287,13 @@ export const Navbar: React.FC = () => {
               Main Menu
             </div>
             <button
+              onClick={() => { setMobileMenuOpen(false); setIsLeaderboardOpen(true); }}
+              className="flex items-center gap-3 p-2.5 rounded-lg bg-emerald-900/40 border border-[#D4AF37]/30 hover:bg-[#14381E] text-left transition text-[#D4AF37] font-bold"
+            >
+              <Trophy className="w-4 h-4 text-[#D4AF37] shrink-0" />
+              <span>Live Leaderboard</span>
+            </button>
+            <button
               onClick={() => scrollToSection('memorial')}
               className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-emerald-900/80 text-left transition text-slate-100 hover:text-amber-200"
             >
@@ -333,7 +347,7 @@ export const Navbar: React.FC = () => {
                   className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-emerald-900/80 text-left transition text-xs text-slate-200 hover:text-amber-200"
                 >
                   <Target className="w-4 h-4 text-emerald-300 shrink-0" />
-                  <span>2026 Fundraising Goal &amp; Tracker</span>
+                  <span>Memorial Fundraising &amp; Tracker</span>
                 </button>
                 <button
                   onClick={() => {

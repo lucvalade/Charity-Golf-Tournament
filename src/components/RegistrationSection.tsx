@@ -332,7 +332,7 @@ export const RegistrationSection: React.FC = () => {
                   isDinnerHighlighted ? 'text-white' : 'text-slate-600 group-hover:text-white'
                 }`}
               >
-                Join us for an inspiring evening celebrating Naseem Mohammed's legacy with an exceptional banquet dinner. Enjoy the awards presentations, charity auction, and meaningful community fellowship.
+                Join us for an inspiring evening celebrating Naseem Mohammed's legacy with an exceptional banquet dinner. Enjoy the awards presentations and meaningful community fellowship.
               </p>
 
               <div
@@ -347,22 +347,6 @@ export const RegistrationSection: React.FC = () => {
                     }`}
                   />
                   <span>Turkey dinner &amp; awards banquet access</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle2
-                    className={`w-4 h-4 shrink-0 mt-0.5 transition-colors ${
-                      isDinnerHighlighted ? 'text-white' : 'text-emerald-600 group-hover:text-white'
-                    }`}
-                  />
-                  <span>Silent auction &amp; charity raffle</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle2
-                    className={`w-4 h-4 shrink-0 mt-0.5 transition-colors ${
-                      isDinnerHighlighted ? 'text-white' : 'text-emerald-600 group-hover:text-white'
-                    }`}
-                  />
-                  <span>Naseem Mohammed memorial tribute</span>
                 </div>
               </div>
             </div>

@@ -49,11 +49,11 @@ export const FundraisingTracker: React.FC = () => {
             <div className="lg:col-span-7 space-y-6">
               <div className="flex items-center gap-2">
                 <span className="p-2 rounded-lg bg-emerald-100 text-[#1E4D2B]">
-                  <Target className="w-5 h-5" />
+                  <TrendingUp className="w-5 h-5" />
                 </span>
                 <div>
                   <h3 className="text-xl sm:text-2xl font-bold text-slate-900 font-serif-heading">
-                    <span style={{ fontSize: '20px' }} className="text-[20px] font-extrabold inline-block">2026</span> Memorial Goal
+                    <span style={{ fontSize: '20px' }} className="text-[20px] font-extrabold inline-block">2026</span> Memorial Fundraising
                   </h3>
                   <p className="text-xs sm:text-sm text-slate-500">
                     Supporting Juravinski Breast Cancer Research (75%) &amp; Canadian Red Cross - Fire &amp; Flood (25%)
@@ -67,31 +67,12 @@ export const FundraisingTracker: React.FC = () => {
                   ${(totalRaised || 0).toLocaleString()}
                 </span>
                 <span className="text-lg sm:text-xl font-medium text-slate-500">
-                  raised of <strong className="text-slate-800 font-semibold">${(goalAmount || 2000).toLocaleString()}</strong> goal
+                  Total Funds Raised in Memoriam
                 </span>
-                <div className="p-[2px] rounded-full bg-gradient-to-r from-[#1E4D2B] via-[#D4AF37] via-rose-500 to-emerald-500 shadow-xs inline-block">
+                <div className="p-[2px] rounded-full bg-gradient-to-r from-[#1E4D2B] via-[#D4AF37] to-emerald-500 shadow-xs inline-block">
                   <span className="block px-3.5 py-1 text-[13.8px] sm:text-[14px] font-extrabold rounded-full bg-emerald-50 text-emerald-950 font-mono tracking-tight">
-                    {goalPercentage || 0}% Funded
+                    100% Charity Allocation
                   </span>
-                </div>
-              </div>
-
-              {/* Visual Thermometer */}
-              <div className="space-y-2">
-                <div className="w-full h-5 bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-300 shadow-inner">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${goalPercentage || 0}%` }}
-                    transition={{ duration: 1.2, ease: "easeOut" }}
-                    className="h-full bg-gradient-to-r from-[#1E4D2B] via-[#15803D] to-[#D4AF37] rounded-full relative"
-                  >
-                    <div className="absolute right-0 top-0 bottom-0 w-2 bg-white/40 rounded-full animate-pulse" />
-                  </motion.div>
-                </div>
-                <div className="flex justify-between text-xs font-semibold text-slate-500">
-                  <span>$0</span>
-                  <span className="text-[#1E4D2B] font-bold">Current: ${(totalRaised || 0).toLocaleString()}</span>
-                  <span>${(goalAmount || 2000).toLocaleString()} (Target Goal)</span>
                 </div>
               </div>
 
@@ -117,15 +98,8 @@ export const FundraisingTracker: React.FC = () => {
                         ${Math.round(juravinskiRaised).toLocaleString()}
                       </span>
                     </div>
-                    <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-                      <div
-                        className="bg-emerald-600 h-full rounded-full transition-all duration-500"
-                        style={{ width: `${juravinskiPct}%` }}
-                      />
-                    </div>
                     <div className="flex justify-between text-[10px] text-slate-500 mt-1">
-                      <span>{juravinskiPct}% funded</span>
-                      <span>Target: ${Math.round(juravinskiTarget).toLocaleString()}</span>
+                      <span>75% Split Amount</span>
                     </div>
                   </div>
 
@@ -143,15 +117,8 @@ export const FundraisingTracker: React.FC = () => {
                         ${Math.round(redCrossRaised).toLocaleString()}
                       </span>
                     </div>
-                    <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-                      <div
-                        className="bg-rose-600 h-full rounded-full transition-all duration-500"
-                        style={{ width: `${redCrossPct}%` }}
-                      />
-                    </div>
                     <div className="flex justify-between text-[10px] text-slate-500 mt-1">
-                      <span>{redCrossPct}% funded</span>
-                      <span>Target: ${Math.round(redCrossTarget).toLocaleString()}</span>
+                      <span>25% Split Amount</span>
                     </div>
                   </div>
                 </div>

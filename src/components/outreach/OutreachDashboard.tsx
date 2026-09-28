@@ -32,7 +32,8 @@ import {
   Bell,
   ShieldCheck,
   Check,
-  X
+  X,
+  Phone
 } from 'lucide-react';
 import { useTournament } from '../../context/TournamentContext';
 import { OutreachLead, OutreachLeadStatus, OutreachTargetTier, OutreachEmailTemplate } from '../../types';
@@ -1341,10 +1342,19 @@ export const OutreachDashboard: React.FC = () => {
                           )}
                         </div>
                         {/* Email Address directly under Company */}
-                        <div className="font-mono text-slate-500 text-xs mt-0.5 break-all">
-                          {lead.emailAddress}
+                        <div className="font-mono text-slate-500 text-xs mt-0.5 break-all flex items-center gap-1">
+                          <span className="text-slate-400">Email:</span>
+                          <span>{lead.emailAddress}</span>
                         </div>
-                        {/* Contact Name & Phone */}
+                        {/* Contact Number / Phone */}
+                        {lead.contactNumber && (
+                          <div className="font-mono text-[#1E4D2B] text-xs mt-0.5 flex items-center gap-1 font-semibold">
+                            <span className="text-slate-400 font-normal">Phone:</span>
+                            <Phone className="w-2.5 h-2.5 text-emerald-600 inline shrink-0" />
+                            <span>{lead.contactNumber}</span>
+                          </div>
+                        )}
+                        {/* Contact Name */}
                         {lead.recipientName && lead.recipientName !== lead.businessName && (
                           <div className="text-slate-400 text-[11px] mt-0.5">
                             Attn: <span className="font-medium text-slate-600">{lead.recipientName}</span>
@@ -1782,7 +1792,7 @@ export const OutreachDashboard: React.FC = () => {
                 </div>
               </div>
 
-              {/* Pledged Companies Table Preview */}
+               {/* Pledged Companies Table Preview */}
               <div>
                 <span className="font-bold text-slate-900 uppercase text-[10px] tracking-wider block mb-1.5">
                   Confirmed Pledges Breakdown ({stats.pledgedCount})
@@ -1792,6 +1802,7 @@ export const OutreachDashboard: React.FC = () => {
                     <thead className="bg-slate-100 text-slate-600 font-bold border-b border-slate-200">
                       <tr>
                         <th className="py-2 px-3">Business</th>
+                        <th className="py-2 px-3">Phone</th>
                         <th className="py-2 px-3">Tier</th>
                         <th className="py-2 px-3 text-right">Pledged</th>
                       </tr>
@@ -1802,6 +1813,7 @@ export const OutreachDashboard: React.FC = () => {
                         .map((lead) => (
                           <tr key={lead.id} className="hover:bg-slate-50">
                             <td className="py-1.5 px-3 font-bold text-slate-800">{lead.businessName}</td>
+                            <td className="py-1.5 px-3 font-mono text-[10px] text-slate-600">{lead.contactNumber || 'N/A'}</td>
                             <td className="py-1.5 px-3 text-slate-500">{lead.targetTier}</td>
                             <td className="py-1.5 px-3 text-right font-mono font-bold text-emerald-700">
                               ${(Number(lead.pledgedAmount) || 0).toLocaleString()}

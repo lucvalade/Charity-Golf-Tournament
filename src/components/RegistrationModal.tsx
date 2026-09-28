@@ -305,10 +305,10 @@ CASH PAYMENT INSTRUCTIONS FOR THE GOLFER
   Present your confirmation code [${code}] at the desk. Our welcome team will provide a signed physical cash receipt, your player credentials, raffle tickets, and golf cart keys.
 • Status: SPOT RESERVED (Pending cash payment at check-in)`;
     } else {
-      subject = `Registration Confirmation & Interac e-Transfer Instructions • 2026 Fragrant Breeze Golf Classic [Code: ${code}]`;
-      methodBadge = 'Interac e-Transfer (fragrant.breeze2023@gmail.com)';
+       subject = `Registration Confirmation & Interac e-Transfer Instructions • 2026 Fragrant Breeze Golf Classic [Code: ${code}]`;
+      methodBadge = 'Interac e-Transfer (sbmohammed79@gmail.com)';
       actionHighlights = [
-        { label: 'Send e-Transfer To', value: 'fragrant.breeze2023@gmail.com' },
+        { label: 'Send e-Transfer To', value: 'sbmohammed79@gmail.com' },
         { label: 'Recipient Name', value: 'Saied Mohammed' },
         { label: 'Transfer Amount', value: `$${totalDue} CAD` },
         { label: 'Fee Allocation Breakdown', value: `$30 Charitable Donation + ${totalDue === 100 ? '$70' : '$90'} Golf Course & Cart Fees` },
@@ -320,7 +320,7 @@ INTERAC E-TRANSFER INSTRUCTIONS FOR THE GOLFER
 =======================================================
 • Open your online banking app and initiate an Interac e-Transfer.
 • Recipient Name: Saied Mohammed
-• Recipient Email: fragrant.breeze2023@gmail.com
+• Recipient Email: sbmohammed79@gmail.com
 • Transfer Amount: $${totalDue} CAD
 • Fee Breakdown: Out of your $${totalDue} fee, $30 is the actual charitable donation amount ($30 to charity, ${totalDue === 100 ? '$70' : '$90'} to golf fees).
 • Required Memo / Message: 2026 Memorial Golf - ${golferName} - ${code}
@@ -371,7 +371,7 @@ TOURNAMENT DAY ITINERARY (MONDAY, OCTOBER 5, 2026)
 CONTACT & QUESTIONS
 =======================================================
 If you have any questions or need to make adjustments:
-• Tournament Founder: Saied Mohammed (fragrant.breeze2023@gmail.com)
+• Tournament Founder: Saied Mohammed (sbmohammed79@gmail.com)
 • Tournament Administrator: Luc Valade (luc.valade@gmail.com)
 
 Thank you for your generous support of Hamilton Health Sciences Foundation & Juravinski Cancer Centre in honor of Naseem Mohammed. See you on the green!
@@ -471,7 +471,7 @@ Burford Golf Links Course • October 5, 2026
     return `ATTENTION: Luc Valade (luc.valade@gmail.com)
 TOURNAMENT: Fragrant Breeze Golf Tournament (Fragrant Breeze Memorial Classic)
 PRE-LAUNCH ROUTING: Registration routed to Luc Valade (luc.valade@gmail.com)
-FOUNDER: Saied Mohammed (fragrant.breeze2023@gmail.com)
+FOUNDER: Saied Mohammed (sbmohammed79@gmail.com)
 
 NEW GOLFER REGISTRATION RECEIVED (${methodLabel})
 
@@ -533,7 +533,7 @@ Bring cash to the 9:30 AM event check-in desk or prior to Saied Mohammed.
 Memo Line: 2026 Memorial Golf
 Total Amount: $${total.toLocaleString()} CAD`
     : `Interac e-Transfer Instructions:
-Send e-Transfer to: fragrant.breeze2023@gmail.com
+Send e-Transfer to: sbmohammed79@gmail.com
 Total Amount: $${total.toLocaleString()} CAD
 Memo / Transfer Note: 2026 Memorial Golf
 Status: PENDING RECEIPT BY SAIED MOHAMMED`
@@ -563,7 +563,7 @@ Status: PENDING RECEIPT BY SAIED MOHAMMED`
       paymentMethod
     });
 
-    // Send the email in the backend to Saied Mohammed (fragrant.breeze2023@gmail.com) via Google Workspace Gmail SMTP
+    // Send the email in the backend to Saied Mohammed (sbmohammed79@gmail.com) via Google Workspace Gmail SMTP
     let emailSuccess = false;
     let emailErrorMsg = '';
 
@@ -1320,13 +1320,13 @@ Status: PENDING RECEIPT BY SAIED MOHAMMED`
                     <span>
                       Payment can only be made via <strong>Cash</strong> at the event or prior to Saied, <strong>Cheque</strong> payable to Saied Mohammed, or <strong>Interac e-Transfer</strong> to{' '}
                       <span className="inline-flex items-center gap-1 font-mono font-bold text-emerald-950 bg-emerald-100/90 px-1.5 py-0.5 rounded border border-emerald-300">
-                        <span>fragrant.breeze2023@gmail.com</span>
+                        <span>sbmohammed79@gmail.com</span>
                         <button
                           type="button"
                           onClick={() => {
-                            navigator.clipboard.writeText('fragrant.breeze2023@gmail.com');
+                            navigator.clipboard.writeText('sbmohammed79@gmail.com');
                             setCopiedDetails(true);
-                            addToast('info', 'Email Copied', 'fragrant.breeze2023@gmail.com copied to clipboard.');
+                            addToast('info', 'Email Copied', 'sbmohammed79@gmail.com copied to clipboard.');
                             setTimeout(() => setCopiedDetails(false), 2000);
                           }}
                           className="p-1 rounded bg-white hover:bg-emerald-200 text-emerald-800 transition cursor-pointer shadow-2xs"
@@ -1421,11 +1421,11 @@ Status: PENDING RECEIPT BY SAIED MOHAMMED`
                         <span className="text-slate-500 font-medium block mb-1">Send e-Transfer To:</span>
                         <div className="flex items-center gap-2">
                           <span className="font-mono font-bold text-[#1E4D2B] bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 block w-full text-center">
-                            fragrant.breeze2023@gmail.com
+                            sbmohammed79@gmail.com
                           </span>
                           <button
                             onClick={() => {
-                              navigator.clipboard.writeText('fragrant.breeze2023@gmail.com');
+                              navigator.clipboard.writeText('sbmohammed79@gmail.com');
                               setCopiedDetails(true);
                               setTimeout(() => setCopiedDetails(false), 2000);
                             }}
@@ -1711,7 +1711,7 @@ Status: PENDING RECEIPT BY SAIED MOHAMMED`
 
               <div className="flex flex-wrap items-center gap-2 pt-1">
                 <a
-                  href={`mailto:luc.valade@gmail.com?cc=fragrant.breeze2023@gmail.com&subject=${encodeURIComponent(
+                  href={`mailto:luc.valade@gmail.com?cc=sbmohammed79@gmail.com&subject=${encodeURIComponent(
                     `[2026 Memorial Golf] ${
                       confirmedRecord.paymentMethod === 'cheque'
                         ? 'Cheque'
